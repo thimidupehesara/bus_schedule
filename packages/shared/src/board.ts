@@ -20,6 +20,8 @@ export interface BoardResult {
   totalRows: number;
 }
 
+export const MAX_DEPARTED_ROWS = 2;
+
 const MINUTE = 60_000;
 const DAY = 1440 * MINUTE;
 const COLOMBO_OFFSET = 330 * MINUTE;
@@ -56,7 +58,7 @@ function paginate(
 export function buildBoard(
   doc: ScheduleDocument,
   nowMs: number,
-  opts?: { clockSynced?: boolean },
+  opts?: { clockSynced?: boolean; maxDepartedRows?: number },
 ): BoardResult {
   const { rowsPerPage, departedGraceMinutes, soonThresholdMinutes, lookaheadHours } = doc.display;
   const services = doc.services.filter((service) => service.active);
@@ -89,6 +91,7 @@ export function buildBoard(
   for (const service of services) {
     const departureMinutes =
       Number(service.departure.slice(0, 2)) * 60 + Number(service.departure.slice(3));
+    let foundNormal = false;
     for (const { dayOffset, weekday, start } of dates) {
       if (!service.days.includes(weekday)) continue;
       const departureAt = start + departureMinutes * MINUTE;
@@ -98,14 +101,29 @@ export function buildBoard(
       const status =
         minutesUntil < 0 ? 'DEPARTED' : minutesUntil <= soonThresholdMinutes ? 'SOON' : 'UPCOMING';
       const row: BoardRow = { service, departureAt, dayOffset, minutesUntil, status };
-      (departureAt <= last ? rows : fallback).push(row);
-      break;
+      if (!foundNormal && departureAt <= last) {
+        rows.push(row);
+        foundNormal = true;
+      }
+      if (status !== 'DEPARTED') {
+        fallback.push(row);
+        break;
+      }
     }
   }
 
   const order = (a: BoardRow, b: BoardRow) =>
     a.departureAt - b.departureAt || compareServices(a.service, b.service);
-  if (rows.length) return paginate(rows.sort(order), rowsPerPage, 'NORMAL', false);
+  const requestedCap = opts?.maxDepartedRows ?? MAX_DEPARTED_ROWS;
+  const cap = Number.isNaN(requestedCap)
+    ? MAX_DEPARTED_ROWS
+    : Math.max(0, Math.floor(requestedCap));
+  const departed = rows
+    .filter((row) => row.status === 'DEPARTED')
+    .sort((a, b) => b.departureAt - a.departureAt || compareServices(a.service, b.service))
+    .slice(0, cap);
+  const visible = [...departed, ...rows.filter((row) => row.status !== 'DEPARTED')];
+  if (visible.length) return paginate(visible.sort(order), rowsPerPage, 'NORMAL', false);
   const next = fallback.sort(order).slice(0, rowsPerPage * 2);
   return paginate(next, rowsPerPage, next.length ? 'NORMAL' : 'NO_SERVICES', true);
 }

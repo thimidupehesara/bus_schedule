@@ -168,3 +168,13 @@ staff UI. The server repeats validation and remains authoritative.
   older than 14 Colombo calendar days, expired alerts, near duplicates (same
   endpoints within five minutes on overlapping days), and >20 active departures
   in a clock hour on an actual ISO weekday. Warnings never bypass blocking errors.
+
+## Display settings
+
+| Field                | Accepted range | Default |
+| -------------------- | -------------- | ------- |
+| rowsPerPage          | 2–6            | 5       |
+| dwellSeconds         | 6–30           | 10      |
+| departedGraceMinutes | 0–60           | 15      |
+
+Existing published settings remain valid and retain their stored values.

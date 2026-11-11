@@ -150,10 +150,10 @@ export type AlertBanner = z.infer<typeof AlertBannerSchema>;
 // ---------------------------------------------------------------------------
 
 export const DisplaySettingsSchema = z.object({
-  /** Number of bus rows shown per page. Default 3, range 2–6. */
+  /** Number of bus rows shown per page. Default 5, range 2–6. */
   rowsPerPage: z.number().int().min(2).max(6),
 
-  /** Seconds each page is shown before rotating. Default 12, range 6–30. */
+  /** Seconds each page is shown before rotating. Default 10, range 6–30. */
   dwellSeconds: z.number().int().min(6).max(30),
 
   /** Cross-fade animation duration in milliseconds. Default 300, range 0–1000. */
@@ -161,9 +161,9 @@ export const DisplaySettingsSchema = z.object({
 
   /**
    * How many minutes after a scheduled departure the row stays visible.
-   * Default 5, range 0–15.
+   * Default 15, range 0–60.
    */
-  departedGraceMinutes: z.number().int().min(0).max(15),
+  departedGraceMinutes: z.number().int().min(0).max(60),
 
   /**
    * Departures within this many minutes are highlighted as "SOON".
@@ -200,10 +200,10 @@ export type DisplaySettings = z.infer<typeof DisplaySettingsSchema>;
 
 /** Exported defaults so both the TV app and admin portal can share them. */
 export const DEFAULT_DISPLAY_SETTINGS: DisplaySettings = {
-  rowsPerPage: 3,
-  dwellSeconds: 12,
+  rowsPerPage: 5,
+  dwellSeconds: 10,
   fadeMs: 300,
-  departedGraceMinutes: 5,
+  departedGraceMinutes: 15,
   soonThresholdMinutes: 15,
   lookaheadHours: 8,
   safeAreaPercent: 3.5,

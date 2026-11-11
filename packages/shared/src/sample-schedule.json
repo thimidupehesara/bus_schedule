@@ -13,10 +13,10 @@
   },
   "alert": null,
   "display": {
-    "rowsPerPage": 3,
-    "dwellSeconds": 12,
+    "rowsPerPage": 5,
+    "dwellSeconds": 10,
     "fadeMs": 300,
-    "departedGraceMinutes": 5,
+    "departedGraceMinutes": 15,
     "soonThresholdMinutes": 15,
     "lookaheadHours": 8,
     "safeAreaPercent": 3.5,
