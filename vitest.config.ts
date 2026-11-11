@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     include: [
       'packages/*/src/**/__tests__/**/*.test.ts',
+      'apps/tv/src/**/__tests__/**/*.test.ts',
       'workers/api/src/**/__tests__/**/*.test.ts',
     ],
     coverage: {

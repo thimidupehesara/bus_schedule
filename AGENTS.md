@@ -11,7 +11,7 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 ## Architecture
 
 - One Cloudflare Worker, `mahiyanganaya-bus`, and D1 serve `/tv/`, `/admin/`, staff-only `/api/*`, public `/schedule.json`, and `/health`. The public schedule uses ETag/304 and no-cache.
-- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The offline implementation is pending.
+- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The table currently polls and keeps the last valid document in memory. Persistent caching and clock recovery are pending.
 - Staff sign in through Cloudflare Access email one-time PIN. The Worker independently verifies the Access JWT on every `/api/*` request. ADMIN and EDITOR roles live in the D1 `users` table.
 - Staff edit a draft and publish separately. Published snapshots are immutable. Rollback creates a new version. Keep 50 snapshots. The backend supports rollback and the staff UI will expose it as a one-click action.
 - Later Android task: a minimal Kotlin WebView Home-launcher APK for the budget Q96L2 box with WebView 119, 1–2 GB RAM, no RTC battery and frequent power cuts.
@@ -37,7 +37,7 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 ## Repo map and commands
 
 - `packages/shared` — schema, validation, board engine, time formatting and bilingual labels.
-- `apps/tv` — TV Vite app, currently a placeholder with a development fixture.
+- `apps/tv` — TV timetable table, development fixture and in-memory schedule polling.
 - `apps/admin` — staff Vite app, currently a placeholder.
 - `workers/api` — Cloudflare Worker, D1 migrations, API and local tools.
 
@@ -71,14 +71,14 @@ Root commands, all invoked with `npm run <script>`:
 | Shared strict validation                                                        | Done    |
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
-| TV table UI (Antigravity)                                                       | Pending |
+| TV table UI                                                                     | Done    |
 | TV offline engine, polling, clock recovery and watchdog                         | Pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
 | Kotlin launcher                                                                 | Pending |
 | First deploy                                                                    | Pending |
 
-The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. This branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
+The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. The board labels branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
 
 ## Open owner items
 
@@ -96,3 +96,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-12 — Fixed historical rollback, JWKS cooldown, duplicate emails and the public ignore rule (`75975db`).
 - 2026-11-12 — Added Colombo board engine, 12-hour formatting and TV development mock (`3386654`).
 - 2026-11-12 — Widened departure grace range, updated defaults, capped departed rows and added bilingual labels and this handover.
+
+- 2026-11-12 — Built and browser-checked the TV table on feature/tv-table-ui. TV config defines COLUMNS, SHOW_BAY_COLUMN (false), and CREDITS (placeholder). Preview flags: ?mock=1, &now=2026-11-12T23:50, &rows=3–6, &alert=critical, and ?unavailable=1. The QR encoder supports serialized URLs up to 106 bytes. Physical viewing-distance and Android box checks remain open. See [TV screenshots](docs/screenshots/README.md).
