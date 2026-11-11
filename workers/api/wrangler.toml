@@ -1,13 +1,19 @@
-name = "bus-display-api"
+name = "mahiyanganaya-bus"
 main = "src/index.ts"
 compatibility_date = "2026-11-11"
 
-# ---------------------------------------------------------------------------
-# D1 Database binding — TODO: uncomment and fill in after running:
-#   wrangler d1 create bus-schedule-db
-# ---------------------------------------------------------------------------
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "bus-schedule-db"
-# database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*", "/schedule.json", "/health"]
+not_found_handling = "none"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "mahiyanganaya-bus-db"
+database_id = "REPLACE_WITH_REAL_ID_AFTER_d1_create"
+migrations_dir = "migrations"
+
+[vars]
+TEAM_DOMAIN = "REPLACE_ME"
+ACCESS_AUD = "REPLACE_ME"

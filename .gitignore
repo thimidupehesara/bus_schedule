@@ -12,6 +12,9 @@ build/
 .env
 .env.*
 .dev.vars
+.dev.vars.*
+.env*
+public/
 *.keystore
 *.jks
 local.properties

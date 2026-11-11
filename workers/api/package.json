@@ -4,17 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --local",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
-    "deploy": "echo 'Run: wrangler deploy (requires auth)'"
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local"
   },
   "dependencies": {
     "@bus-schedule/shared": "*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241218.0",
-    "wrangler": "^3.99.0"
+    "wrangler": "^4.0.0"
   }
 }
-
