@@ -1,0 +1,43 @@
+{
+  "private": true,
+  "name": "bus-schedule-monorepo",
+  "version": "0.0.1",
+  "workspaces": [
+    "apps/*",
+    "workers/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:tv": "npm run dev --workspace=apps/tv",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "dev:api": "npm run dev --workspace=workers/api",
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --build --force",
+    "validate:sample": "npx tsx packages/shared/scripts/validate-sample.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1",
+    "vitest": "^2.1.8"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.21.5": true,
+    "esbuild@0.17.19": true,
+    "workerd@1.20250718.0": true,
+    "sharp@0.33.5": true
+  }
+}
