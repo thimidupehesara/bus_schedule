@@ -90,7 +90,7 @@ describe('Colombo board', () => {
     const result = buildBoard(
       doc(
         times.map((departure) => service(departure)),
-        { lookaheadHours: 1 },
+        { lookaheadHours: 1, departedGraceMinutes: 5 },
       ),
       at(9, '10:00'),
     );
@@ -114,7 +114,7 @@ describe('Colombo board', () => {
     const c = service('23:59', { id: 'c', destination: { en: 'Kandy', si: 'Kandy' } });
     const input = doc([c, b, { ...a, active: false }, a], { lookaheadHours: 24 });
     const before = structuredClone(input);
-    const result = buildBoard(input, at(10, '00:00'));
+    const result = buildBoard(input, at(10, '00:00'), { maxDepartedRows: Infinity });
     expect(rows(result).map((row) => row.service.id)).toEqual(['a', 'b', 'c']);
     expect(rows(result).every((row) => row.dayOffset === -1)).toBe(true);
     expect(input).toEqual(before);
@@ -122,8 +122,8 @@ describe('Colombo board', () => {
   it.each([
     [0, []],
     [1, [1]],
-    [3, [3]],
-    [4, [3, 1]],
+    [5, [5]],
+    [6, [5, 1]],
   ] as const)('pages %i rows', (count, lengths) => {
     const result = buildBoard(
       doc(Array.from({ length: count }, (_, i) => service('10:00', { id: String(i) }))),
@@ -195,4 +195,30 @@ describe('Colombo board', () => {
       expect(result.usedFallbackWindow).toBe(false);
     }
   });
+});
+
+it('caps departed rows across the board, retaining the newest and all upcoming rows', () => {
+  const input = doc(
+    ['09:50', '09:55', '09:59', '10:01'].map((time, i) => service(time, { id: String(i) })),
+  );
+  const now = at(9, '10:00');
+  expect(rows(buildBoard(input, now)).map((row) => row.service.departure)).toEqual([
+    '09:55',
+    '09:59',
+    '10:01',
+  ]);
+  expect(
+    rows(buildBoard(input, now, { maxDepartedRows: 1 })).map((row) => row.service.departure),
+  ).toEqual(['09:59', '10:01']);
+  expect(rows(buildBoard(input, now, { maxDepartedRows: Infinity }))).toHaveLength(4);
+});
+
+it('uses upcoming fallback when the cap removes every qualifying row', () => {
+  const input = doc([service('09:59', { days: [1, 2] })]);
+  const result = buildBoard(input, at(9, '10:00'), { maxDepartedRows: 0 });
+  expect(result.usedFallbackWindow).toBe(true);
+  expect(rows(result)).toMatchObject([{ dayOffset: 1, status: 'UPCOMING' }]);
+  expect(
+    buildBoard(input, at(9, '10:00'), { clockSynced: false, maxDepartedRows: 0 }).totalRows,
+  ).toBe(1);
 });

@@ -15,18 +15,17 @@ describe('validateScheduleDocument — valid inputs', () => {
   it('accepts a midnight-crossing time like "00:30"', () => {
     const doc = structuredClone(sampleSchedule);
     // departure of service 0 is already "01:00"; set it to "00:30"
-    (doc as Record<string, unknown>)['services'] = (
-      sampleSchedule.services as unknown[]
-    ).map((s, i) =>
-      i === 0 ? { ...(s as object), departure: '00:30' } : s,
+    (doc as Record<string, unknown>)['services'] = (sampleSchedule.services as unknown[]).map(
+      (s, i) => (i === 0 ? { ...(s as object), departure: '00:30' } : s),
     );
     const result = validateScheduleDocument(doc);
     expect(result.ok).toBe(true);
   });
 
   it('exports DEFAULT_DISPLAY_SETTINGS with correct values', () => {
-    expect(DEFAULT_DISPLAY_SETTINGS.rowsPerPage).toBe(3);
-    expect(DEFAULT_DISPLAY_SETTINGS.dwellSeconds).toBe(12);
+    expect(DEFAULT_DISPLAY_SETTINGS.rowsPerPage).toBe(5);
+    expect(DEFAULT_DISPLAY_SETTINGS.dwellSeconds).toBe(10);
+    expect(DEFAULT_DISPLAY_SETTINGS.departedGraceMinutes).toBe(15);
     expect(DEFAULT_DISPLAY_SETTINGS.reloadAtLocalTime).toBe('02:30');
   });
 });
@@ -119,3 +118,10 @@ describe('validateScheduleDocument — invalid inputs', () => {
   });
 });
 
+it.each([0, 15, 60, 61])('validates a departed grace of %i minutes', (departedGraceMinutes) => {
+  const result = validateScheduleDocument({
+    ...sampleSchedule,
+    display: { ...sampleSchedule.display, departedGraceMinutes },
+  });
+  expect(result.ok).toBe(departedGraceMinutes <= 60);
+});
