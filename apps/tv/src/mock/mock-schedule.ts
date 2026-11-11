@@ -1,4 +1,5 @@
 // DEV ONLY. Never bundled into production.
+import { DEFAULT_SAFE_AREA_PERCENT } from '../config.js';
 import type { BusService, ScheduleDocument } from '@bus-schedule/shared';
 
 const places = [
@@ -98,7 +99,7 @@ export const mockSchedule: ScheduleDocument = {
     departedGraceMinutes: 5,
     soonThresholdMinutes: 15,
     lookaheadHours: 8,
-    safeAreaPercent: 3.5,
+    safeAreaPercent: DEFAULT_SAFE_AREA_PERCENT,
     pollIntervalSeconds: 180,
     reloadAtLocalTime: '02:30',
   },

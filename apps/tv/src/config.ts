@@ -2,7 +2,26 @@ import { dayLabel, LABELS, type Weekday } from '@bus-schedule/shared';
 
 export const SHOW_BAY_COLUMN = false;
 export const SHOW_LAST_VERIFIED = false;
-export const CREDITS_NAME = 'Thimidu';
+export const CREDITS_NAME: string = '';
+export const SHOW_VIA = false;
+export const DEFAULT_SAFE_AREA_PERCENT = 2;
+export const WEEKDAY_CODES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] as const;
+export const TEXT_MIN_SCALE = 0.7;
+export const TV_TYPE = {
+  '--type-floor': '2.407407vh',
+  '--title-size': '4.1vh',
+  '--clock-size': '6.11vh',
+  '--date-size': '3.37vh',
+  '--row-padding': '0.04',
+  '--row-divider': '1px',
+  '--time-scale': '0.55',
+  '--time-width-cap': '5.25vw',
+  '--header-row-min': '6.4vh',
+  '--destination-si-scale': '0.39',
+  '--destination-en-scale': '0.25',
+  '--from-scale': '0.30',
+  '--support-scale': '0.19',
+} as const;
 export const CREDITS_PREFIX = 'නිර්මාණය:';
 
 // Owner must review these additional Sinhala strings.
@@ -14,11 +33,11 @@ export const COPY = {
 };
 
 export const COLUMNS = [
-  { key: 'destination', width: 30 },
-  { key: 'departure', width: 17 },
-  { key: 'arrival', width: 15 },
-  { key: 'from', width: 20 },
-  { key: 'service', width: 18 },
+  { key: 'destination', width: 26 },
+  { key: 'departure', width: 19 },
+  { key: 'arrival', width: 19 },
+  { key: 'from', width: 19 },
+  { key: 'service', width: 17 },
 ] as const;
 
 export function getColumns(showBay = SHOW_BAY_COLUMN) {

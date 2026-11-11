@@ -30,8 +30,8 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 - Use a table, not cards. Aim for 4–6 rows per page, default 5. The schema continues to accept 2–6 for older snapshots. Keep pages stationary with no scrolling, a fade, and a “Page X / Y” indicator. Default dwell is 10 seconds.
 - Grey out departed buses and label them “Departed / පිටත් විය” during `departedGraceMinutes` (default 15, max 60). Keep at most `MAX_DEPARTED_ROWS` (2) across the board.
 - Tag the next calendar day's buses “Tomorrow / හෙට” and tint departures inside `soonThresholdMinutes`. Do not flash.
-- Pair Sinhala with English. Bundle Sinhala and Inter fonts locally. Allow 3.5% safe-area padding for TV overscan. Never label the screen “LIVE”.
-- Include a staff-editable alert and a permanent footer with QR code, short URL and credits. The last-verified date is available through SHOW_LAST_VERIFIED and hidden by default.
+- Pair Sinhala with English. Bundle Sinhala and Inter fonts locally. Use the published safe area for TV overscan, with a 2% TV fallback when it is missing. Never label the screen “LIVE”.
+- Include a staff-editable alert and a permanent footer with a QR code, short URL, page indicator and countdown. Credits and last-verified date are configurable and hidden by default.
 - Force Asia/Colombo time, use the HTTP Date header for clock offset, and run the watchdog reload at 02:30 AM. If the clock appears wrong before syncing (year < 2026), show “Clock syncing...” and the full active schedule in `CLOCK_UNSYNCED` mode.
 
 ## Repo map and commands
@@ -100,3 +100,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-12 — Built and browser-checked the TV table on feature/tv-table-ui. TV config defines COLUMNS, SHOW_BAY_COLUMN (false), and CREDITS (placeholder). Preview flags: ?mock=1, &now=2026-11-12T23:50, &rows=3–6, &alert=critical, and ?unavailable=1. The QR encoder supports serialized URLs up to 106 bytes. Physical viewing-distance and Android box checks remain open. See [TV screenshots](docs/screenshots/README.md).
 
 - 2026-11-12 — Polished the TV header and footer on feature/tv-polish. The Sinhala title is one line, the clock stacks English over Sinhala meridiem, and the footer shows the Thimidu credit and a dwell countdown. Reduced motion uses a static ring with whole seconds. A temporary local browser check verified an 80-character Sinhala destination with a via line at 1920×1080 and 1280×720.
+
+- 2026-11-12 — Updated TV proportions and text fitting on feature/tv-polish-2. The TV fills the viewport, falls back to a 2% safe area, and gives the clock and two-line date more room. Arrival and departure use the same size; From values are Sinhala only. Via and empty credits are hidden by default. Verified long names and title with 3, 5 and 6 rows at 1920×1080, 1366×768 and 1280×720.

@@ -11,6 +11,12 @@
   line-height: 1.45;
   font-synthesis: none;
 }
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
 body {
   margin: 0;
   overflow: hidden;
@@ -24,8 +30,8 @@ body {
 }
 .screen {
   box-sizing: border-box;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   padding: calc(var(--safe) * 1vh) calc(var(--safe) * 1vw);
   display: flex;
   flex-direction: column;
@@ -34,10 +40,13 @@ body {
   --alert: 0vh;
   --note: 0vh;
   --table-h: calc(
-    100vh - var(--safe) * 2vh - var(--masthead) - var(--footer) - var(--alert) - var(--note) - 0.4vh
+    100vh - var(--safe) * 2vh - var(--masthead) - var(--footer) - var(--alert) - var(--note)
   );
-  --head-row: max(6.2vh, calc(var(--table-h) * 0.08));
+  --head-row: max(var(--header-row-min), calc(var(--table-h) * 0.08));
   --row-h: calc((var(--table-h) - var(--head-row)) / var(--rows));
+}
+.screen > * {
+  transform: translate(var(--shift-x), var(--shift-y));
 }
 .screen:where(.with-alert) {
   --alert: 10vh;
@@ -57,18 +66,31 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0.2vh;
+  gap: 1vw;
 }
 .masthead h1 {
-  font-size: 4.1vh;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  font-size: var(--title-size);
   font-weight: 700;
   min-width: 0;
-  margin: 0 2vw 0 0;
+  margin: 0;
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.masthead .station-name {
+  flex: 0 1 auto;
+}
+.masthead .title-label {
+  flex-shrink: 0;
+}
 .clock {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
   text-align: right;
   flex-shrink: 0;
 }
@@ -79,7 +101,7 @@ body {
   column-gap: 1vw;
 }
 .clock .digits {
-  font-size: 4.7vh;
+  font-size: var(--clock-size);
 }
 .clock-meridiem {
   display: grid;
@@ -88,8 +110,12 @@ body {
   line-height: 1.05;
 }
 .date {
-  line-height: 1.2;
+  font-size: var(--date-size);
+  line-height: 1.08;
   white-space: nowrap;
+}
+.date time {
+  display: block;
 }
 .digits {
   font-family: 'Inter', 'Noto Sans Sinhala', sans-serif;
@@ -201,12 +227,13 @@ tbody tr.departed:nth-child(even) {
 }
 td {
   padding: 0;
-  border-bottom: 0.0926vh solid #2b3845;
+  border-bottom: var(--row-divider) solid #2b3845;
   vertical-align: top;
 }
 .cell {
-  height: calc(var(--row-h) - 0.0926vh);
-  padding: 0.3vh 1vw;
+  height: calc(var(--row-h) - var(--row-divider));
+  padding: calc(var(--row-h) * var(--row-padding)) 0.75vw;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -219,83 +246,74 @@ td {
   align-items: center;
   text-align: center;
 }
+.fitted {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.departure .digits,
+.arrival .digits {
+  font-size: min(
+    var(--time-width-cap),
+    max(var(--type-floor), calc(var(--row-h) * var(--time-scale)))
+  );
+  flex-shrink: 0;
+}
 .departure .digits {
   color: #facc15;
-  font-size: min(8.15vh, calc(var(--row-h) * 0.58));
 }
 .arrival .digits {
   color: #38bdf8;
-  font-size: min(4.82vh, calc(var(--row-h) * 0.4));
 }
 .departed :is(.departure, .arrival) .digits {
   color: inherit;
 }
+.time-meta {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  max-width: 100%;
+  gap: 0.3vw;
+}
+.cell :is(.meridiem, .pill, .via),
+.service :is(.si, .en),
+.cell .operator {
+  font-size: max(var(--type-floor), calc(var(--row-h) * var(--support-scale)));
+}
 .pill {
-  margin-top: 0.25vh;
-  padding: 0 0.5vw;
+  flex-shrink: 1;
+  padding: 0 0.25vw;
   border-radius: 0.45vh;
   background: #26313e;
   color: #f5f7fa;
-  font-size: 1rem;
-  white-space: nowrap;
-}
-.departure.with-badge .digits {
-  font-size: min(7.8vh, max(1rem, calc((var(--row-h) - 7.1vh) / 0.95)));
-}
-.place-si {
-  overflow-wrap: anywhere;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  padding: 0.04em 0;
-  flex-shrink: 0;
 }
 .destination .place-si {
-  font-size: min(5.9vh, max(1rem, calc((var(--row-h) - 4.1vh) / 1.45)));
+  font-size: max(var(--type-floor), calc(var(--row-h) * var(--destination-si-scale)));
   font-weight: 700;
 }
-.destination .place-si.long-place {
-  font-size: max(1rem, min(4.1vh, calc((var(--row-h) - 4.1vh) / 2.9)));
-}
-.place-en,
-.via {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
 .destination.has-via .place-si {
-  font-size: max(1rem, min(5.9vh, calc((var(--row-h) - 7vh) / 1.45)));
-}
-.destination.has-via .place-si.long-place {
-  font-size: min(1rem, calc((var(--row-h) - 7vh) / 3));
-}
-.with-alert.dense-places .from .place-si.long-place {
-  -webkit-line-clamp: 1;
+  font-size: max(var(--type-floor), calc(var(--row-h) * var(--destination-en-scale)));
 }
 .destination .place-en {
-  font-size: min(3.33vh, max(1rem, calc(var(--row-h) * 0.23)));
+  font-size: max(var(--type-floor), calc(var(--row-h) * var(--destination-en-scale)));
   line-height: 1.1;
 }
+.from .place-si {
+  font-size: max(var(--type-floor), calc(var(--row-h) * var(--from-scale)));
+  font-weight: 600;
+}
 .via {
-  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #c4d4e4;
 }
-.from .place-si,
-.from .place-en {
-  font-size: min(3.55vh, max(1rem, calc(var(--row-h) * 0.25)));
-}
-.from .place-si.long-place {
-  font-size: 1rem;
-}
-.service .si,
-.service.compact .si {
-  font-size: 1rem;
-}
-.service .en {
-  font-size: min(3.5vh, max(1rem, calc(var(--row-h) * 0.23)));
-  white-space: nowrap;
+.service .fitted {
+  width: 100%;
 }
 .service .en {
   line-height: 1.13;
@@ -320,7 +338,7 @@ td {
   --operator-bg: #192f66;
 }
 .dash {
-  font-size: 4.5vh;
+  font-size: max(var(--type-floor), calc(var(--row-h) * var(--time-scale)));
   color: #95a7b8;
 }
 

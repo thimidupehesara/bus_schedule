@@ -1,6 +1,7 @@
 import type { ScheduleDocument } from '@bus-schedule/shared';
 import { validateScheduleDocument } from '@bus-schedule/shared';
 import { useEffect, useState } from 'react';
+import { DEFAULT_SAFE_AREA_PERCENT } from '../config.js';
 
 export type ScheduleState = {
   doc: ScheduleDocument | null;
@@ -25,7 +26,18 @@ export function useSchedule(): ScheduleState {
           signal: controller.signal,
         });
         if (!response.ok) throw new Error('Schedule request failed');
-        const result = validateScheduleDocument(await response.json());
+        const raw: unknown = await response.json();
+        const display = raw && typeof raw === 'object' && 'display' in raw ? raw.display : null;
+        const schedule =
+          raw &&
+          typeof raw === 'object' &&
+          display &&
+          typeof display === 'object' &&
+          !Array.isArray(display) &&
+          (!('safeAreaPercent' in display) || display.safeAreaPercent == null)
+            ? { ...raw, display: { ...display, safeAreaPercent: DEFAULT_SAFE_AREA_PERCENT } }
+            : raw;
+        const result = validateScheduleDocument(schedule);
         if (!result.ok) throw new Error('Schedule document did not validate');
         if (controller.signal.aborted) return;
         interval = result.data.display.pollIntervalSeconds;

@@ -1,12 +1,4 @@
-import {
-  memo,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-} from 'react';
+import { memo, useEffect, useLayoutEffect, useMemo, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import {
   buildBoard,
@@ -25,6 +17,10 @@ import {
   CREDITS_NAME,
   CREDITS_PREFIX,
   departureDay,
+  DEFAULT_SAFE_AREA_PERCENT,
+  SHOW_VIA,
+  TV_TYPE,
+  WEEKDAY_CODES,
   getColumns,
   SHOW_LAST_VERIFIED,
 } from './config.js';
@@ -32,6 +28,7 @@ import { useSchedule } from './data/useSchedule.js';
 import { useNow } from './data/useNow.js';
 import { qrPath } from './qr.js';
 import { PageCountdown } from './PageCountdown.js';
+import { FittedText, FitLayout } from './FittedText.js';
 
 type Text = { si: string; en: string };
 const columns = getColumns();
@@ -49,48 +46,17 @@ function Pair({ text }: { text: Text }) {
   );
 }
 
-function Place({ text }: { text: Text }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (import.meta.env.DEV) {
-      const element = ref.current;
-      if (!element) return;
-      let warned = false;
-      const observer = new ResizeObserver(() => {
-        if (!warned && element.scrollHeight > element.clientHeight + 1) {
-          warned = true;
-          console.warn('Truncated station name:', text.si);
-        }
-      });
-      observer.observe(element);
-      return () => observer.disconnect();
-    }
-    return undefined;
-  }, [text.si]);
-  return (
-    <>
-      <span
-        ref={ref}
-        lang="si"
-        className={`si place-si${text.si.length > 24 ? ' long-place' : ''}`}
-      >
-        {text.si}
-      </span>
-      <span lang="en" className="en place-en">
-        {text.en}
-      </span>
-    </>
-  );
-}
-
-function Time({ value }: { value: string }) {
+function Time({ value, badge }: { value: string; badge?: Text | null }) {
   const { clock, si, en } = meridiemBilingual(value);
   return (
     <>
       <strong className="digits">{clock}</strong>
-      <span className="meridiem">
-        <span lang="si">{si}</span> · <span lang="en">{en}</span>
-      </span>
+      <div className="time-meta">
+        <span className="meridiem">
+          <span lang="si">{si}</span> · <span lang="en">{en}</span>
+        </span>
+        {badge && <FittedText className="pill" text={badge.si + ' / ' + badge.en} />}
+      </div>
     </>
   );
 }
@@ -111,7 +77,8 @@ const Header = memo(function Header({
   return (
     <header className="masthead">
       <h1 lang="si">
-        {doc.station.name.si} {LABELS.title.si}
+        <FittedText className="station-name" text={doc.station.name.si} />
+        <span className="title-label">{LABELS.title.si}</span>
       </h1>
       <div className="clock">
         <div className="clock-time">
@@ -122,7 +89,11 @@ const Header = memo(function Header({
           </span>
         </div>
         <div className="date">
-          <span lang="si">{weekday.si}</span> / {weekday.en} · {local.date}
+          <div>
+            <span lang="si">{weekday.si}</span>{' '}
+            <span lang="en">{WEEKDAY_CODES[local.weekday - 1]}</span>
+          </div>
+          <time dateTime={local.date}>{local.date}</time>
         </div>
         {syncing && (
           <div className="syncing">
@@ -184,9 +155,11 @@ const Footer = memo(function Footer({
             <time dateTime={doc.lastVerified}>{doc.lastVerified}</time>
           </>
         )}
-        <div className="credits" lang="si">
-          {CREDITS_PREFIX} {CREDITS_NAME}
-        </div>
+        {CREDITS_NAME && (
+          <div className="credits" lang="si">
+            {CREDITS_PREFIX} {CREDITS_NAME}
+          </div>
+        )}
       </div>
     </footer>
   );
@@ -232,12 +205,13 @@ function Row({ row, weekday }: { row?: BoardRow | undefined; weekday: Weekday })
       {columns.map(({ key }) => (
         <td key={key}>
           <div
-            className={`cell ${key}${key === 'departure' && (day || row?.status === 'DEPARTED') ? ' with-badge' : ''}${key === 'destination' && bus?.via ? ' has-via' : ''}${key === 'service' && bus?.serviceType === 'SEMI_LUXURY' ? ' compact' : ''}`}
+            className={`cell ${key}${key === 'destination' && SHOW_VIA && bus?.via ? ' has-via' : ''}${key === 'service' && bus?.serviceType === 'SEMI_LUXURY' ? ' compact' : ''}`}
           >
             {bus && key === 'destination' && (
               <>
-                <Place text={bus.destination} />
-                {bus.via && (
+                <FittedText lang="si" className="place-si" text={bus.destination.si} />
+                <FittedText lang="en" className="place-en" text={bus.destination.en} />
+                {SHOW_VIA && bus.via && (
                   <div className="via">
                     <span lang="si">
                       {LABELS.via.si} {bus.via.si}
@@ -248,30 +222,24 @@ function Row({ row, weekday }: { row?: BoardRow | undefined; weekday: Weekday })
               </>
             )}
             {bus && key === 'departure' && (
-              <>
-                <Time value={bus.departure} />
-                {day && (
-                  <span className="pill">
-                    <span lang="si">{day.si}</span> / {day.en}
-                  </span>
-                )}
-                {row?.status === 'DEPARTED' && (
-                  <span className="pill">
-                    <span lang="si">{LABELS.departed.si}</span> / {LABELS.departed.en}
-                  </span>
-                )}
-              </>
+              <Time
+                value={bus.departure}
+                badge={row?.status === 'DEPARTED' ? LABELS.departed : day}
+              />
             )}
             {bus &&
               key === 'arrival' &&
               (bus.arrival ? <Time value={bus.arrival} /> : <span className="dash">—</span>)}
-            {bus && key === 'from' && <Place text={bus.origin} />}
+            {bus && key === 'from' && (
+              <FittedText lang="si" className="place-si" text={bus.origin.si} />
+            )}
             {operator && key === 'service' && (
               <>
                 <span className={`operator ${operator.operator.toLowerCase()}`}>
                   {operator.operator}
                 </span>
-                <Pair text={operator.type} />
+                <FittedText lang="si" className="si" text={operator.type.si} />
+                <FittedText lang="en" className="en" text={operator.type.en} />
               </>
             )}
             {bus && key === 'bay' && (bus.bay ?? '—')}
@@ -413,24 +381,36 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
   const densePlaces = doc.display.rowsPerPage >= 5;
   const tallAlert = alert && Math.max(alert.text.si.length, alert.text.en.length) > 80;
   const style = {
-    '--safe': doc.display.safeAreaPercent,
+    ...TV_TYPE,
+    '--safe': doc.display.safeAreaPercent ?? DEFAULT_SAFE_AREA_PERCENT,
     '--rows': doc.display.rowsPerPage,
-    transform: `translate(${x}px, ${y}px)`,
+    '--shift-x': x + 'px',
+    '--shift-y': y + 'px',
   } as CSSProperties;
   return (
     <main
       className={`screen${alert ? ' with-alert' : ''}${tallAlert ? ' tall-alert' : ''}${densePlaces ? ' dense-places' : ''}${board.usedFallbackWindow && board.totalRows > 0 ? ' with-fallback' : ''}`}
       style={style}
     >
-      <Header doc={doc} now={now} syncing={board.mode === 'CLOCK_UNSYNCED'} />
-      {alert && <Alert alert={alert} />}
-      <PagedBoard
-        board={board}
-        display={doc.display}
-        weekday={colomboParts(now).weekday}
-        indicator={indicator}
-      />
-      <Footer doc={doc} setIndicator={setIndicator} />
+      <FitLayout
+        layout={[
+          doc.display.safeAreaPercent,
+          doc.display.rowsPerPage,
+          alert?.text.si,
+          alert?.text.en,
+          board.usedFallbackWindow,
+        ].join('|')}
+      >
+        <Header doc={doc} now={now} syncing={board.mode === 'CLOCK_UNSYNCED'} />
+        {alert && <Alert alert={alert} />}
+        <PagedBoard
+          board={board}
+          display={doc.display}
+          weekday={colomboParts(now).weekday}
+          indicator={indicator}
+        />
+        <Footer doc={doc} setIndicator={setIndicator} />
+      </FitLayout>
     </main>
   );
 }

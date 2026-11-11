@@ -1,3 +1,4 @@
+import { DEFAULT_SAFE_AREA_PERCENT } from '../config.js';
 import { DEFAULT_DISPLAY_SETTINGS, type ScheduleDocument } from '@bus-schedule/shared';
 
 const options = () => new URLSearchParams(location.search);
@@ -33,6 +34,7 @@ export async function loadMockIfRequested(): Promise<ScheduleDocument | null> {
     ],
     display: {
       ...DEFAULT_DISPLAY_SETTINGS,
+      safeAreaPercent: DEFAULT_SAFE_AREA_PERCENT,
       rowsPerPage:
         Number.isInteger(rows) && rows >= 3 && rows <= 6
           ? rows
