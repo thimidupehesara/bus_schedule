@@ -29,7 +29,7 @@ body {
   padding: calc(var(--safe) * 1vh) calc(var(--safe) * 1vw);
   display: flex;
   flex-direction: column;
-  --masthead: 10.7vh;
+  --masthead: 8.6vh;
   --footer: 10vh;
   --alert: 0vh;
   --note: 0vh;
@@ -57,33 +57,38 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0.7vh;
+  padding-bottom: 0.2vh;
 }
 .masthead h1 {
   font-size: 4.1vh;
-  line-height: 1.1;
   font-weight: 700;
-  max-width: 72%;
-  margin: 0;
-}
-.masthead h1 .en {
-  font-size: 2.8vh;
-  text-transform: uppercase;
-  letter-spacing: 0.045em;
+  min-width: 0;
+  margin: 0 2vw 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .clock {
   text-align: right;
+  flex-shrink: 0;
 }
 .clock-time {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: end;
   column-gap: 1vw;
 }
 .clock .digits {
-  font-size: 5.5vh;
+  font-size: 4.7vh;
+}
+.clock-meridiem {
+  display: grid;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.05;
 }
 .date {
+  line-height: 1.2;
   white-space: nowrap;
 }
 .digits {
@@ -264,10 +269,9 @@ td {
   font-size: max(1rem, min(5.9vh, calc((var(--row-h) - 7vh) / 1.45)));
 }
 .destination.has-via .place-si.long-place {
-  font-size: 1rem;
+  font-size: min(1rem, calc((var(--row-h) - 7vh) / 3));
 }
-.dense-places .destination.has-via .place-si.long-place,
-.with-alert.dense-places .place-si.long-place {
+.with-alert.dense-places .from .place-si.long-place {
   -webkit-line-clamp: 1;
 }
 .destination .place-en {
@@ -355,6 +359,35 @@ td {
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
+.page-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.65vw;
+}
+.page-countdown {
+  flex: 0 0 5vh;
+  width: 5vh;
+  height: 5vh;
+}
+.page-countdown circle {
+  fill: none;
+  stroke-width: 3;
+}
+.countdown-track {
+  stroke: #344251;
+}
+.countdown-ring {
+  stroke: #facc15;
+  stroke-dasharray: 100;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+.page-countdown text {
+  fill: #f5f7fa;
+  font:
+    600 22px Inter,
+    sans-serif;
+}
 .dots {
   display: flex;
   justify-content: center;
@@ -381,12 +414,8 @@ td {
 }
 .credits {
   color: #a8b9ca;
-}
-.credits span {
-  display: inline;
-}
-.credits .si {
-  margin-right: 0.6vw;
+  font-size: 1rem;
+  white-space: nowrap;
 }
 
 .empty {

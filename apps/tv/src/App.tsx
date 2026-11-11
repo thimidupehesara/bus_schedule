@@ -19,18 +19,20 @@ import {
   type ScheduleDocument,
   type Weekday,
 } from '@bus-schedule/shared';
-import { clampPage, CREDITS, departureDay, getColumns } from './config.js';
+import {
+  clampPage,
+  COPY,
+  CREDITS_NAME,
+  CREDITS_PREFIX,
+  departureDay,
+  getColumns,
+  SHOW_LAST_VERIFIED,
+} from './config.js';
 import { useSchedule } from './data/useSchedule.js';
 import { useNow } from './data/useNow.js';
 import { qrPath } from './qr.js';
+import { PageCountdown } from './PageCountdown.js';
 
-// Owner must review these additional Sinhala strings.
-const COPY = {
-  loading: { si: 'කාලසටහන පූරණය වෙමින් පවතී', en: 'Loading timetable' },
-  empty: { si: 'නියමිත බස් ගමන් නොමැත', en: 'No buses scheduled' },
-  fallback: { si: 'ඊළඟ පිටත්වීම් පෙන්වයි', en: 'Showing next departures' },
-  qr: { si: 'දුරකථනයෙන් කාලසටහන බලන්න', en: 'Scan to view the timetable on your phone' },
-};
 type Text = { si: string; en: string };
 const columns = getColumns();
 
@@ -105,19 +107,19 @@ const Header = memo(function Header({
   const local = colomboParts(now);
   const hhmm = `${String(Math.floor(local.minutes / 60)).padStart(2, '0')}:${String(local.minutes % 60).padStart(2, '0')}`;
   const weekday = dayLabel(7, local.weekday)!;
+  const meridiem = meridiemBilingual(hhmm);
   return (
     <header className="masthead">
-      <h1>
-        <Pair
-          text={{
-            si: `${doc.station.name.si} ${LABELS.title.si}`,
-            en: `${doc.station.name.en} ${LABELS.title.en}`,
-          }}
-        />
+      <h1 lang="si">
+        {doc.station.name.si} {LABELS.title.si}
       </h1>
       <div className="clock">
         <div className="clock-time">
-          <Time value={hhmm} />
+          <strong className="digits">{meridiem.clock}</strong>
+          <span className="clock-meridiem">
+            <span lang="en">{meridiem.en}</span>
+            <span lang="si">{meridiem.si}</span>
+          </span>
         </div>
         <div className="date">
           <span lang="si">{weekday.si}</span> / {weekday.en} · {local.date}
@@ -176,30 +178,47 @@ const Footer = memo(function Footer({
       </div>
       <div className="indicator" ref={setIndicator} />
       <div className="verification">
-        <Pair text={LABELS.lastVerified} />
-        <time dateTime={doc.lastVerified}>{doc.lastVerified}</time>
-        <div className="credits">
-          <Pair text={CREDITS} />
+        {SHOW_LAST_VERIFIED && (
+          <>
+            <Pair text={LABELS.lastVerified} />
+            <time dateTime={doc.lastVerified}>{doc.lastVerified}</time>
+          </>
+        )}
+        <div className="credits" lang="si">
+          {CREDITS_PREFIX} {CREDITS_NAME}
         </div>
       </div>
     </footer>
   );
 });
 
-function PageIndicator({ page, count }: { page: number; count: number }) {
+function PageIndicator({
+  page,
+  count,
+  deadline,
+  reduced,
+}: {
+  page: number;
+  count: number;
+  deadline: number | null;
+  reduced: boolean;
+}) {
   if (count <= 1) return null;
   const dotCount = Math.min(count, 7);
   const firstDot = Math.min(Math.max(0, page - 3), count - dotCount);
   return (
-    <div>
+    <div className="page-progress">
       <div>
-        <span lang="si">{LABELS.page.si}</span> / {LABELS.page.en} {page + 1} / {count}
+        <div>
+          <span lang="si">{LABELS.page.si}</span> / {LABELS.page.en} {page + 1} / {count}
+        </div>
+        <div className="dots" aria-hidden="true">
+          {Array.from({ length: dotCount }, (_, index) => (
+            <span key={index} className={firstDot + index === page ? 'current' : undefined} />
+          ))}
+        </div>
       </div>
-      <div className="dots" aria-hidden="true">
-        {Array.from({ length: dotCount }, (_, index) => (
-          <span key={index} className={firstDot + index === page ? 'current' : undefined} />
-        ))}
-      </div>
+      {deadline !== null && <PageCountdown deadline={deadline} reduced={reduced} />}
     </div>
   );
 }
@@ -277,6 +296,7 @@ function PagedBoard({
   const count = board.pages.length;
   const [index, setIndex] = useState(0);
   const [hidden, setHidden] = useState(false);
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [reduced, setReduced] = useState(
     () => matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
@@ -291,30 +311,29 @@ function PagedBoard({
   useLayoutEffect(() => {
     setIndex((previous) => clampPage(previous, count));
   }, [count]);
-  useEffect(() => {
+  useLayoutEffect(() => {
+    setHidden(false);
     if (count <= 1) {
-      setHidden(false);
+      setDeadline(null);
       return;
     }
+    const duration = display.dwellSeconds * 1000;
+    setDeadline(performance.now() + duration);
     let swap: ReturnType<typeof setTimeout> | undefined;
     const advance = () => {
       setIndex((current) => (clampPage(current, count) + 1) % count);
       setHidden(false);
     };
-    const dwell = setTimeout(
-      () => {
-        if (!fade) return advance();
-        setHidden(true);
-        swap = setTimeout(advance, fade / 2);
-      },
-      display.dwellSeconds * 1000 + fade / 2,
-    );
+    const dwell = setTimeout(() => {
+      if (!fade) return advance();
+      setHidden(true);
+      swap = setTimeout(advance, fade / 2);
+    }, duration);
     return () => {
       clearTimeout(dwell);
       clearTimeout(swap);
     };
   }, [count, page, fade, display.dwellSeconds]);
-  useEffect(() => setHidden(false), [count, fade]);
   return (
     <>
       <div className="table-region">
@@ -355,7 +374,11 @@ function PagedBoard({
           </table>
         )}
       </div>
-      {indicator && createPortal(<PageIndicator page={page} count={count} />, indicator)}
+      {indicator &&
+        createPortal(
+          <PageIndicator page={page} count={count} deadline={deadline} reduced={reduced} />,
+          indicator,
+        )}
     </>
   );
 }

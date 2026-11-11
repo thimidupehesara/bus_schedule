@@ -1,7 +1,17 @@
 import { dayLabel, LABELS, type Weekday } from '@bus-schedule/shared';
 
 export const SHOW_BAY_COLUMN = false;
-export const CREDITS = { si: 'නිර්මාණය: <team name>', en: 'Built by <team name>' };
+export const SHOW_LAST_VERIFIED = false;
+export const CREDITS_NAME = 'Thimidu';
+export const CREDITS_PREFIX = 'නිර්මාණය:';
+
+// Owner must review these additional Sinhala strings.
+export const COPY = {
+  loading: { si: 'කාලසටහන පූරණය වෙමින් පවතී', en: 'Loading timetable' },
+  empty: { si: 'නියමිත බස් ගමන් නොමැත', en: 'No buses scheduled' },
+  fallback: { si: 'ඊළඟ පිටත්වීම් පෙන්වයි', en: 'Showing next departures' },
+  qr: { si: 'දුරකථනයෙන් කාලසටහන බලන්න', en: 'Scan to view the timetable on your phone' },
+};
 
 export const COLUMNS = [
   { key: 'destination', width: 30 },
