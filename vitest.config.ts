@@ -3,11 +3,13 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     globals: true,
-    include: ['packages/*/src/**/__tests__/**/*.test.ts'],
+    include: [
+      'packages/*/src/**/__tests__/**/*.test.ts',
+      'workers/api/src/**/__tests__/**/*.test.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
     },
   },
 });
-

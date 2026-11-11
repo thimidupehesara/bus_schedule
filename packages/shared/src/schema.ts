@@ -27,9 +27,7 @@ import { z } from 'zod';
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 /** HH:mm 24-hour wall-clock time in Asia/Colombo. */
-export const TimeHHmmSchema = z
-  .string()
-  .regex(TIME_REGEX, 'must match HH:mm (e.g. "14:30")');
+export const TimeHHmmSchema = z.string().regex(TIME_REGEX, 'must match HH:mm (e.g. "14:30")');
 
 export type TimeHHmm = z.infer<typeof TimeHHmmSchema>;
 
@@ -140,7 +138,7 @@ export type AlertSeverity = z.infer<typeof AlertSeveritySchema>;
 export const AlertBannerSchema = z.object({
   enabled: z.boolean(),
   severity: AlertSeveritySchema,
-  text: LocalizedTextSchema,
+  text: z.object({ si: z.string().max(140), en: z.string().max(140) }),
   /** ISO 8601 UTC timestamp after which the alert is auto-dismissed. Null = never expires. */
   expiresAt: z.string().datetime({ offset: true }).nullable(),
 });
@@ -290,6 +288,27 @@ export type ValidationResult = ValidationSuccess | ValidationFailure;
  *   "services[4].departure: must match HH:mm (e.g. \"14:30\")"
  */
 export function validateScheduleDocument(input: unknown): ValidationResult {
+  // Bound collection traversal BEFORE Zod builds per-element validation issues.
+  // This also protects consumers of the shared validator from oversized input.
+  if (input && typeof input === 'object' && 'services' in input && Array.isArray(input.services)) {
+    if (input.services.length > 300)
+      return { ok: false, errors: ['services: at most 300 entries are allowed'] };
+    for (let i = 0; i < input.services.length; i++) {
+      const service: unknown = input.services[i];
+      if (
+        service &&
+        typeof service === 'object' &&
+        'days' in service &&
+        Array.isArray(service.days) &&
+        service.days.length > 7
+      ) {
+        return {
+          ok: false,
+          errors: [`services[${i}].days: at most 7 unique weekdays are allowed`],
+        };
+      }
+    }
+  }
   const result = ScheduleDocumentSchema.safeParse(input);
 
   if (result.success) {
@@ -312,4 +331,3 @@ export function validateScheduleDocument(input: unknown): ValidationResult {
 
   return { ok: false, errors };
 }
-

@@ -5,4 +5,5 @@
  */
 
 export * from './schema.js';
-
+export * from './known-places.js';
+export * from './service-rules.js';

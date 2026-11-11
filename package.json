@@ -8,17 +8,26 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "dev:tv": "npm run dev --workspace=apps/tv",
     "dev:admin": "npm run dev --workspace=apps/admin",
-    "dev:api": "npm run dev --workspace=workers/api",
-    "build": "npm run build --workspaces --if-present",
+    "dev:api": "npm run assemble && npm run dev --workspace=workers/api",
+    "build": "npm run build --workspace=packages/shared && npm run assemble && npm run build --workspace=workers/api",
     "test": "vitest run",
     "lint": "eslint .",
-    "typecheck": "tsc --build --force",
-    "validate:sample": "npx tsx packages/shared/scripts/validate-sample.ts"
+    "typecheck": "tsc --build --force && tsc -p tsconfig.scripts.json",
+    "validate:sample": "npx tsx packages/shared/scripts/validate-sample.ts",
+    "user:create": "tsx workers/api/scripts/user-cli.ts create",
+    "user:disable": "tsx workers/api/scripts/user-cli.ts disable",
+    "db:migrate:local": "npm run db:migrate:local --workspace=workers/api",
+    "user:enable": "tsx workers/api/scripts/user-cli.ts enable",
+    "test:smoke": "npm run assemble && tsx workers/api/scripts/smoke.ts",
+    "db:seed:local": "npm run build --workspace=packages/shared && tsx workers/api/scripts/seed.ts",
+    "deploy": "npm run assemble && npm run deploy --workspace=workers/api",
+    "assemble": "npm run build --workspace=packages/shared && tsx scripts/assemble-assets.ts",
+    "user:list": "tsx workers/api/scripts/user-cli.ts list"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -38,6 +47,7 @@
     "esbuild@0.21.5": true,
     "esbuild@0.17.19": true,
     "workerd@1.20250718.0": true,
-    "sharp@0.33.5": true
+    "sharp@0.33.5": true,
+    "workerd@1.20261110.1": true
   }
 }

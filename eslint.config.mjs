@@ -7,6 +7,7 @@ export default tseslint.config(
     ignores: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/public/**',
       '**/.wrangler/**',
       '**/coverage/**',
       '**/*.config.js',
@@ -32,4 +33,3 @@ export default tseslint.config(
     },
   },
 );
-
