@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import {
   verifyAccessJwt,
   developmentEmail,
@@ -26,6 +26,7 @@ beforeAll(async () => {
   jwk = await crypto.subtle.exportKey('jwk', pair.publicKey);
 });
 beforeEach(clearJwksCache);
+afterEach(() => vi.useRealTimers());
 async function token(
   patch: Record<string, unknown> = {},
   headerPatch: Record<string, unknown> = {},
@@ -74,19 +75,51 @@ describe('Access RS256 validation', () => {
     jwt[2] = encode(new Uint8Array(256));
     expect(await verifyAccessJwt(jwt.join('.'), config, fetchKeys(), now)).toBeNull();
   });
-  it('refetches unknown kid and fails closed when it remains absent', async () => {
-    const fetcher = fetchKeys();
-    expect(
-      await verifyAccessJwt(await token({}, { kid: 'missing' }), config, fetcher, now),
-    ).toBeNull();
+  it('limits forced JWKS refreshes to once per issuer per 60 seconds', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    const fetcher = fetchKeys(),
+      jwt = await token({}, { kid: 'missing' });
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    vi.setSystemTime(now + 59999);
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    vi.setSystemTime(now + 60000);
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
     expect(fetcher).toHaveBeenCalledTimes(2);
+    vi.setSystemTime(now + 119999);
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    vi.setSystemTime(now + 120000);
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(3);
   });
-  it('accepts a newly rotated key after refresh', async () => {
+  it('accepts a rotated key after the cooldown', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
     const fetcher = vi
       .fn()
       .mockResolvedValueOnce(Response.json({ keys: [{ ...jwk, kid: 'old' }] }))
       .mockResolvedValueOnce(Response.json({ keys: [{ ...jwk, kid: 'test-key' }] }));
-    expect(await verifyAccessJwt(await token(), config, fetcher, now)).toBe('staff@example.com');
+    const jwt = await token();
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
+    vi.setSystemTime(now + 60000);
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBe('staff@example.com');
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+  it('applies cooldown to failed forced refreshes too', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    const fetcher = fetchKeys(),
+      jwt = await token({}, { kid: 'missing' });
+    await verifyAccessJwt(jwt, config, fetcher);
+    fetcher.mockRejectedValueOnce(new Error('offline'));
+    vi.setSystemTime(now + 60000);
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
+    vi.setSystemTime(now + 60001);
+    expect(await verifyAccessJwt(jwt, config, fetcher)).toBeNull();
+    expect(fetcher).toHaveBeenCalledTimes(2);
   });
   it.each([
     {},

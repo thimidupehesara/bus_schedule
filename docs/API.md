@@ -18,8 +18,10 @@ CSP/security headers. No cross-origin admin requests or CORS preflights are enab
 
 `Cf-Access-Jwt-Assertion` is verified with WebCrypto RS256 against the configured
 team JWKS. Issuer, audience, expiry (60-second skew), optional not-before and email
-are checked. JWKS are cached for up to one hour, refreshed for an unknown kid, and
-network/verification failures fail closed. Role and enabled status are read from
+are checked. JWKS are cached for up to one hour. An unknown kid can force a refresh
+only after a 60-second per-issuer cooldown since the last fetch attempt. Within
+that cooldown it returns 401 without another network call; failed forced refreshes
+also consume the cooldown. Network/verification failures fail closed. Role and enabled status are read from
 D1 on every request; the JWT never supplies authorization. Last login changes at
 most hourly. The auth interface returns an identity or null; a verified but
 unlisted/disabled identity raises a typed 403 error.
@@ -63,7 +65,8 @@ surrounding whitespace. Role is ADMIN or EDITOR; disabled is boolean. Updates ma
 only contain the listed fields. No user DELETE is exposed. Limit: 20 total users,
 including disabled ones. An ADMIN cannot disable/demote themselves; the last
 active ADMIN cannot be disabled/demoted/deleted even through the bootstrap CLI.
-Every change is audited.
+Every change is audited. Duplicate emails return 409 with code DUPLICATE_EMAIL,
+including case-insensitive matches and concurrent creation attempts.
 
 **Adding a user here sets their ROLE/local allow-list only. Their email must ALSO
 be added to the Cloudflare Access Allow policy in the dashboard before login.**
@@ -131,9 +134,13 @@ and prunes to the newest 50 snapshots without deleting live/highest. The snapsho
 is sorted, stamped UTC, revalidated, serialized once and SHA-256 hashed into
 `"v<version>-<first16hex>"`. Concurrent changes abort the entire batch. Rollback
 validates and re-stamps the selected retained snapshot into a _new_ version,
-records its source version, and resets the draft in that same batch. Expired
-enabled alerts are both errors and warnings; historical snapshots with expired
-alerts must be corrected before republishing instead of being blindly restored.
+records its source version, and resets the draft in that same batch. Schema
+corruption (including invalid JSON) blocks rollback with 422. Enabled expired
+alerts are disabled before re-stamping; the response includes alertDisabled: true
+and message_en/message_si explaining the change. Otherwise alertDisabled is false.
+Rollback returns a warnings array containing ordinary warnings and any current
+strict-rule failures downgraded to severity: warning. New strict rules do not
+block historical recovery. Normal publish remains subject to all strict errors.
 
 ## Staff validation contract
 

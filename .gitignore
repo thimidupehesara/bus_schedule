@@ -14,7 +14,7 @@ build/
 .dev.vars
 .dev.vars.*
 .env*
-public/
+/workers/api/public/
 *.keystore
 *.jks
 local.properties

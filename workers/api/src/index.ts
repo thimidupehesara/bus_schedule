@@ -97,6 +97,12 @@ async function usersRoute(
     const email = body['email'].toLowerCase(),
       name = displayName(body['displayName']),
       role = roleValue(body['role']);
+    if (await store.sql('SELECT id FROM users WHERE login_id=? COLLATE NOCASE', email).first())
+      throw new ApiError(
+        409,
+        'DUPLICATE_EMAIL',
+        'A user with this email already exists. Update the existing user instead.',
+      );
     const count = await store.sql('SELECT COUNT(*) AS n FROM users').first<{ n: number }>();
     if (count!.n >= 20)
       throw new ApiError(
@@ -231,7 +237,13 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       .sql('SELECT body FROM snapshots WHERE version=?', Number(body['version']))
       .first<{ body: string }>();
     if (!old) return notFound();
-    const validated = validateScheduleDocument(JSON.parse(old.body));
+    let restored: unknown;
+    try {
+      restored = JSON.parse(old.body);
+    } catch {
+      return invalid(['The snapshot contains invalid JSON and cannot be restored.']);
+    }
+    const validated = validateScheduleDocument(restored);
     if (!validated.ok) return invalid(validated.errors);
     return ok(
       await store.publish(

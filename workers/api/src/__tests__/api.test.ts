@@ -284,3 +284,124 @@ describe('local SQLite API integration', () => {
     expect((await request('/api/draft')).data['hasUnpublishedChanges']).toBe(false);
   });
 });
+
+describe('backend fixes', () => {
+  it('rolls back expired alerts as disabled with bilingual notice and atomic draft reset', async () => {
+    await seed();
+    const old = ScheduleDocumentSchema.parse(structuredClone(sample));
+    old.alert = {
+      enabled: true,
+      severity: 'INFO',
+      text: { en: 'Old notice', si: 'පැරණි නිවේදනය' },
+      expiresAt: '2020-01-01T00:00:00Z',
+    };
+    fixture.sqlite.prepare('UPDATE snapshots SET body=? WHERE version=1').run(JSON.stringify(old));
+    const result = await request('/api/rollback', 'POST', { version: 1, confirm: true });
+    expect(result.response.status).toBe(200);
+    expect(result.data).toMatchObject({
+      version: 2,
+      alertDisabled: true,
+      message_en: expect.stringContaining('expired'),
+      message_si: expect.stringMatching(/[\u0D80-\u0DFF]/),
+    });
+    const live = await request('/schedule.json');
+    expect(live.data['alert']).toMatchObject({ enabled: false, expiresAt: old.alert.expiresAt });
+    expect((await request('/api/draft')).data['document']).toMatchObject({
+      alert: { enabled: false },
+    });
+    expect(
+      JSON.parse(
+        fixture.sqlite.prepare('SELECT body FROM snapshots WHERE version=1').get()!.body as string,
+      ).alert.enabled,
+    ).toBe(true);
+  });
+  it('restores schema-valid historical services despite strict errors and returns warnings', async () => {
+    await seed();
+    const old = ScheduleDocumentSchema.parse(structuredClone(sample));
+    old.services[0]!.destination.si = 'Legacy Latin name';
+    fixture.sqlite.prepare('UPDATE snapshots SET body=? WHERE version=1').run(JSON.stringify(old));
+    const result = await request('/api/rollback', 'POST', { version: 1, confirm: true });
+    expect(result.response.status).toBe(200);
+    expect(result.data).toMatchObject({ version: 2, alertDisabled: false });
+    expect(result.data['warnings']).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'SCRIPT',
+          serviceId: old.services[0]!.id,
+          severity: 'warning',
+          message_en: expect.any(String),
+          message_si: expect.stringMatching(/[\u0D80-\u0DFF]/),
+        }),
+        expect.objectContaining({ code: 'OVERNIGHT', severity: 'warning' }),
+      ]),
+    );
+    expect((await request('/schedule.json')).data['services']).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ destination: old.services[0]!.destination }),
+      ]),
+    );
+    const draft = await request('/api/draft');
+    expect(
+      (
+        await request('/api/publish', 'POST', {
+          draftRevision: draft.data['draftRevision'],
+          confirm: true,
+        })
+      ).response.status,
+    ).toBe(422);
+  });
+  it.each(['invalid-time', 'invalid-json'])(
+    'blocks corrupted snapshots (%s) without a new version',
+    async (corruption) => {
+      await seed();
+      const old = ScheduleDocumentSchema.parse(structuredClone(sample));
+      old.services[0]!.departure = '24:10';
+      fixture.sqlite
+        .prepare(
+          'INSERT INTO snapshots(version,published_at,published_by,kind,body,etag) VALUES(2,?,?,?, ?,?)',
+        )
+        .run(
+          new Date().toISOString(),
+          'test',
+          'PUBLISH',
+          corruption === 'invalid-json' ? '{' : JSON.stringify(old),
+          'unused',
+        );
+      const before = await request('/api/draft');
+      const result = await request('/api/rollback', 'POST', { version: 2, confirm: true });
+      expect(result.response.status).toBe(422);
+      expect(result.data['error']).toMatchObject({ code: 'VALIDATION' });
+      expect((await request('/schedule.json')).data['version']).toBe(1);
+      expect((await request('/api/draft')).data).toEqual(before.data);
+      expect(fixture.sqlite.prepare('SELECT MAX(version) AS n FROM snapshots').get()).toMatchObject(
+        { n: 2 },
+      );
+    },
+  );
+  it('returns DUPLICATE_EMAIL for case-insensitive existing and concurrent user creation', async () => {
+    const duplicate = await request('/api/users', 'POST', {
+      email: 'ADMIN@example.com',
+      displayName: 'Copy',
+      role: 'ADMIN',
+    });
+    expect(duplicate.response.status).toBe(409);
+    expect(duplicate.data['error']).toMatchObject({
+      code: 'DUPLICATE_EMAIL',
+      message: expect.stringContaining('already exists'),
+    });
+    const body = { email: 'new@example.com', displayName: 'New', role: 'EDITOR' };
+    const results = await Promise.all([
+      request('/api/users', 'POST', body),
+      request('/api/users', 'POST', { ...body, email: 'NEW@example.com' }),
+    ]);
+    expect(results.map((r) => r.response.status).sort()).toEqual([201, 409]);
+    expect(results.find((r) => r.response.status === 409)!.data['error']).toMatchObject({
+      code: 'DUPLICATE_EMAIL',
+    });
+    expect(
+      fixture.sqlite
+        .prepare("SELECT COUNT(*) AS n FROM audit_log WHERE action='USER_CREATE'")
+        .get(),
+    ).toMatchObject({ n: 1 });
+  });
+});

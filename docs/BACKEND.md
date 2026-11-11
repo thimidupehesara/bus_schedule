@@ -41,8 +41,9 @@
 Access controls the email challenge and its session lifetime. The Worker checks
 RS256 signature, issuer, AUD, expiry, optional nbf, email, and local role on every
 API request. JWKS failures fail closed, so a Cloudflare key-fetch outage can block
-new staff requests; published schedules remain public. An unknown kid triggers
-refetch; there is no distributed application rate limiter. Access/WAF policies
+new staff requests; published schedules remain public. Unknown-kid forced refreshes
+have a minimum 60-second per-issuer cooldown, including failed attempts. There is
+no distributed application rate limiter. Access/WAF policies
 should gate invalid-token traffic before it reaches the Worker. Do not log JWTs
 or enable request-header logging. There is no sensitive auth material in audit
 rows or API error details.
@@ -57,7 +58,8 @@ against a database owner, and currently have no retention/export UI.
 Concurrent writes are guarded; sequential full-service PUTs are last-write-wins
 because the required endpoint has no client revision. A future admin UI must
 refresh before saves and always preview the latest revision before publishing.
-Rollback is strict: expired alert content is rejected rather than made live.
+Rollback blocks schema corruption, automatically disables expired enabled alerts,
+and returns newer strict-rule failures as non-blocking bilingual warnings.
 Snapshot retention is 50; take owner-managed D1 backups for longer-term recovery.
 The current placeholder TV has no offline safety yet; do not deploy it as the
 station's operational display until the separate UI/cache task is complete.
