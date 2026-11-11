@@ -159,8 +159,9 @@ References (review again at deployment):
 - **Bad publish:** select a retained good version in History, review, and confirm
   rollback. Rollback produces a new, higher version and replaces the draft.
   It never decrements/reuses versions. Only the newest 50 snapshots are retained.
-  Strict validation still applies: an expired enabled alert or newly invalid
-  old data blocks rollback; import/edit a corrected document and publish instead.
+  Schema corruption still blocks rollback. Expired enabled alerts are automatically
+  disabled, with a bilingual notice. New strict-rule issues and ordinary warnings
+  are returned as warnings without blocking recovery of historical schedules.
 - **Backend down:** the intended TV implementation keeps its last validated
   IndexedDB/service-worker copy and retries every three minutes. It must never
   substitute an empty/error response for a known good schedule. Offline caching

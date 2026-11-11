@@ -1,7 +1,18 @@
-import { DEFAULT_DISPLAY_SETTINGS, colomboDate, type ScheduleDocument } from '@bus-schedule/shared';
+import {
+  DEFAULT_DISPLAY_SETTINGS,
+  colomboDate,
+  validateScheduleDocument,
+  type ScheduleDocument,
+} from '@bus-schedule/shared';
 import { type User } from './auth.js';
 import { ApiError } from './http.js';
-import { makeEtag, nextVersion, sortServices, validateDocument } from './schedule.js';
+import {
+  makeEtag,
+  nextVersion,
+  sortServices,
+  validateDocument,
+  publishWarnings,
+} from './schedule.js';
 export type Snapshot = {
   version: number;
   published_at: string;
@@ -128,6 +139,15 @@ export class Store {
       ]);
     } catch (error) {
       // Never return raw database messages (which may contain submitted values).
+      if (
+        error instanceof Error &&
+        /UNIQUE constraint failed: users\.login_id\b/i.test(error.message)
+      )
+        throw new ApiError(
+          409,
+          'DUPLICATE_EMAIL',
+          'A user with this email already exists. Update the existing user instead.',
+        );
       if (error instanceof Error && /CHECK constraint|UNIQUE constraint/i.test(error.message))
         throw new ApiError(409, 'CONFLICT', 'The data changed. Reload and preview again.');
       throw error;
@@ -185,21 +205,49 @@ export class Store {
   ) {
     const version = nextVersion(state.maximum),
       now = new Date().toISOString();
+    if (kind === 'ROLLBACK') {
+      const shape = validateScheduleDocument(source);
+      if (!shape.ok)
+        throw new ApiError(
+          422,
+          'VALIDATION',
+          'The snapshot is corrupted and cannot be restored.',
+          shape.errors,
+        );
+    }
+    const alertDisabled =
+      kind === 'ROLLBACK' &&
+      source.alert?.enabled === true &&
+      source.alert.expiresAt !== null &&
+      Date.parse(source.alert.expiresAt) <= Date.parse(now);
     const document: ScheduleDocument = {
       ...source,
       schemaVersion: 1,
       version,
       publishedAt: now,
       services: sortServices(source.services),
+      alert: alertDisabled && source.alert ? { ...source.alert, enabled: false } : source.alert,
     };
     const { validation } = validateDocument(document);
-    if (!validation.ok)
+    if (kind === 'PUBLISH' && !validation.ok)
       throw new ApiError(
         422,
         'VALIDATION',
         'Correct all errors before publishing.',
         validation.errors,
       );
+    // Prepare response diagnostics before committing so a warning failure cannot follow a successful write.
+    const warnings =
+      kind === 'ROLLBACK'
+        ? [
+            ...publishWarnings(
+              document,
+              state.live ? (JSON.parse(state.live.body) as ScheduleDocument) : null,
+              new Date(now),
+            ),
+            ...validation.errors.map((error) => ({ ...error, severity: 'warning' as const })),
+          ]
+        : [];
     const body = JSON.stringify(document); // The exact persisted bytes are served unchanged.
     const etag = await makeEtag(version, body);
     await this.transaction(
@@ -221,7 +269,12 @@ export class Store {
           version,
         ),
         ...(kind === 'ROLLBACK' ? [...this.replace(document, user), this.revision(user)] : []),
-        this.audit(user, kind, { version, rolledBackFrom, note }),
+        this.audit(user, kind, {
+          version,
+          rolledBackFrom,
+          note,
+          ...(kind === 'ROLLBACK' ? { alertDisabled } : {}),
+        }),
         this.sql(
           'DELETE FROM snapshots WHERE version NOT IN (SELECT version FROM snapshots ORDER BY version DESC LIMIT 50) AND version NOT IN (SELECT version FROM live_pointer) AND version != (SELECT MAX(version) FROM snapshots)',
         ),
@@ -229,6 +282,23 @@ export class Store {
       '(SELECT revision FROM draft_meta WHERE id=1)=? AND (SELECT COALESCE(MAX(version),0) FROM snapshots)=?',
       [state.revision, state.maximum],
     );
-    return { version, etag, draftRevision: state.revision + (kind === 'ROLLBACK' ? 1 : 0) };
+    return {
+      version,
+      etag,
+      draftRevision: state.revision + (kind === 'ROLLBACK' ? 1 : 0),
+      ...(kind === 'ROLLBACK'
+        ? {
+            alertDisabled,
+            ...(alertDisabled
+              ? {
+                  message_en: 'Rollback completed. The expired alert was automatically disabled.',
+                  message_si:
+                    'පෙර කාලසටහන ප්‍රතිස්ථාපනය කරන ලදී. කල් ඉකුත් වූ නිවේදනය ස්වයංක්‍රීයව අක්‍රිය කරන ලදී.',
+                }
+              : {}),
+            warnings,
+          }
+        : {}),
+    };
   }
 }

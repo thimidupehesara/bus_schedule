@@ -43,8 +43,11 @@ async function keysFor(
   const existing = cache.get(issuer),
     now = Date.now();
   if (existing && existing.expires > now && !refresh) return existing.keys;
+  if (refresh && existing && now - existing.fetched < 60000) return existing.keys;
   const inflight = pending.get(issuer);
   if (inflight) return inflight;
+  // Failed forced refreshes consume the cooldown without extending cache expiry.
+  if (refresh && existing) existing.fetched = now;
   const promise = (async () => {
     const response = await fetcher(`${issuer}/cdn-cgi/access/certs`, {
       redirect: 'error',
