@@ -67,3 +67,4 @@ export const stressSchedule: ScheduleDocument = {
   },
   services: departures.map(makeService),
 };
+

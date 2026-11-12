@@ -35,3 +35,4 @@ export function computeFit(
 }
 
 export { TEXT_MIN_SCALE };
+

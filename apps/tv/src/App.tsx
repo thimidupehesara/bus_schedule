@@ -465,13 +465,30 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
 }
 
 export default function App() {
-  const { doc, status } = useSchedule();
+  const { doc, status, error } = useSchedule();
   const now = useNow();
   return doc ? (
     <Board doc={doc} now={now} />
   ) : (
     <main className="empty fullscreen" role="status">
       <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />
+      {status === 'UNAVAILABLE' && error && (
+        <div
+          style={{
+            marginTop: '1.5rem',
+            fontSize: '1rem',
+            color: '#94a3b8',
+            fontWeight: 400,
+            fontFamily: 'monospace',
+            maxWidth: '80%',
+            textAlign: 'center',
+            wordBreak: 'break-word',
+            opacity: 0.85,
+          }}
+        >
+          {error}
+        </div>
+      )}
     </main>
   );
 }
