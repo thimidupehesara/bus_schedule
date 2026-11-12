@@ -11,7 +11,7 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 ## Architecture
 
 - One Cloudflare Worker, `mahiyanganaya-bus`, and D1 serve `/tv/`, `/admin/`, staff-only `/api/*`, public `/schedule.json`, and `/health`. The public schedule uses ETag/304 and no-cache.
-- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The offline implementation is pending.
+- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The table currently polls and keeps the last valid document in memory. Persistent caching and clock recovery are pending.
 - Staff sign in through Cloudflare Access email one-time PIN. The Worker independently verifies the Access JWT on every `/api/*` request. ADMIN and EDITOR roles live in the D1 `users` table.
 - Staff edit a draft and publish separately. Published snapshots are immutable. Rollback creates a new version. Keep 50 snapshots. The backend supports rollback and the staff UI will expose it as a one-click action.
 - Later Android task: a minimal Kotlin WebView Home-launcher APK for the budget Q96L2 box with WebView 119, 1–2 GB RAM, no RTC battery and frequent power cuts.
@@ -30,14 +30,14 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 - Use a table, not cards. Aim for 4–6 rows per page, default 5. The schema continues to accept 2–6 for older snapshots. Keep pages stationary with no scrolling, a fade, and a “Page X / Y” indicator. Default dwell is 10 seconds.
 - Grey out departed buses and label them “Departed / පිටත් විය” during `departedGraceMinutes` (default 15, max 60). Keep at most `MAX_DEPARTED_ROWS` (2) across the board.
 - Tag the next calendar day's buses “Tomorrow / හෙට” and tint departures inside `soonThresholdMinutes`. Do not flash.
-- Pair Sinhala with English. Bundle Sinhala and Inter fonts locally. Allow 3.5% safe-area padding for TV overscan. Never label the screen “LIVE”.
-- Include a staff-editable alert and a permanent footer with QR code, short URL, last-verified date and team credits.
+- Pair Sinhala with English. Bundle Sinhala and Inter fonts locally. Use the published safe area for TV overscan, with a 2% TV fallback when it is missing. Never label the screen “LIVE”.
+- Include a staff-editable alert and a permanent footer with a QR code, short URL, page indicator and countdown. Credits and last-verified date are configurable and hidden by default.
 - Force Asia/Colombo time, use the HTTP Date header for clock offset, and run the watchdog reload at 02:30 AM. If the clock appears wrong before syncing (year < 2026), show “Clock syncing...” and the full active schedule in `CLOCK_UNSYNCED` mode.
 
 ## Repo map and commands
 
 - `packages/shared` — schema, validation, board engine, time formatting and bilingual labels.
-- `apps/tv` — TV Vite app, currently a placeholder with a development fixture.
+- `apps/tv` — TV timetable table, development fixture and in-memory schedule polling.
 - `apps/admin` — staff Vite app, currently a placeholder.
 - `workers/api` — Cloudflare Worker, D1 migrations, API and local tools.
 
@@ -71,14 +71,14 @@ Root commands, all invoked with `npm run <script>`:
 | Shared strict validation                                                        | Done    |
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
-| TV table UI (Antigravity)                                                       | Pending |
+| TV table UI                                                                     | Done    |
 | TV offline engine, polling, clock recovery and watchdog                         | Pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
 | Kotlin launcher                                                                 | Pending |
 | First deploy                                                                    | Pending |
 
-The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. This branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
+The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. The board labels branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
 
 ## Open owner items
 
@@ -96,3 +96,9 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-12 — Fixed historical rollback, JWKS cooldown, duplicate emails and the public ignore rule (`75975db`).
 - 2026-11-12 — Added Colombo board engine, 12-hour formatting and TV development mock (`3386654`).
 - 2026-11-12 — Widened departure grace range, updated defaults, capped departed rows and added bilingual labels and this handover.
+
+- 2026-11-12 — Built and browser-checked the TV table on feature/tv-table-ui. TV config defines COLUMNS, SHOW_BAY_COLUMN (false), and CREDITS (placeholder). Preview flags: ?mock=1, &now=2026-11-12T23:50, &rows=3–6, &alert=critical, and ?unavailable=1. The QR encoder supports serialized URLs up to 106 bytes. Physical viewing-distance and Android box checks remain open. See [TV screenshots](docs/screenshots/README.md).
+
+- 2026-11-12 — Polished the TV header and footer on feature/tv-polish. The Sinhala title is one line, the clock stacks English over Sinhala meridiem, and the footer shows the Thimidu credit and a dwell countdown. Reduced motion uses a static ring with whole seconds. A temporary local browser check verified an 80-character Sinhala destination with a via line at 1920×1080 and 1280×720.
+
+- 2026-11-12 — Updated TV proportions and text fitting on feature/tv-polish-2. The TV fills the viewport, falls back to a 2% safe area, and gives the clock and two-line date more room. Arrival and departure use the same size; From values are Sinhala only. Via and empty credits are hidden by default. Verified long names and title with 3, 5 and 6 rows at 1920×1080, 1366×768 and 1280×720.
