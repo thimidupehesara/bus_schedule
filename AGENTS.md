@@ -73,7 +73,7 @@ Root commands, all invoked with `npm run <script>`:
 
 - Work on a feature branch. Never push, deploy, run `wrangler d1 create`, or use `--remote`.
 - Never commit secrets or `.dev.vars`. State the reason for any new dependency.
-- Keep the TV build target at `chrome100` for the Chrome 101 TWA. Use no APIs newer than Chrome 101 in the TV or shared output.
+- Support Chrome 52+ on the Q96L2 with a legacy bundle and an ES2015 service worker.
 - Keep typecheck, lint, tests and build green. Before handing over, update the table below and append to the progress log.
 
 ## Status
@@ -86,7 +86,7 @@ Root commands, all invoked with `npm run <script>`:
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
 | TV table UI                                                                     | Done    |
-| TV offline engine, polling, clock recovery and watchdog                         | Merge repaired; real box verification pending |
+| TV offline engine, polling, clock recovery and watchdog                         | Chrome 52 compatibility restored locally; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
 | Kotlin launcher                                                                 | Pending |
@@ -94,7 +94,7 @@ Root commands, all invoked with `npm run <script>`:
 | Remote sample seed CLI | Implemented; owner must run |
 | Public TWA Asset Links route | Implemented; owner must fill signing details and deploy |
 
-The Worker is deployed at https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev. The remote D1 database `mahiyanganaya-bus-db` exists and its migration is applied. The owner reported no snapshots yet, so `/schedule.json` returns 503.
+The Worker is deployed at https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev. The remote D1 database `mahiyanganaya-bus-db` exists and its migration is applied. The owner seeded a sample snapshot and the public `/schedule.json` returns 200.
 
 The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. The board labels branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
 
@@ -133,3 +133,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
   (6) Cleaned up T:\New folder\bus-twa-test\src\index.ts (removed ?mock=1 injection/redirect, direct asset fetch, kept assetlinks.json) and deployed via wrangler. Verified live endpoints for /tv/schedule.json, /tv/, and assetlinks.json.
 
 - 2026-11-13 — Repaired the offline engine merge. Restored live schedule polling, saved timetable startup, clock recovery, guarded reloads and service worker generation while retaining the TV layout and Worker configuration.
+
+- 2026-11-13 — Restored the TV legacy bundle, added the manifest and icons, removed unsupported service worker syntax, and paused automatic reloads while offline.

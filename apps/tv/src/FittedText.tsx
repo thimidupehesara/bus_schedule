@@ -37,7 +37,7 @@ export function FitLayout({ layout, children }: { layout: string; children: Reac
     window.addEventListener('resize', onResize);
     // Re-measure once after fonts finish loading – fonts load late and cause
     // wrong first measurements.
-    void document.fonts.ready.then(refresh);
+    void document.fonts?.ready.then(refresh);
 
     return () => {
       active = false;

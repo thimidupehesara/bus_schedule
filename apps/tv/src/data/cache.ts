@@ -59,7 +59,14 @@ export async function getSaved(): Promise<Saved[]> {
       const requests = keys.map((key) => store.get(key));
       const saved = await new Promise<Saved | null>((resolve, reject) => {
         tx.oncomplete = () =>
-          resolve(read(Object.fromEntries(keys.map((key, i) => [key, requests[i]?.result]))));
+          resolve(
+            read(
+              keys.reduce<Record<string, unknown>>((record, key, i) => {
+                record[key] = requests[i]?.result;
+                return record;
+              }, {}),
+            ),
+          );
         tx.onabort = () => reject(tx.error);
       });
       if (saved) candidates.unshift(saved);

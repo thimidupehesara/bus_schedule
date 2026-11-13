@@ -314,8 +314,12 @@ function PagedBoard({
   useEffect(() => {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     const change = () => setReduced(media.matches);
-    media.addEventListener('change', change);
-    return () => media.removeEventListener('change', change);
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', change);
+      return () => media.removeEventListener('change', change);
+    }
+    media.addListener(change);
+    return () => media.removeListener(change);
   }, []);
   useLayoutEffect(() => {
     setIndex((previous) => clampPage(previous, count));
@@ -499,7 +503,7 @@ function Board({
 export default function App() {
   const { doc, status, offset, lastSuccess, offline } = useSchedule();
   const { now, heartbeat } = useNow();
-  useMaintenance(heartbeat, offset, doc?.display.reloadAtLocalTime);
+  useMaintenance(heartbeat, offset, doc?.display.reloadAtLocalTime, offline || lastSuccess === null);
   const clock = clockState(import.meta.env.DEV ? now : Date.now(), offset, doc?.publishedAt ?? '');
   const age = lastSuccess === null ? null : performance.now() - lastSuccess;
   return doc ? (
