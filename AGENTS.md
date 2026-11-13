@@ -73,7 +73,7 @@ Root commands, all invoked with `npm run <script>`:
 
 - Work on a feature branch. Never push, deploy, run `wrangler d1 create`, or use `--remote`.
 - Never commit secrets or `.dev.vars`. State the reason for any new dependency.
-- Keep the TV build target at `chrome101`. Use no APIs newer than Chrome 101 in the TV or shared output.
+- Keep the TV build target at `chrome100` for the Chrome 101 TWA. Use no APIs newer than Chrome 101 in the TV or shared output.
 - Keep typecheck, lint, tests and build green. Before handing over, update the table below and append to the progress log.
 
 ## Status
@@ -86,7 +86,7 @@ Root commands, all invoked with `npm run <script>`:
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
 | TV table UI                                                                     | Done    |
-| TV offline engine, polling, clock recovery and watchdog                         | Implemented; real box verification pending |
+| TV offline engine, polling, clock recovery and watchdog                         | Merge repaired; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
 | Kotlin launcher                                                                 | Pending |
@@ -131,3 +131,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
   (4) Preserved @vitejs/plugin-legacy (targets: chrome >= 52), abortcontroller-polyfill, and base: '/tv/'.
   (5) Built apps/tv production assets and copied to T:\New folder\bus-twa-test\public\tv.
   (6) Cleaned up T:\New folder\bus-twa-test\src\index.ts (removed ?mock=1 injection/redirect, direct asset fetch, kept assetlinks.json) and deployed via wrangler. Verified live endpoints for /tv/schedule.json, /tv/, and assetlinks.json.
+
+- 2026-11-13 — Repaired the offline engine merge. Restored live schedule polling, saved timetable startup, clock recovery, guarded reloads and service worker generation while retaining the TV layout and Worker configuration.
