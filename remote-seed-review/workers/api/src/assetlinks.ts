@@ -1,0 +1,19 @@
+export const ASSET_LINKS: {
+  relation: string[];
+  target: {
+    namespace: 'android_app';
+    package_name: string;
+    sha256_cert_fingerprints: string[];
+  };
+}[] = [
+    {
+      relation: ['delegate_permission/common.handle_all_urls'],
+      target: {
+        namespace: 'android_app',
+        package_name: 'lk.mahiyanganaya.busdisplay',
+        sha256_cert_fingerprints: [
+          'B2:08:5A:CE:8A:3F:AD:59:1C:80:FF:CF:17:5D:F7:B9:A2:EE:38:F3:93:34:4C:56:1A:62:D6:C2:82:52:A8:EC',
+        ],
+      },
+    },
+  ];

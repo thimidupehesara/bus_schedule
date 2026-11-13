@@ -1,0 +1,19 @@
+name = "mahiyanganaya-bus"
+main = "src/index.ts"
+compatibility_date = "2026-11-11"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*", "/schedule.json", "/health", "/.well-known/*"]
+not_found_handling = "none"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mahiyanganaya-bus-db"
+database_id = "77673af6-070e-4991-a2d9-7042495b1dc9"
+migrations_dir = "migrations"
+
+[vars]
+TEAM_DOMAIN = "REPLACE_ME"
+ACCESS_AUD = "REPLACE_ME"

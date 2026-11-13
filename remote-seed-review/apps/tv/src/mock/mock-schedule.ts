@@ -1,0 +1,107 @@
+// DEV ONLY. Never bundled into production.
+import { DEFAULT_SAFE_AREA_PERCENT } from '../config.js';
+import type { BusService, ScheduleDocument } from '@bus-schedule/shared';
+
+const places = [
+  'Colombo',
+  'Kandy',
+  'Ampara',
+  'Batticaloa',
+  'Trincomalee',
+  'Jaffna',
+  'Akkaraipattu',
+  'Dehiattakandiya',
+  'Polonnaruwa',
+  'Anuradhapura',
+  'Badulla',
+  'Kurunegala',
+  'Maharagama',
+  'Bibile',
+  'Kantale',
+  'Passara',
+  'Monaragala',
+  'Hasalaka',
+];
+const departures = [
+  '00:30',
+  '01:40',
+  '02:15',
+  '03:50',
+  '04:25',
+  '05:10',
+  '05:18',
+  '06:00',
+  '06:30',
+  '07:05',
+  '07:45',
+  '08:20',
+  '09:00',
+  '09:35',
+  '10:10',
+  '11:00',
+  '11:45',
+  '12:15',
+  '12:50',
+  '13:30',
+  '14:00',
+  '14:40',
+  '15:20',
+  '16:00',
+  '16:30',
+  '17:05',
+  '17:50',
+  '18:20',
+  '19:00',
+  '19:40',
+  '20:15',
+  '21:00',
+  '21:45',
+  '22:20',
+  '23:00',
+  '23:55',
+];
+const localized = (name: string) => ({ en: name, si: name });
+const types = ['NORMAL', 'SEMI_LUXURY', 'LUXURY', 'EXPRESS'] as const;
+const shiftedTime = (time: string, delta: number): string => {
+  const minute = (Number(time.slice(0, 2)) * 60 + Number(time.slice(3)) + delta + 1440) % 1440;
+  return `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+};
+const services = departures.map<BusService>((departure, index) => ({
+  id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+  destination: localized(places[index % places.length]!),
+  origin: localized(places[(index + 5) % places.length]!),
+  via: index % 3 === 0 ? localized(places[(index + 2) % places.length]!) : null,
+  operator: index % 2 === 0 ? 'CTB' : 'PVT',
+  serviceType: types[index % types.length]!,
+  departure,
+  arrival: index % 3 === 0 ? shiftedTime(departure, -10) : null,
+  tripStart: index % 4 === 0 ? shiftedTime(departure, -60) : null,
+  destinationArrival: index % 4 === 0 ? shiftedTime(departure, 120) : null,
+  bay: index % 3 === 0 ? `B${(index % 5) + 1}` : null,
+  days: index % 7 === 3 ? [1, 2, 3, 4, 5] : index % 7 === 4 ? [6, 7] : [1, 2, 3, 4, 5, 6, 7],
+  active: true,
+}));
+export const mockSchedule: ScheduleDocument = {
+  schemaVersion: 1,
+  version: 1,
+  publishedAt: '2026-11-09T00:00:00Z',
+  lastVerified: '2026-11-09',
+  timezone: 'Asia/Colombo',
+  station: {
+    name: localized('Mahiyanganaya DEV Mock Board'),
+    mobileUrl: 'https://example.invalid',
+  },
+  alert: null,
+  display: {
+    rowsPerPage: 3,
+    dwellSeconds: 12,
+    fadeMs: 300,
+    departedGraceMinutes: 5,
+    soonThresholdMinutes: 15,
+    lookaheadHours: 8,
+    safeAreaPercent: DEFAULT_SAFE_AREA_PERCENT,
+    pollIntervalSeconds: 180,
+    reloadAtLocalTime: '02:30',
+  },
+  services,
+};
