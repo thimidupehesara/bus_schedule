@@ -39,8 +39,10 @@ body {
   --footer: 10vh;
   --alert: 0vh;
   --note: 0vh;
+  --stale: 0vh;
   --table-h: calc(
-    100vh - var(--safe) * 2vh - var(--masthead) - var(--footer) - var(--alert) - var(--note)
+    100vh - var(--safe) * 2vh - var(--masthead) - var(--footer) - var(--alert) - var(--note) -
+      var(--stale)
   );
   --head-row: max(var(--header-row-min), calc(var(--table-h) * 0.08));
   --row-h: calc((var(--table-h) - var(--head-row)) / var(--rows));
@@ -471,4 +473,26 @@ td {
 }
 .tall-alert.dense-places .service .en {
   grid-area: 2 / 2 / 3 / 3;
+}
+
+.saved-notice {
+  font-size: 0.85em;
+}
+.stale-warning {
+  background: #713f12;
+  color: #fff7df;
+  text-align: center;
+  padding: 0.25em 0.5em;
+}
+.stale-warning .en,
+.saved-notice .en {
+  margin-inline-start: 0.6em;
+}
+
+.screen.with-stale-warning {
+  --stale: 4.3vh;
+}
+.stale-warning {
+  box-sizing: border-box;
+  flex: 0 0 var(--stale);
 }

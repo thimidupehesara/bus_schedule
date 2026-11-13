@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const MINUTE = 60_000;
 
-export function useNow(): number {
+export function useNow() {
+  const heartbeat = useRef(performance.now());
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const tick = () => {
+      heartbeat.current = performance.now();
       const current = Date.now();
       setNow(current);
       timer = setTimeout(tick, MINUTE - (current % MINUTE));
@@ -32,5 +34,5 @@ export function useNow(): number {
       clearTimeout(timer);
     };
   }, []);
-  return now;
+  return { now, heartbeat };
 }

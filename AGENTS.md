@@ -11,11 +11,24 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 ## Architecture
 
 - One Cloudflare Worker, `mahiyanganaya-bus`, and D1 serve `/tv/`, `/admin/`, staff-only `/api/*`, public `/schedule.json`, and `/health`. The public schedule uses ETag/304 and no-cache.
-- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The table currently polls and keeps the last valid document in memory. Persistent caching and clock recovery are pending.
+- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The offline engine keeps the last validated timetable and recovers the clock from successful responses.
 - Staff sign in through Cloudflare Access email one-time PIN. The Worker independently verifies the Access JWT on every `/api/*` request. ADMIN and EDITOR roles live in the D1 `users` table.
 - Staff edit a draft and publish separately. Published snapshots are immutable. Rollback creates a new version. Keep 50 snapshots. The backend supports rollback and the staff UI will expose it as a one-click action.
-- Later Android task: a minimal Kotlin WebView Home-launcher APK for the budget Q96L2 box with WebView 119, 1–2 GB RAM, no RTC battery and frequent power cuts.
+- Later Android task: a Trusted Web Activity (TWA) running Chrome 101 on the budget Q96L2 box, 1–2 GB RAM, no RTC battery and frequent power cuts.
 - These architecture decisions are settled. Rejected options include Flutter/React Native, Neon/Postgres, Netlify and custom password/PIN login.
+
+## TV offline design
+
+- An online first visit precaches the TV shell and saves a validated timetable.
+- A /tv/ service worker serves cached navigation after a three-second network timeout.
+- The service worker leaves /schedule.json to the app.
+- IndexedDB stores the raw schedule and validators; localStorage and memory are fallbacks.
+- The TV displays the saved copy before checking for a new version.
+- ETag polling retains the last valid version through errors and backs off up to ten minutes.
+- The online event triggers a retry; successful responses restore normal polling.
+- Server time offsets are session-only; an implausible clock shows the unfiltered board.
+- The footer and banner distinguish an offline copy from an old timetable.
+- Worker updates, the heartbeat watchdog, and synced daily reloads share a durable loop guard.
 
 ## Data rules
 
@@ -59,7 +72,7 @@ Root commands, all invoked with `npm run <script>`:
 
 - Work on a feature branch. Never push, deploy, run `wrangler d1 create`, or use `--remote`.
 - Never commit secrets or `.dev.vars`. State the reason for any new dependency.
-- Keep the TV build target at `chrome109`. Use no APIs newer than Chrome 119 in the TV or shared output.
+- Keep the TV build target at `chrome100` for Chrome 101 in the TWA. Use no newer browser APIs in TV or shared output.
 - Keep typecheck, lint, tests and build green. Before handing over, update the table below and append to the progress log.
 
 ## Status
@@ -72,10 +85,10 @@ Root commands, all invoked with `npm run <script>`:
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
 | TV table UI                                                                     | Done    |
-| TV offline engine, polling, clock recovery and watchdog                         | Pending |
+| TV offline engine, polling, clock recovery and watchdog                         | Implemented; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
-| Kotlin launcher                                                                 | Pending |
+| Android TWA                                                                     | Owner hardware verification pending |
 | First deploy                                                                    | Pending |
 
 The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. The board labels branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
@@ -102,3 +115,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-12 — Polished the TV header and footer on feature/tv-polish. The Sinhala title is one line, the clock stacks English over Sinhala meridiem, and the footer shows the Thimidu credit and a dwell countdown. Reduced motion uses a static ring with whole seconds. A temporary local browser check verified an 80-character Sinhala destination with a via line at 1920×1080 and 1280×720.
 
 - 2026-11-12 — Updated TV proportions and text fitting on feature/tv-polish-2. The TV fills the viewport, falls back to a 2% safe area, and gives the clock and two-line date more room. Arrival and departure use the same size; From values are Sinhala only. Via and empty credits are hidden by default. Verified long names and title with 3, 5 and 6 rows at 1920×1080, 1366×768 and 1280×720.
+
+- 2026-11-13 — Implemented offline TV startup, validated schedule persistence, clock recovery, stale notices, automatic updates and guarded reloads on feature/offline-engine. The Chrome 101 TWA uses the chrome100 build target. See docs/OFFLINE-TEST.md for owner verification.
