@@ -1,0 +1,1073 @@
+{
+  "schemaVersion": 1,
+  "version": 1,
+  "publishedAt": "2026-11-09T00:00:00Z",
+  "lastVerified": "2026-11-09",
+  "timezone": "Asia/Colombo",
+  "station": {
+    "name": {
+      "en": "Mahiyanganaya DEV Mock Board",
+      "si": "Mahiyanganaya DEV Mock Board"
+    },
+    "mobileUrl": "https://example.invalid"
+  },
+  "alert": null,
+  "display": {
+    "rowsPerPage": 3,
+    "dwellSeconds": 12,
+    "fadeMs": 300,
+    "departedGraceMinutes": 5,
+    "soonThresholdMinutes": 15,
+    "lookaheadHours": 8,
+    "safeAreaPercent": 2,
+    "pollIntervalSeconds": 180,
+    "reloadAtLocalTime": "02:30"
+  },
+  "services": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "destination": {
+        "en": "Colombo",
+        "si": "Colombo"
+      },
+      "origin": {
+        "en": "Jaffna",
+        "si": "Jaffna"
+      },
+      "via": {
+        "en": "Ampara",
+        "si": "Ampara"
+      },
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "00:30",
+      "arrival": "00:20",
+      "tripStart": "23:30",
+      "destinationArrival": "02:30",
+      "bay": "B1",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "destination": {
+        "en": "Kandy",
+        "si": "Kandy"
+      },
+      "origin": {
+        "en": "Akkaraipattu",
+        "si": "Akkaraipattu"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "01:40",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "destination": {
+        "en": "Ampara",
+        "si": "Ampara"
+      },
+      "origin": {
+        "en": "Dehiattakandiya",
+        "si": "Dehiattakandiya"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "02:15",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "destination": {
+        "en": "Batticaloa",
+        "si": "Batticaloa"
+      },
+      "origin": {
+        "en": "Polonnaruwa",
+        "si": "Polonnaruwa"
+      },
+      "via": {
+        "en": "Jaffna",
+        "si": "Jaffna"
+      },
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "03:50",
+      "arrival": "03:40",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B4",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "destination": {
+        "en": "Trincomalee",
+        "si": "Trincomalee"
+      },
+      "origin": {
+        "en": "Anuradhapura",
+        "si": "Anuradhapura"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "04:25",
+      "arrival": null,
+      "tripStart": "03:25",
+      "destinationArrival": "06:25",
+      "bay": null,
+      "days": [
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "destination": {
+        "en": "Jaffna",
+        "si": "Jaffna"
+      },
+      "origin": {
+        "en": "Badulla",
+        "si": "Badulla"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "05:10",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "destination": {
+        "en": "Akkaraipattu",
+        "si": "Akkaraipattu"
+      },
+      "origin": {
+        "en": "Kurunegala",
+        "si": "Kurunegala"
+      },
+      "via": {
+        "en": "Polonnaruwa",
+        "si": "Polonnaruwa"
+      },
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "05:18",
+      "arrival": "05:08",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B2",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000008",
+      "destination": {
+        "en": "Dehiattakandiya",
+        "si": "Dehiattakandiya"
+      },
+      "origin": {
+        "en": "Maharagama",
+        "si": "Maharagama"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "06:00",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000009",
+      "destination": {
+        "en": "Polonnaruwa",
+        "si": "Polonnaruwa"
+      },
+      "origin": {
+        "en": "Bibile",
+        "si": "Bibile"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "06:30",
+      "arrival": null,
+      "tripStart": "05:30",
+      "destinationArrival": "08:30",
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "destination": {
+        "en": "Anuradhapura",
+        "si": "Anuradhapura"
+      },
+      "origin": {
+        "en": "Kantale",
+        "si": "Kantale"
+      },
+      "via": {
+        "en": "Kurunegala",
+        "si": "Kurunegala"
+      },
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "07:05",
+      "arrival": "06:55",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B5",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000011",
+      "destination": {
+        "en": "Badulla",
+        "si": "Badulla"
+      },
+      "origin": {
+        "en": "Passara",
+        "si": "Passara"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "07:45",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000012",
+      "destination": {
+        "en": "Kurunegala",
+        "si": "Kurunegala"
+      },
+      "origin": {
+        "en": "Monaragala",
+        "si": "Monaragala"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "08:20",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000013",
+      "destination": {
+        "en": "Maharagama",
+        "si": "Maharagama"
+      },
+      "origin": {
+        "en": "Hasalaka",
+        "si": "Hasalaka"
+      },
+      "via": {
+        "en": "Kantale",
+        "si": "Kantale"
+      },
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "09:00",
+      "arrival": "08:50",
+      "tripStart": "08:00",
+      "destinationArrival": "11:00",
+      "bay": "B3",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000014",
+      "destination": {
+        "en": "Bibile",
+        "si": "Bibile"
+      },
+      "origin": {
+        "en": "Colombo",
+        "si": "Colombo"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "09:35",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000015",
+      "destination": {
+        "en": "Kantale",
+        "si": "Kantale"
+      },
+      "origin": {
+        "en": "Kandy",
+        "si": "Kandy"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "10:10",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000016",
+      "destination": {
+        "en": "Passara",
+        "si": "Passara"
+      },
+      "origin": {
+        "en": "Ampara",
+        "si": "Ampara"
+      },
+      "via": {
+        "en": "Hasalaka",
+        "si": "Hasalaka"
+      },
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "11:00",
+      "arrival": "10:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B1",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000017",
+      "destination": {
+        "en": "Monaragala",
+        "si": "Monaragala"
+      },
+      "origin": {
+        "en": "Batticaloa",
+        "si": "Batticaloa"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "11:45",
+      "arrival": null,
+      "tripStart": "10:45",
+      "destinationArrival": "13:45",
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000018",
+      "destination": {
+        "en": "Hasalaka",
+        "si": "Hasalaka"
+      },
+      "origin": {
+        "en": "Trincomalee",
+        "si": "Trincomalee"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "12:15",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000019",
+      "destination": {
+        "en": "Colombo",
+        "si": "Colombo"
+      },
+      "origin": {
+        "en": "Jaffna",
+        "si": "Jaffna"
+      },
+      "via": {
+        "en": "Ampara",
+        "si": "Ampara"
+      },
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "12:50",
+      "arrival": "12:40",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B4",
+      "days": [
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000020",
+      "destination": {
+        "en": "Kandy",
+        "si": "Kandy"
+      },
+      "origin": {
+        "en": "Akkaraipattu",
+        "si": "Akkaraipattu"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "13:30",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000021",
+      "destination": {
+        "en": "Ampara",
+        "si": "Ampara"
+      },
+      "origin": {
+        "en": "Dehiattakandiya",
+        "si": "Dehiattakandiya"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "14:00",
+      "arrival": null,
+      "tripStart": "13:00",
+      "destinationArrival": "16:00",
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000022",
+      "destination": {
+        "en": "Batticaloa",
+        "si": "Batticaloa"
+      },
+      "origin": {
+        "en": "Polonnaruwa",
+        "si": "Polonnaruwa"
+      },
+      "via": {
+        "en": "Jaffna",
+        "si": "Jaffna"
+      },
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "14:40",
+      "arrival": "14:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B2",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000023",
+      "destination": {
+        "en": "Trincomalee",
+        "si": "Trincomalee"
+      },
+      "origin": {
+        "en": "Anuradhapura",
+        "si": "Anuradhapura"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "15:20",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000024",
+      "destination": {
+        "en": "Jaffna",
+        "si": "Jaffna"
+      },
+      "origin": {
+        "en": "Badulla",
+        "si": "Badulla"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "16:00",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000025",
+      "destination": {
+        "en": "Akkaraipattu",
+        "si": "Akkaraipattu"
+      },
+      "origin": {
+        "en": "Kurunegala",
+        "si": "Kurunegala"
+      },
+      "via": {
+        "en": "Polonnaruwa",
+        "si": "Polonnaruwa"
+      },
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "16:30",
+      "arrival": "16:20",
+      "tripStart": "15:30",
+      "destinationArrival": "18:30",
+      "bay": "B5",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000026",
+      "destination": {
+        "en": "Dehiattakandiya",
+        "si": "Dehiattakandiya"
+      },
+      "origin": {
+        "en": "Maharagama",
+        "si": "Maharagama"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "17:05",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000027",
+      "destination": {
+        "en": "Polonnaruwa",
+        "si": "Polonnaruwa"
+      },
+      "origin": {
+        "en": "Bibile",
+        "si": "Bibile"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "17:50",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000028",
+      "destination": {
+        "en": "Anuradhapura",
+        "si": "Anuradhapura"
+      },
+      "origin": {
+        "en": "Kantale",
+        "si": "Kantale"
+      },
+      "via": {
+        "en": "Kurunegala",
+        "si": "Kurunegala"
+      },
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "18:20",
+      "arrival": "18:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B3",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000029",
+      "destination": {
+        "en": "Badulla",
+        "si": "Badulla"
+      },
+      "origin": {
+        "en": "Passara",
+        "si": "Passara"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "19:00",
+      "arrival": null,
+      "tripStart": "18:00",
+      "destinationArrival": "21:00",
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000030",
+      "destination": {
+        "en": "Kurunegala",
+        "si": "Kurunegala"
+      },
+      "origin": {
+        "en": "Monaragala",
+        "si": "Monaragala"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "19:40",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000031",
+      "destination": {
+        "en": "Maharagama",
+        "si": "Maharagama"
+      },
+      "origin": {
+        "en": "Hasalaka",
+        "si": "Hasalaka"
+      },
+      "via": {
+        "en": "Kantale",
+        "si": "Kantale"
+      },
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "20:15",
+      "arrival": "20:05",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B1",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000032",
+      "destination": {
+        "en": "Bibile",
+        "si": "Bibile"
+      },
+      "origin": {
+        "en": "Colombo",
+        "si": "Colombo"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "21:00",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000033",
+      "destination": {
+        "en": "Kantale",
+        "si": "Kantale"
+      },
+      "origin": {
+        "en": "Kandy",
+        "si": "Kandy"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "21:45",
+      "arrival": null,
+      "tripStart": "20:45",
+      "destinationArrival": "23:45",
+      "bay": null,
+      "days": [
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000034",
+      "destination": {
+        "en": "Passara",
+        "si": "Passara"
+      },
+      "origin": {
+        "en": "Ampara",
+        "si": "Ampara"
+      },
+      "via": {
+        "en": "Hasalaka",
+        "si": "Hasalaka"
+      },
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "22:20",
+      "arrival": "22:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B4",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000035",
+      "destination": {
+        "en": "Monaragala",
+        "si": "Monaragala"
+      },
+      "origin": {
+        "en": "Batticaloa",
+        "si": "Batticaloa"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "23:00",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000036",
+      "destination": {
+        "en": "Hasalaka",
+        "si": "Hasalaka"
+      },
+      "origin": {
+        "en": "Trincomalee",
+        "si": "Trincomalee"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "23:55",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "active": true
+    }
+  ]
+}

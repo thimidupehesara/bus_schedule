@@ -32,17 +32,18 @@ body {
   box-sizing: border-box;
   height: 100%;
   width: 100%;
-  padding: calc(var(--safe) * 1vh) calc(var(--safe) * 1vw);
+  /* Subtract 8px countdown bar height from safe-area padding */
+  padding: calc(var(--safe) * 1vh) calc(var(--safe) * 1vw) 0;
   display: flex;
   flex-direction: column;
   --masthead: 8.6vh;
   --footer: 10vh;
   --alert: 0vh;
   --note: 0vh;
-  --stale: 0vh;
+  /* 1.5% gap between masthead and table header row */
+  --masthead-gap: 1.5vh;
   --table-h: calc(
-    100vh - var(--safe) * 2vh - var(--masthead) - var(--footer) - var(--alert) - var(--note) -
-      var(--stale)
+    100vh - var(--safe) * 2vh - var(--masthead) - var(--masthead-gap) - var(--footer) - var(--alert) - var(--note) - 8px
   );
   --head-row: max(var(--header-row-min), calc(var(--table-h) * 0.08));
   --row-h: calc((var(--table-h) - var(--head-row)) / var(--rows));
@@ -68,7 +69,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1vw;
+  /* Clear gap between title block and clock block (at least 3vw) */
+  gap: max(3vw, 1rem);
+}
+/* Spacer between header and table */
+.masthead-gap {
+  flex: 0 0 var(--masthead-gap);
+  height: var(--masthead-gap);
 }
 .masthead h1 {
   display: flex;
@@ -78,7 +85,7 @@ body {
   font-weight: 700;
   min-width: 0;
   margin: 0;
-  flex: 1;
+  flex: 1 1 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -105,11 +112,13 @@ body {
 .clock .digits {
   font-size: var(--clock-size);
 }
+/* AM/PM block enlarged to ~140% of previous 1rem = ~1.4rem */
 .clock-meridiem {
   display: grid;
   text-align: left;
-  font-size: 1rem;
-  line-height: 1.05;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.1;
 }
 .date {
   font-size: var(--date-size);
@@ -248,15 +257,24 @@ td {
   align-items: center;
   text-align: center;
 }
+
+/* ── FittedText rules ──────────────────────────────────────────────────────── */
+/* Never clip Sinhala diacritics vertically: line-height >= 1.45 on [lang=si].
+   Overflow is hidden at the *box* level (cell), not by clipping the span.
+   text-overflow is applied inline by FittedText only when truncation is needed. */
 .fitted {
   display: block;
   min-width: 0;
   max-width: 100%;
+  /* Prevent wrapping – single-line mandatory */
   white-space: nowrap;
+  /* Hide overflow at box level */
   overflow: hidden;
-  text-overflow: ellipsis;
+  /* Default – overridden inline to 'ellipsis' by FittedText when needed */
+  text-overflow: clip;
   flex-shrink: 0;
 }
+
 .departure .digits,
 .arrival .digits {
   font-size: min(
@@ -277,9 +295,10 @@ td {
 .time-meta {
   display: flex;
   justify-content: center;
-  align-items: baseline;
+  align-items: center;
+  flex-direction: column;
   max-width: 100%;
-  gap: 0.3vw;
+  gap: 0.15vh;
 }
 .cell :is(.meridiem, .pill, .via),
 .service :is(.si, .en),
@@ -292,6 +311,14 @@ td {
   border-radius: 0.45vh;
   background: #26313e;
   color: #f5f7fa;
+  /* The badge text must always show completely – FittedText may scale its font
+     but must never be clipped: allow up to 95% of cell width */
+  max-width: 95%;
+}
+/* Departed badge gets a subtly different tint to stand out on the grey row */
+.departed-badge {
+  background: #3a2a2a;
+  color: #d4b5b5;
 }
 .destination .place-si {
   font-size: max(var(--type-floor), calc(var(--row-h) * var(--destination-si-scale)));
@@ -384,30 +411,37 @@ td {
   align-items: center;
   gap: 0.65vw;
 }
-.page-countdown {
-  flex: 0 0 5vh;
-  width: 5vh;
-  height: 5vh;
+
+/* ── Countdown bar (replaces the ring) ─────────────────────────────────────── */
+/* Positioned at the very bottom edge, inside the viewport, below the footer.
+   The screen has bottom padding 0 so the bar sits at the absolute bottom. */
+.countdown-bar-track {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #1f2937;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
 }
-.page-countdown circle {
-  fill: none;
-  stroke-width: 3;
+.countdown-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: #22c55e;
+  transform-origin: left center;
+  /* transform and transition are set inline by PageCountdown */
 }
-.countdown-track {
-  stroke: #344251;
+.countdown-bar-seconds {
+  position: absolute;
+  right: 0.5rem;
+  font-size: 0.6rem;
+  color: #9ca3af;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
-.countdown-ring {
-  stroke: #facc15;
-  stroke-dasharray: 100;
-  transform: rotate(-90deg);
-  transform-origin: center;
-}
-.page-countdown text {
-  fill: #f5f7fa;
-  font:
-    600 22px Inter,
-    sans-serif;
-}
+
 .dots {
   display: flex;
   justify-content: center;
@@ -454,6 +488,7 @@ td {
   tbody {
     transition-duration: 0ms !important;
   }
+  /* Static bar stays full width – handled in component */
 }
 
 /* Reserve enough vertical space for type labels when a long alert shares a dense board. */

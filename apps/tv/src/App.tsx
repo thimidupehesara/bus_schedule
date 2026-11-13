@@ -50,16 +50,40 @@ function Pair({ text }: { text: Text }) {
   );
 }
 
-function Time({ value, badge }: { value: string; badge?: Text | null }) {
+/**
+ * Renders a time cell's digits + a subordinate block beneath them.
+ * For DEPARTED rows the subordinate block is the "Departed / පිටත් විය" badge.
+ * For other rows it may be a day pill (Tomorrow / Monday…) or nothing.
+ * The meridiem ("AM / ප.ව.") is rendered only for non-departed rows.
+ */
+function Time({
+  value,
+  badge,
+  departed,
+}: {
+  value: string;
+  badge?: Text | null;
+  departed?: boolean;
+}) {
   const { clock, si, en } = meridiemBilingual(value);
   return (
     <>
       <strong className="digits">{clock}</strong>
       <div className="time-meta">
-        <span className="meridiem">
-          <span lang="si">{si}</span> · <span lang="en">{en}</span>
-        </span>
-        {badge && <FittedText className="pill" text={badge.si + ' / ' + badge.en} />}
+        {departed ? (
+          /* Departed badge replaces the meridiem line */
+          <FittedText
+            className="pill departed-badge"
+            text={LABELS.departed.si + ' · ' + LABELS.departed.en}
+          />
+        ) : (
+          <>
+            <span className="meridiem">
+              <span lang="si">{si}</span> · <span lang="en">{en}</span>
+            </span>
+            {badge && <FittedText className="pill" text={badge.si + ' / ' + badge.en} />}
+          </>
+        )}
       </div>
     </>
   );
@@ -181,11 +205,13 @@ function PageIndicator({
   count,
   deadline,
   reduced,
+  dwellSeconds,
 }: {
   page: number;
   count: number;
   deadline: number | null;
   reduced: boolean;
+  dwellSeconds: number;
 }) {
   if (count <= 1) return null;
   const dotCount = Math.min(count, 7);
@@ -202,7 +228,9 @@ function PageIndicator({
           ))}
         </div>
       </div>
-      {deadline !== null && <PageCountdown deadline={deadline} reduced={reduced} />}
+      {deadline !== null && (
+        <PageCountdown deadline={deadline} reduced={reduced} dwellSeconds={dwellSeconds} />
+      )}
     </div>
   );
 }
@@ -211,6 +239,7 @@ function Row({ row, weekday }: { row?: BoardRow | undefined; weekday: Weekday })
   const bus = row?.service;
   const day = row ? departureDay(row.dayOffset, weekday) : null;
   const operator = bus && serviceLabel(bus.operator, bus.serviceType);
+  const isDeparted = row?.status === 'DEPARTED';
   return (
     <tr className={row?.status.toLowerCase()} aria-hidden={row ? undefined : true}>
       {columns.map(({ key }) => (
@@ -235,7 +264,8 @@ function Row({ row, weekday }: { row?: BoardRow | undefined; weekday: Weekday })
             {bus && key === 'departure' && (
               <Time
                 value={bus.departure}
-                badge={row?.status === 'DEPARTED' ? LABELS.departed : day}
+                badge={isDeparted ? null : day}
+                departed={isDeparted}
               />
             )}
             {bus &&
@@ -355,8 +385,25 @@ function PagedBoard({
       </div>
       {indicator &&
         createPortal(
-          <PageIndicator page={page} count={count} deadline={deadline} reduced={reduced} />,
+          <PageIndicator
+            page={page}
+            count={count}
+            deadline={deadline}
+            reduced={reduced}
+            dwellSeconds={display.dwellSeconds}
+          />,
           indicator,
+        )}
+      {/* Countdown bar: full-width at screen bottom, outside safe-area padding */}
+      {count > 1 &&
+        deadline !== null &&
+        createPortal(
+          <PageCountdown
+            deadline={deadline}
+            reduced={reduced}
+            dwellSeconds={display.dwellSeconds}
+          />,
+          document.body,
         )}
     </>
   );
@@ -429,11 +476,8 @@ function Board({
         ].join('|')}
       >
         <Header doc={doc} now={now} syncing={board.mode === 'CLOCK_UNSYNCED'} />
-        {staleWarning && (
-          <aside className="stale-warning" role="status">
-            <Pair text={offlineLabels.stale} />
-          </aside>
-        )}
+        {/* 1.5vh gap between masthead and table header row */}
+        <div className="masthead-gap" aria-hidden="true" />
         {alert && <Alert alert={alert} />}
         <PagedBoard
           board={board}
@@ -448,11 +492,8 @@ function Board({
 }
 
 export default function App() {
-  const { doc, status, offset, lastSuccess, offline } = useSchedule();
-  const { now, heartbeat } = useNow();
-  useMaintenance(heartbeat, offset, doc?.display.reloadAtLocalTime);
-  const clock = clockState(import.meta.env.DEV ? now : Date.now(), offset, doc?.publishedAt ?? '');
-  const age = lastSuccess === null ? null : performance.now() - lastSuccess;
+  const { doc, status, error } = useSchedule();
+  const now = useNow();
   return doc ? (
     <Board
       doc={doc}
@@ -464,6 +505,23 @@ export default function App() {
   ) : (
     <main className="empty fullscreen" role="status">
       <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />
+      {status === 'UNAVAILABLE' && error && (
+        <div
+          style={{
+            marginTop: '1.5rem',
+            fontSize: '1rem',
+            color: '#94a3b8',
+            fontWeight: 400,
+            fontFamily: 'monospace',
+            maxWidth: '80%',
+            textAlign: 'center',
+            wordBreak: 'break-word',
+            opacity: 0.85,
+          }}
+        >
+          {error}
+        </div>
+      )}
     </main>
   );
 }

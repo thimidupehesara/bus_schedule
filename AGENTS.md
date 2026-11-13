@@ -66,13 +66,14 @@ Root commands, all invoked with `npm run <script>`:
 | `validate:sample`                                         | Validate the shared sample schedule                                          |
 | `user:create`, `user:list`, `user:disable`, `user:enable` | Manage staff accounts locally                                                |
 | `db:migrate:local`, `db:seed:local`                       | Migrate or seed local D1                                                     |
+| `db:seed:remote` | Owner-only sample seed with interactive confirmation |
 | `deploy`                                                  | Owner-only first deployment command. AI tools must never run it              |
 
 ## Rules for AI tools
 
 - Work on a feature branch. Never push, deploy, run `wrangler d1 create`, or use `--remote`.
 - Never commit secrets or `.dev.vars`. State the reason for any new dependency.
-- Keep the TV build target at `chrome100` for Chrome 101 in the TWA. Use no newer browser APIs in TV or shared output.
+- Keep the TV build target at `chrome101`. Use no APIs newer than Chrome 101 in the TV or shared output.
 - Keep typecheck, lint, tests and build green. Before handing over, update the table below and append to the progress log.
 
 ## Status
@@ -88,8 +89,12 @@ Root commands, all invoked with `npm run <script>`:
 | TV offline engine, polling, clock recovery and watchdog                         | Implemented; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
-| Android TWA                                                                     | Owner hardware verification pending |
-| First deploy                                                                    | Pending |
+| Kotlin launcher                                                                 | Pending |
+| First deploy and remote D1 migration | Done |
+| Remote sample seed CLI | Implemented; owner must run |
+| Public TWA Asset Links route | Implemented; owner must fill signing details and deploy |
+
+The Worker is deployed at https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev. The remote D1 database `mahiyanganaya-bus-db` exists and its migration is applied. The owner reported no snapshots yet, so `/schedule.json` returns 503.
 
 The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. The board labels branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
 
@@ -116,4 +121,13 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 
 - 2026-11-12 — Updated TV proportions and text fitting on feature/tv-polish-2. The TV fills the viewport, falls back to a 2% safe area, and gives the clock and two-line date more room. Arrival and departure use the same size; From values are Sinhala only. Via and empty credits are hidden by default. Verified long names and title with 3, 5 and 6 rows at 1920×1080, 1366×768 and 1280×720.
 
-- 2026-11-13 — Implemented offline TV startup, validated schedule persistence, clock recovery, stale notices, automatic updates and guarded reloads on feature/offline-engine. The Chrome 101 TWA uses the chrome100 build target. See docs/OFFLINE-TEST.md for owner verification.
+- 2026-11-13 — Added the guarded owner-only sample seed and public code-served TWA Asset Links route on feature/remote-seed. Recorded the existing deployment and remote D1 migration and updated the TV target to Chrome 101 in a TWA.
+- 2026-11-12 — TV display polish (feature/tv-polish-3). Written by Antigravity; previous branches were written by Codex. Changes: (1) FitText rewrite — pure `computeFit` in fitText.ts (unit-tested), re-measures on layout change, fonts.ready, and debounced resize (150 ms); scales to TEXT_MIN_SCALE=0.65, then ellipsis-truncates; Sinhala diacritics never clipped (line-height ≥ 1.45, overflow hidden on the cell box only). (2) Countdown bar — circular ring replaced by an 8 px full-width green progress line at the absolute screen bottom using CSS scaleX transition; reduced-motion shows static bar + whole-seconds text from one timer. (3) Departed rows — departure cell shows "පිටත් විය · Departed" badge (from LABELS.departed) instead of the AM/PM meridiem. (4) Header — AM/PM block enlarged to 1.4 rem bold; gap between title and clock block is at least 3 vw; 1.5 vh gap between masthead and table header row. (5) Stress fixture — `?mock=1&stress=1` loads 25-char English and 80-char Sinhala names, tree-shaken from production. typecheck, lint, 175 tests, build and production grep all pass.
+
+- 2026-11-12 — TV TWA test & static schedule loading (feature/twa-tv-schedule). [DONE]
+  (1) Exported mock schedule into valid apps/tv/public/schedule.json.
+  (2) Updated apps/tv/src/data/useSchedule.ts to fetch `${import.meta.env.BASE_URL}schedule.json` by default, preserved `?mock=1` support, and captured error message.
+  (3) Updated apps/tv/src/App.tsx to display caught error.message in small muted monospace text on timetable unavailable screen using flexbox without gap-* or CSS Grid.
+  (4) Preserved @vitejs/plugin-legacy (targets: chrome >= 52), abortcontroller-polyfill, and base: '/tv/'.
+  (5) Built apps/tv production assets and copied to T:\New folder\bus-twa-test\public\tv.
+  (6) Cleaned up T:\New folder\bus-twa-test\src\index.ts (removed ?mock=1 injection/redirect, direct asset fetch, kept assetlinks.json) and deployed via wrangler. Verified live endpoints for /tv/schedule.json, /tv/, and assetlinks.json.
