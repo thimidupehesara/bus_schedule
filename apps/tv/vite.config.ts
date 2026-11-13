@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import legacy from '@vitejs/plugin-legacy';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   base: '/tv/',
-  plugins: [react()],
+  plugins: [
+    react(),
+    legacy({
+      targets: ['chrome >= 52'],
+    }),
+  ],
   build: {
-    // The TV runs Chrome 101 inside a Trusted Web Activity.
-    target: 'chrome101',
     outDir: 'dist',
   },
 });
-

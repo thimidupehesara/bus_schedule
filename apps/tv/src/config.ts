@@ -6,7 +6,7 @@ export const CREDITS_NAME: string = '';
 export const SHOW_VIA = false;
 export const DEFAULT_SAFE_AREA_PERCENT = 2;
 export const WEEKDAY_CODES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] as const;
-export const TEXT_MIN_SCALE = 0.7;
+export const TEXT_MIN_SCALE = 0.65;
 export const TV_TYPE = {
   '--type-floor': '2.407407vh',
   '--title-size': '4.1vh',

@@ -11,7 +11,7 @@ not_found_handling = "none"
 [[d1_databases]]
 binding = "DB"
 database_name = "mahiyanganaya-bus-db"
-database_id = "REPLACE_WITH_REAL_ID_AFTER_d1_create"
+database_id = "77673af6-070e-4991-a2d9-7042495b1dc9"
 migrations_dir = "migrations"
 
 [vars]
