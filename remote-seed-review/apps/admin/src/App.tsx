@@ -62,6 +62,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'all' | 'qr' | 'suggestions'>('all');
   const [suggestionFilter, setSuggestionFilter] = useState<'ALL' | 'OPEN' | 'RESOLVED'>('ALL');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [tvReloading, setTvReloading] = useState(false);
+  const [tvReloadMessage, setTvReloadMessage] = useState<string | null>(null);
 
   const todayStr = useMemo(() => colomboDate(), []);
 
@@ -144,6 +146,23 @@ export default function App() {
     return suggestions.filter((s) => s.status === suggestionFilter);
   }, [suggestions, suggestionFilter]);
 
+  async function handleTvReload() {
+    if (tvReloading) return;
+    setTvReloading(true);
+    setTvReloadMessage(null);
+    try {
+      const res = await apiFetch('/api/admin/tv-reload', { method: 'POST' });
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+      await res.json();
+      setTvReloadMessage('TV refresh command sent! The TV box will reload cleanly.');
+      setTimeout(() => setTvReloadMessage(null), 5000);
+    } catch (err) {
+      alert(`Error triggering TV reload: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setTvReloading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased pb-16">
       {/* Top Navbar */}
@@ -164,6 +183,16 @@ export default function App() {
           <div className="flex items-center gap-3">
             <button
               type="button"
+              onClick={handleTvReload}
+              disabled={tvReloading}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 transition disabled:opacity-50"
+              title="Send an immediate remote reload signal to all active TV displays"
+            >
+              <span>📺</span>
+              {tvReloading ? 'Sending Signal...' : 'Refresh TV Screen'}
+            </button>
+            <button
+              type="button"
               onClick={loadData}
               disabled={loading}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition"
@@ -178,6 +207,18 @@ export default function App() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-6 pt-8 space-y-10">
+        {tvReloadMessage && (
+          <div className="p-3.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-sm flex items-center justify-between">
+            <span>✅ {tvReloadMessage}</span>
+            <button
+              type="button"
+              onClick={() => setTvReloadMessage(null)}
+              className="text-xs text-emerald-400 hover:text-white"
+            >
+              ✕ Dismiss
+            </button>
+          </div>
+        )}
         {/* Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
           <button

@@ -30,8 +30,18 @@ writeFileSync(
   Cache-Control: no-store
 /tv/*
   Cache-Control: no-cache
+/tv/version.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: no-cache, no-store, must-revalidate
+/tv/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+/tv/
+  Cache-Control: no-cache, no-store, must-revalidate
 /tv/manifest.webmanifest
   Content-Type: application/manifest+json
+  Cache-Control: no-cache
+/tv/sw.js
+  Content-Type: application/javascript; charset=utf-8
   Cache-Control: no-cache
 /mobile/*
   Cache-Control: no-cache

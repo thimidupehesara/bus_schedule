@@ -29,6 +29,7 @@ import { useNow } from './data/useNow.js';
 import { qrPath } from './qr.js';
 import { PageCountdown } from './PageCountdown.js';
 import { FittedText, FitLayout } from './FittedText.js';
+import { useAutoReloadOnDeploy } from './hooks/useAutoReloadOnDeploy.js';
 
 type Text = { si: string; en: string };
 const columns = getColumns();
@@ -156,18 +157,21 @@ const Footer = memo(function Footer({
         </div>
       </div>
       <div className="indicator" ref={setIndicator} />
-      <div className="verification">
-        {SHOW_LAST_VERIFIED && (
-          <>
-            <Pair text={LABELS.lastVerified} />
-            <time dateTime={doc.lastVerified}>{doc.lastVerified}</time>
-          </>
-        )}
-        {CREDITS_NAME && (
-          <div className="credits" lang="si">
-            {CREDITS_PREFIX} {CREDITS_NAME}
+      <div className="footer-legend">
+        <div className="legend-item">
+          <span className="legend-swatch legend-swatch-departed" aria-hidden="true" />
+          <div className="legend-text">
+            <span lang="si" className="legend-si">පිටත් වූ / ආසන්න බස්</span>
+            <span lang="en" className="legend-en">Departed / Leaving Soon</span>
           </div>
-        )}
+        </div>
+        <div className="legend-item">
+          <span className="legend-swatch legend-swatch-soon" aria-hidden="true" />
+          <div className="legend-text">
+            <span lang="si" className="legend-si">ඊළඟ බස් රථය</span>
+            <span lang="en" className="legend-en">Next Upcoming Bus</span>
+          </div>
+        </div>
       </div>
     </footer>
   );
@@ -263,14 +267,18 @@ function PagedBoard({
   weekday: Weekday;
   indicator: HTMLDivElement | null;
 }) {
-  const count = board.pages.length;
+  const totalSchedulePages = board.pages.length;
+  const scheduleCount = Math.max(1, totalSchedulePages);
+  const totalSlides = scheduleCount + 1;
   const [index, setIndex] = useState(0);
   const [hidden, setHidden] = useState(false);
   const [deadline, setDeadline] = useState<number | null>(null);
   const [reduced, setReduced] = useState(
     () => matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
-  const page = clampPage(index, count);
+  const slideIndex = clampPage(index, totalSlides);
+  const isCreditsSlide = slideIndex === scheduleCount;
+  const page = isCreditsSlide ? 0 : clampPage(slideIndex, scheduleCount);
   const fade = reduced ? 0 : display.fadeMs;
   useEffect(() => {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -279,11 +287,11 @@ function PagedBoard({
     return () => media.removeEventListener('change', change);
   }, []);
   useLayoutEffect(() => {
-    setIndex((previous) => clampPage(previous, count));
-  }, [count]);
+    setIndex((previous) => clampPage(previous, totalSlides));
+  }, [totalSlides]);
   useLayoutEffect(() => {
     setHidden(false);
-    if (count <= 1) {
+    if (totalSlides <= 1) {
       setDeadline(null);
       return;
     }
@@ -291,7 +299,7 @@ function PagedBoard({
     setDeadline(performance.now() + duration);
     let swap: ReturnType<typeof setTimeout> | undefined;
     const advance = () => {
-      setIndex((current) => (clampPage(current, count) + 1) % count);
+      setIndex((current) => (clampPage(current, totalSlides) + 1) % totalSlides);
       setHidden(false);
     };
     const dwell = setTimeout(() => {
@@ -303,11 +311,45 @@ function PagedBoard({
       clearTimeout(dwell);
       clearTimeout(swap);
     };
-  }, [count, page, fade, display.dwellSeconds]);
+  }, [totalSlides, slideIndex, fade, display.dwellSeconds]);
+  useEffect(() => {
+    const img = new Image();
+    img.src = './credits-slide.png';
+    img.decode?.().catch(() => {});
+  }, []);
   return (
     <>
       {deadline !== null && <PageCountdown deadline={deadline} reduced={reduced} />}
-      <div className="table-region">
+      {createPortal(
+        <div
+          className={`credits-slide${isCreditsSlide ? ' active' : ''}`}
+          style={{
+            opacity: isCreditsSlide ? (hidden ? 0 : 1) : 0,
+            visibility: isCreditsSlide ? 'visible' : 'hidden',
+            pointerEvents: isCreditsSlide ? 'auto' : 'none',
+            transition: `opacity ${fade / 2}ms ease-in-out, visibility ${fade / 2}ms`,
+          }}
+          aria-hidden={!isCreditsSlide}
+          aria-label="Credits"
+        >
+          <img
+            src="./credits-slide.png"
+            alt="Credits"
+            className="credits-slide-img"
+            loading="eager"
+            decoding="sync"
+          />
+        </div>,
+        document.body,
+      )}
+      <div
+        className="table-region"
+        style={{
+          visibility: isCreditsSlide ? 'hidden' : 'visible',
+          opacity: isCreditsSlide ? 0 : hidden ? 0 : 1,
+          transition: `opacity ${fade / 2}ms`,
+        }}
+      >
         {board.usedFallbackWindow && board.totalRows > 0 && (
           <div className="fallback">
             <Pair text={COPY.fallback} />
@@ -337,7 +379,7 @@ function PagedBoard({
                 ))}
               </tr>
             </thead>
-            <tbody style={{ opacity: hidden ? 0 : 1, transitionDuration: `${fade / 2}ms` }}>
+            <tbody>
               {Array.from({ length: display.rowsPerPage }, (_, slot) => (
                 <Row key={slot} weekday={weekday} row={board.pages[page]?.rows[slot]} />
               ))}
@@ -346,8 +388,10 @@ function PagedBoard({
         )}
       </div>
       {indicator &&
+        !isCreditsSlide &&
+        totalSchedulePages > 0 &&
         createPortal(
-          <PageIndicator page={page} count={count} />,
+          <PageIndicator page={page} count={totalSchedulePages} />,
           indicator,
         )}
     </>
@@ -419,8 +463,16 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
 }
 
 export default function App() {
+  useAutoReloadOnDeploy();
   const { doc, status } = useSchedule();
   const now = useNow();
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = './credits-slide.png';
+    img.decode?.().catch(() => {});
+  }, []);
+
   return doc ? (
     <Board doc={doc} now={now} />
   ) : (

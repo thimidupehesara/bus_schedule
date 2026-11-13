@@ -8,15 +8,60 @@ export type ScheduleState = {
   status: 'LOADING' | 'READY' | 'UNAVAILABLE';
 };
 
+const SCHEDULE_STORAGE_KEY = 'mahiyanganaya_tv_schedule_cached';
+
+function loadCachedSchedule(): ScheduleDocument | null {
+  if (typeof window === 'undefined' || !window.localStorage) return null;
+  try {
+    const raw = localStorage.getItem(SCHEDULE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    const display = parsed && typeof parsed === 'object' && 'display' in parsed ? (parsed as Record<string, unknown>)['display'] : null;
+    const schedule =
+      parsed &&
+      typeof parsed === 'object' &&
+      display &&
+      typeof display === 'object' &&
+      !Array.isArray(display) &&
+      (!('safeAreaPercent' in display) || (display as Record<string, unknown>)['safeAreaPercent'] == null)
+        ? { ...parsed, display: { ...display, safeAreaPercent: DEFAULT_SAFE_AREA_PERCENT } }
+        : parsed;
+    const result = validateScheduleDocument(schedule);
+    if (result.ok) return result.data;
+  } catch {
+    // Ignore invalid JSON or corrupted cache
+  }
+  return null;
+}
+
+function saveCachedSchedule(doc: ScheduleDocument): void {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(doc));
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
 export function useSchedule(): ScheduleState {
-  const [state, setState] = useState<ScheduleState>({ doc: null, status: 'LOADING' });
+  const [state, setState] = useState<ScheduleState>(() => {
+    const cached = loadCachedSchedule();
+    return cached
+      ? { doc: cached, status: 'READY' }
+      : { doc: null, status: 'LOADING' };
+  });
   useEffect(() => {
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
     let interval = 180;
     const setUnavailable = () => {
       if (!controller.signal.aborted) {
-        setState((previous) => (previous.doc ? previous : { doc: null, status: 'UNAVAILABLE' }));
+        setState((previous) => {
+          if (previous.doc) return previous;
+          const cached = loadCachedSchedule();
+          if (cached) return { doc: cached, status: 'READY' };
+          return { doc: null, status: 'UNAVAILABLE' };
+        });
       }
     };
     const poll = async () => {
@@ -41,6 +86,7 @@ export function useSchedule(): ScheduleState {
         if (!result.ok) throw new Error('Schedule document did not validate');
         if (controller.signal.aborted) return;
         interval = result.data.display.pollIntervalSeconds;
+        saveCachedSchedule(result.data);
         setState({ doc: result.data, status: 'READY' });
       } catch {
         setUnavailable();

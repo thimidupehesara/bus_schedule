@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 export function PageCountdown({ deadline, reduced }: { deadline: number; reduced: boolean }) {
   const bar = useRef<HTMLDivElement>(null);
@@ -17,11 +18,12 @@ export function PageCountdown({ deadline, reduced }: { deadline: number; reduced
     return undefined;
   }, [deadline, reduced]);
 
-  return (
+  return createPortal(
     <div className="page-countdown-bar" aria-hidden="true">
       <div className="countdown-track">
         <div className="countdown-fill" ref={bar} />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

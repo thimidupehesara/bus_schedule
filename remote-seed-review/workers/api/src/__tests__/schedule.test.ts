@@ -47,7 +47,7 @@ describe('snapshot contract', () => {
     expect(diff.removed).toHaveLength(1);
     expect(diff.changed).toHaveLength(1);
     expect(diff.changed[0]!.fields).toEqual([
-      { field: 'departure', before: '01:00', after: '01:05' },
+      { field: 'departure', before: live.services[0]!.departure, after: '01:05' },
     ]);
     expect(diff).toMatchObject({
       alertChanged: true,
@@ -82,7 +82,7 @@ describe('snapshot contract', () => {
       expect(codes).toContain(code);
     draft.services = [
       live.services[0]!,
-      { ...live.services[0]!, id: crypto.randomUUID(), departure: '01:04' },
+      { ...live.services[0]!, id: crypto.randomUUID(), departure: '01:34' },
     ];
     expect(
       publishWarnings(draft, live).some(

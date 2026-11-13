@@ -205,6 +205,47 @@ describe('Mobile QR and Suggestions API', () => {
     expect(statsRes.status).toBe(200);
     const statsData = (await statsRes.json()) as { ok: boolean; stats: unknown[] };
     expect(statsData.ok).toBe(true);
+
+    // Trigger TV Reload via POST /api/admin/tv-reload
+    const reloadRes = await worker.fetch(
+      new Request('http://localhost/api/admin/tv-reload', {
+        method: 'POST',
+        headers: {
+          Origin: 'http://localhost',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      }),
+      env,
+    );
+    expect(reloadRes.status).toBe(200);
+    const reloadData = (await reloadRes.json()) as { ok: boolean; reloadNonce: string };
+    expect(reloadData.ok).toBe(true);
+    expect(typeof reloadData.reloadNonce).toBe('string');
+    expect(reloadData.reloadNonce.length).toBeGreaterThan(0);
+
+    // Verify GET /tv/version.json returns the bumped reloadNonce
+    const versionRes = await worker.fetch(
+      new Request('http://localhost/tv/version.json'),
+      {
+        ...env,
+        ASSETS: {
+          fetch: async () =>
+            new Response(JSON.stringify({ buildId: 'test-build-123' }), {
+              headers: { 'Content-Type': 'application/json' },
+            }),
+        } as unknown as Fetcher,
+      },
+    );
+    expect(versionRes.status).toBe(200);
+    expect(versionRes.headers.get('Cache-Control')).toContain('no-cache');
+    const versionData = (await versionRes.json()) as {
+      buildId: string;
+      reloadNonce: string;
+      forceReloadToken: string;
+    };
+    expect(versionData.buildId).toBe('test-build-123');
+    expect(versionData.reloadNonce).toBe(reloadData.reloadNonce);
+    expect(versionData.forceReloadToken).toBe(reloadData.reloadNonce);
   });
 });
 

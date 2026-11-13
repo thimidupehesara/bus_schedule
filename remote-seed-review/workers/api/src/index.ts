@@ -229,6 +229,20 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       .all();
     return ok({ stats: rows.results });
   }
+  if (path === '/api/admin/tv-reload' && method === 'POST') {
+    requireAdmin(user);
+    const nonce = String(Date.now());
+    await store
+      .sql(
+        'INSERT INTO audit_log (at, login_id, action, detail) VALUES (?, ?, ?, ?)',
+        new Date().toISOString(),
+        user.loginId,
+        'TV_RELOAD',
+        nonce,
+      )
+      .run();
+    return ok({ ok: true, reloadNonce: nonce });
+  }
   const state = await store.draft();
   const live = state.live ? (JSON.parse(state.live.body) as ScheduleDocument) : null;
   if (path === '/api/draft' && method === 'GET')
@@ -586,6 +600,61 @@ async function route(request: Request, env: Env): Promise<Response> {
       matchesEtag(request.headers.get('If-None-Match'), live.etag) ? null : live.body,
       { status: matchesEtag(request.headers.get('If-None-Match'), live.etag) ? 304 : 200, headers },
     );
+  }
+  if (path === '/tv/version.json') {
+    const assetResponse = await env.ASSETS.fetch(request);
+    let buildId = '';
+    try {
+      const data = (await assetResponse.json()) as { buildId?: string };
+      buildId = data?.buildId || '';
+    } catch {}
+
+    let reloadNonce = '0';
+    try {
+      const audit = await env.DB.prepare(
+        "SELECT detail FROM audit_log WHERE action = 'TV_RELOAD' ORDER BY id DESC LIMIT 1",
+      ).first<{ detail: string }>();
+      if (audit?.detail) {
+        reloadNonce = audit.detail;
+      }
+    } catch {}
+
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/json; charset=utf-8');
+    headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    headers.set('Pragma', 'no-cache');
+    headers.set('Expires', '0');
+
+    return new Response(
+      JSON.stringify({
+        buildId,
+        reloadNonce,
+        forceReloadToken: reloadNonce,
+      }),
+      { status: 200, headers },
+    );
+  }
+  if (path === '/tv/' || path === '/tv/index.html') {
+    const assetResponse = await env.ASSETS.fetch(request);
+    const headers = new Headers(assetResponse.headers);
+    headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    headers.set('Pragma', 'no-cache');
+    headers.set('Expires', '0');
+    return new Response(assetResponse.body, {
+      status: assetResponse.status,
+      statusText: assetResponse.statusText,
+      headers,
+    });
+  }
+  if (path === '/tv/sw.js') {
+    const assetResponse = await env.ASSETS.fetch(request);
+    const headers = new Headers(assetResponse.headers);
+    headers.set('Content-Type', 'application/javascript; charset=utf-8');
+    headers.set('Cache-Control', 'no-cache');
+    return new Response(assetResponse.body, {
+      status: assetResponse.status,
+      headers,
+    });
   }
   if (path === '/api' || path.startsWith('/api/')) return staff(request, env, path);
   return env.ASSETS.fetch(request);
