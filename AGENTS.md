@@ -85,7 +85,8 @@ Root commands, all invoked with `npm run <script>`:
 | Shared strict validation                                                        | Done    |
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
-| TV table UI                                                                     | Three-row sample pagination restored |
+| Real Excel timetable import | 146 rows staged; blanks preserved; publication blocked by required fields |
+| TV table UI                                                                     | Local design restored; live D1 still version 1 with four services and five rows/page; clock runtime verification pending |
 | TV offline engine, polling, clock recovery and watchdog                         | Chrome 52 checkpoint restored; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
@@ -141,3 +142,7 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-13 — Reverted the later TV sizing, paging and countdown changes to restore the Chrome 52 offline checkpoint from PR #10.
 
 - 2026-11-13 — Restored the TV preview and three-row sample pagination, removed placeholder rows and the fallback banner, and retained the Chrome 52 offline and PWA assets. The owner can publish the 12-service sample as a new version.
+
+- 2026-11-13 — Extracted 146 Excel timetable rows into imports/timetable-source.json with a review in imports/REVIEW.md. Owner requested blanks remain blank; preserved nulls without guessing operators, days or AM/PM. Current schedule schema cannot publish incomplete records. No remote database, deployment or UI changes made.
+
+- 2026-11-13 — Investigated live TV complaints: public schedule remains version 1 (four sample services, rowsPerPage 5, eight-hour lookahead). At 17:26 only the 00:40 and 01:00 services fall in that window, hence one page and no countdown. Git confirms the 16:50 rollback restored hiding the single-page bar; 17:03 change retained that behavior and removed placeholder rows. Footer URL predates offline work. Deployed bundle includes the minute clock timer and legacy scripts; browser observation timed out, so an actual frozen clock is not diagnosed. No application or remote data changes.

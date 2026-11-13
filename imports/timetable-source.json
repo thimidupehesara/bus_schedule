@@ -1,0 +1,2782 @@
+{
+  "source": "Mahiyanganaya_Bus_Timetable.xlsx",
+  "sheet": "Bus Timetable",
+  "status": "Staged only; owner requested blanks remain blank. Current schedule schema rejects incomplete records.",
+  "rows": [
+    {
+      "excelRow": 2,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "12:50",
+      "departurePeriod": "AM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 3,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "12:45",
+      "departurePeriod": null,
+      "arrival": "12:45",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "කතරගම",
+        "en": "Kataragama"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 4,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "12:45",
+      "departurePeriod": "PM",
+      "arrival": "12:35",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 5,
+      "destination": {
+        "si": "අක්කරේපත්තු",
+        "en": "Akkaraipattu"
+      },
+      "departure": "12:40",
+      "departurePeriod": "AM",
+      "arrival": "12:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 6,
+      "destination": {
+        "si": "අක්කරේපත්තු",
+        "en": "Akkaraipattu"
+      },
+      "departure": "12:40",
+      "departurePeriod": "AM",
+      "arrival": "12:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": "සුඛෝපභෝගී",
+      "serviceTypeEn": "Luxury",
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 7,
+      "destination": {
+        "si": "වැල්ලවාය",
+        "en": "Wellawaya"
+      },
+      "departure": "12:35",
+      "departurePeriod": "PM",
+      "arrival": "12:20",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "අනුරාධපුර",
+        "en": "Anuradhapura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 8,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "12:30",
+      "departurePeriod": "PM",
+      "arrival": "12:15",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "යක්කුරේ",
+        "en": "Yakkure"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 9,
+      "destination": {
+        "si": "අක්කරේපත්තු",
+        "en": "Akkaraipattu"
+      },
+      "departure": "12:15",
+      "departurePeriod": "PM",
+      "arrival": "12:00",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "කටුනායක",
+        "en": "Katunayake"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 10,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "12:05",
+      "departurePeriod": "PM",
+      "arrival": "11:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 11,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "12:00",
+      "departurePeriod": null,
+      "arrival": "11:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කල්මුනේ",
+        "en": "Kalmunai"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 12,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "12:00",
+      "departurePeriod": null,
+      "arrival": "11:50",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 13,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "12:00",
+      "departurePeriod": null,
+      "arrival": "11:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 14,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "11:50",
+      "departurePeriod": "AM",
+      "arrival": "11:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 15,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "11:50",
+      "departurePeriod": "AM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 16,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "11:45",
+      "departurePeriod": "AM",
+      "arrival": "11:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 17,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "11:40",
+      "departurePeriod": "PM",
+      "arrival": "11:30",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 18,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "11:40",
+      "departurePeriod": "AM",
+      "arrival": "11:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 19,
+      "destination": {
+        "si": "නුවරඑළිය",
+        "en": "Nuwara Eliya"
+      },
+      "departure": "11:30",
+      "departurePeriod": "AM",
+      "arrival": "11:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "පොළොන්නරුව",
+        "en": "Polonnaruwa"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 20,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "11:15",
+      "departurePeriod": "AM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 21,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "11:15",
+      "departurePeriod": "AM",
+      "arrival": "11:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 22,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "11:10",
+      "departurePeriod": "AM",
+      "arrival": "11:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 23,
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "departure": "11:10",
+      "departurePeriod": "AM",
+      "arrival": "10:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 24,
+      "destination": {
+        "si": "කටුනායක",
+        "en": "Katunayake"
+      },
+      "departure": "11:00",
+      "departurePeriod": "AM",
+      "arrival": "10:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 25,
+      "destination": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "departure": "11:00",
+      "departurePeriod": "AM",
+      "arrival": "10:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "තණමල්විල",
+        "en": "Thanamalwila"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 26,
+      "destination": {
+        "si": "මන්නාරම",
+        "en": "Mannar"
+      },
+      "departure": "11:00",
+      "departurePeriod": "AM",
+      "arrival": "10:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "දියතලාව",
+        "en": "Diyatalawa"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 27,
+      "destination": {
+        "si": "නුවරඑළිය",
+        "en": "Nuwara Eliya"
+      },
+      "departure": "11:00",
+      "departurePeriod": "AM",
+      "arrival": "10:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කාත්තන්කුඩි",
+        "en": "Kattankudy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 28,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "11:00",
+      "departurePeriod": "AM",
+      "arrival": "10:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කෑගල්ල",
+        "en": "Kegalle"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 29,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "11:00",
+      "departurePeriod": "AM",
+      "arrival": "10:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 30,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "10:50",
+      "departurePeriod": "AM",
+      "arrival": "10:40",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 31,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "10:45",
+      "departurePeriod": null,
+      "arrival": "10:30",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 32,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "10:45",
+      "departurePeriod": "PM",
+      "arrival": "10:30",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 33,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "10:40",
+      "departurePeriod": "AM",
+      "arrival": "10:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 34,
+      "destination": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "departure": "10:40",
+      "departurePeriod": "AM",
+      "arrival": "10:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 35,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "10:40",
+      "departurePeriod": "AM",
+      "arrival": "10:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 36,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "10:30",
+      "departurePeriod": "AM",
+      "arrival": "10:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 37,
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "departure": "10:30",
+      "departurePeriod": "AM",
+      "arrival": "10:25",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": "වායු සමනය කරන ලද",
+      "serviceTypeEn": "Air-conditioned",
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 38,
+      "destination": {
+        "si": "අම්බලන්තොට",
+        "en": "Ambalantota"
+      },
+      "departure": "10:30",
+      "departurePeriod": "AM",
+      "arrival": "10:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "පොළොන්නරුව",
+        "en": "Polonnaruwa"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 39,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "10:30",
+      "departurePeriod": "AM",
+      "arrival": "10:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 40,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "10:30",
+      "departurePeriod": "AM",
+      "arrival": "10:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 41,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "10:20",
+      "departurePeriod": "AM",
+      "arrival": "09:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": "සුඛෝපභෝගී",
+      "serviceTypeEn": "Luxury",
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 42,
+      "destination": {
+        "si": "කුරුණෑගල",
+        "en": "Kurunegala"
+      },
+      "departure": "10:10",
+      "departurePeriod": "AM",
+      "arrival": "10:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කතරගම",
+        "en": "Kataragama"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 43,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "10:10",
+      "departurePeriod": "AM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 44,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "10:10",
+      "departurePeriod": "AM",
+      "arrival": "10:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "ටැම්පිටිය",
+        "en": "Tampitiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 45,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "10:00",
+      "departurePeriod": "AM",
+      "arrival": "09:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 46,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "10:00",
+      "departurePeriod": "AM",
+      "arrival": "09:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "දඹුල්ල",
+        "en": "Dambulla"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 47,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "10:00",
+      "departurePeriod": "AM",
+      "arrival": "09:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 48,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "10:00",
+      "departurePeriod": "AM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "මහියංගණය",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 49,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "09:50",
+      "departurePeriod": "AM",
+      "arrival": "09:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": "සුඛෝපභෝගී",
+      "serviceTypeEn": "Luxury",
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 50,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "09:45",
+      "departurePeriod": null,
+      "arrival": "09:40",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 51,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "09:45",
+      "departurePeriod": "AM",
+      "arrival": "09:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 52,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "09:45",
+      "departurePeriod": "AM",
+      "arrival": "09:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අරලගංවිල",
+        "en": "Aralaganwila"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 53,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "09:40",
+      "departurePeriod": "AM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 54,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "09:35",
+      "departurePeriod": "AM",
+      "arrival": "09:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 55,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "09:30",
+      "departurePeriod": "AM",
+      "arrival": "09:10",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණය",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 56,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "09:25",
+      "departurePeriod": "PM",
+      "arrival": "09:10",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 57,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "09:20",
+      "departurePeriod": "AM",
+      "arrival": "08:40",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 58,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "09:20",
+      "departurePeriod": "AM",
+      "arrival": "09:10",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 59,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "09:15",
+      "departurePeriod": "PM",
+      "arrival": "09:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 60,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "09:15",
+      "departurePeriod": "AM",
+      "arrival": "09:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 61,
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "departure": "09:10",
+      "departurePeriod": "AM",
+      "arrival": "08:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 62,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "09:00",
+      "departurePeriod": "AM",
+      "arrival": "08:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 63,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "09:00",
+      "departurePeriod": null,
+      "arrival": "08:45",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 64,
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "departure": "09:00",
+      "departurePeriod": "AM",
+      "arrival": "08:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බණ්ඩාරවෙල",
+        "en": "Bandarawela"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 65,
+      "destination": {
+        "si": "ගාල්ල",
+        "en": "Galle"
+      },
+      "departure": "09:00",
+      "departurePeriod": "PM",
+      "arrival": "08:45",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "කුරුලුබැද්ද",
+        "en": "Kurulubedda"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 66,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "09:00",
+      "departurePeriod": "AM",
+      "arrival": "08:50",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මල්දෙණිය",
+        "en": "Maldeniya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 67,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "09:00",
+      "departurePeriod": "AM",
+      "arrival": "08:40",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණය",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 68,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "08:55",
+      "departurePeriod": "AM",
+      "arrival": "08:40",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 69,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "08:50",
+      "departurePeriod": "AM",
+      "arrival": "08:40",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 70,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "08:40",
+      "departurePeriod": "PM",
+      "arrival": "08:30",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 71,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "08:30",
+      "departurePeriod": "AM",
+      "arrival": "07:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 72,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "08:30",
+      "departurePeriod": "AM",
+      "arrival": "08:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 73,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "08:30",
+      "departurePeriod": "AM",
+      "arrival": "08:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 74,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "08:30",
+      "departurePeriod": "AM",
+      "arrival": "08:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "ඇල්ලේවැව",
+        "en": "Ellewewa"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 75,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "08:30",
+      "departurePeriod": "AM",
+      "arrival": "08:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 76,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "08:30",
+      "departurePeriod": "AM",
+      "arrival": "08:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සේරුපිටිය",
+        "en": "Serupitiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 77,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "08:20",
+      "departurePeriod": "AM",
+      "arrival": "08:10",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 78,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "08:20",
+      "departurePeriod": null,
+      "arrival": "08:10",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "අක්කරේපත්තු",
+        "en": "Akkaraipattu"
+      },
+      "serviceTypeSi": "සුඛෝපභෝගී",
+      "serviceTypeEn": "Luxury",
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 79,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "08:20",
+      "departurePeriod": "AM",
+      "arrival": "08:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 80,
+      "destination": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "departure": "08:15",
+      "departurePeriod": "AM",
+      "arrival": "08:05",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 81,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "08:15",
+      "departurePeriod": "AM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "අරලගංවිල",
+        "en": "Aralaganwila"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 82,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "08:10",
+      "departurePeriod": "AM",
+      "arrival": "08:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "පුස්සලවින්න",
+        "en": "Pussellawinna"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 83,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "08:00",
+      "departurePeriod": "AM",
+      "arrival": "07:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 84,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "08:00",
+      "departurePeriod": null,
+      "arrival": "07:45",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 85,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "08:00",
+      "departurePeriod": "AM",
+      "arrival": "07:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 86,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "08:00",
+      "departurePeriod": "AM",
+      "arrival": "07:40",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණය",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 87,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "07:45",
+      "departurePeriod": "AM",
+      "arrival": "07:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 88,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "07:40",
+      "departurePeriod": "AM",
+      "arrival": "07:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 89,
+      "destination": {
+        "si": "ගාල්ල",
+        "en": "Galle"
+      },
+      "departure": "07:30",
+      "departurePeriod": "AM",
+      "arrival": "07:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මල්දෙණිය",
+        "en": "Maldeniya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 90,
+      "destination": {
+        "si": "ඇල්පිටිය",
+        "en": "Elpitiya"
+      },
+      "departure": "07:30",
+      "departurePeriod": "PM",
+      "arrival": "07:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 91,
+      "destination": {
+        "si": "පානදුර",
+        "en": "Panadura"
+      },
+      "departure": "07:30",
+      "departurePeriod": "AM",
+      "arrival": "07:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 92,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "07:30",
+      "departurePeriod": "AM",
+      "arrival": "07:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මුවපැටිනිවෙල",
+        "en": "Muwapetinivela"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 93,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "07:30",
+      "departurePeriod": "AM",
+      "arrival": "07:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "ටැම්පිටිය",
+        "en": "Tampitiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 94,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "07:20",
+      "departurePeriod": "PM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 95,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "07:20",
+      "departurePeriod": "AM",
+      "arrival": "07:10",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 96,
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "departure": "07:15",
+      "departurePeriod": "AM",
+      "arrival": "06:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 97,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "07:15",
+      "departurePeriod": "PM",
+      "arrival": "07:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 98,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "07:10",
+      "departurePeriod": "AM",
+      "arrival": "07:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 99,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "07:00",
+      "departurePeriod": "AM",
+      "arrival": "06:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 100,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "06:50",
+      "departurePeriod": "AM",
+      "arrival": "06:40",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "ටැම්පිටිය",
+        "en": "Tampitiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 101,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "06:50",
+      "departurePeriod": "AM",
+      "arrival": "06:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 102,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "06:45",
+      "departurePeriod": "AM",
+      "arrival": "06:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "පුස්සලවින්න",
+        "en": "Pussellawinna"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 103,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "06:30",
+      "departurePeriod": "AM",
+      "arrival": "06:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 104,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "06:20",
+      "departurePeriod": "AM",
+      "arrival": "05:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 105,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "06:15",
+      "departurePeriod": "AM",
+      "arrival": "06:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 106,
+      "destination": {
+        "si": "මහරගම",
+        "en": "Maharagama"
+      },
+      "departure": "06:00",
+      "departurePeriod": "AM",
+      "arrival": "05:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 107,
+      "destination": {
+        "si": "කුරුණෑගල",
+        "en": "Kurunegala"
+      },
+      "departure": "06:00",
+      "departurePeriod": "AM",
+      "arrival": "05:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 108,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "06:00",
+      "departurePeriod": "PM",
+      "arrival": "05:45",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 109,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "06:00",
+      "departurePeriod": "AM",
+      "arrival": "05:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 110,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "05:45",
+      "departurePeriod": "AM",
+      "arrival": "05:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 111,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "05:45",
+      "departurePeriod": "AM",
+      "arrival": "05:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 112,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "05:30",
+      "departurePeriod": "AM",
+      "arrival": "05:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "වෑකන්ද",
+        "en": "Wekanda"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 113,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "05:20",
+      "departurePeriod": "PM",
+      "arrival": "05:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 114,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "05:20",
+      "departurePeriod": "PM",
+      "arrival": "05:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 115,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "05:10",
+      "departurePeriod": "AM",
+      "arrival": "05:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 116,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "05:00",
+      "departurePeriod": "PM",
+      "arrival": "04:50",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 117,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "04:45",
+      "departurePeriod": "PM",
+      "arrival": "04:35",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 118,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "04:45",
+      "departurePeriod": "AM",
+      "arrival": "04:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 119,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "04:20",
+      "departurePeriod": "AM",
+      "arrival": "04:10",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 120,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "04:20",
+      "departurePeriod": "PM",
+      "arrival": "04:10",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 121,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "04:15",
+      "departurePeriod": "PM",
+      "arrival": "04:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 122,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "04:00",
+      "departurePeriod": "AM",
+      "arrival": "03:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 123,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "03:30",
+      "departurePeriod": "AM",
+      "arrival": "03:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 124,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "03:30",
+      "departurePeriod": "PM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 125,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "03:30",
+      "departurePeriod": "PM",
+      "arrival": "03:15",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 126,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "03:15",
+      "departurePeriod": "PM",
+      "arrival": "03:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 127,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "03:00",
+      "departurePeriod": "AM",
+      "arrival": "02:45",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 128,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "03:00",
+      "departurePeriod": "PM",
+      "arrival": "02:45",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 129,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "02:45",
+      "departurePeriod": "PM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 130,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "02:30",
+      "departurePeriod": "AM",
+      "arrival": "02:20",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 131,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "02:30",
+      "departurePeriod": "AM",
+      "arrival": "02:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මිද්දෙනිය",
+        "en": "Middeniya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 132,
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "departure": "02:30",
+      "departurePeriod": "AM",
+      "arrival": "02:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "කතරගම",
+        "en": "Kataragama"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 133,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "02:30",
+      "departurePeriod": "PM",
+      "arrival": "02:15",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 134,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "02:10",
+      "departurePeriod": "AM",
+      "arrival": "02:00",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "මීගහකිවුල",
+        "en": "Meegahakivula"
+      },
+      "serviceTypeSi": "සුඛෝපභෝගී",
+      "serviceTypeEn": "Luxury",
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 135,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "02:00",
+      "departurePeriod": "PM",
+      "arrival": "01:45",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 136,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "02:00",
+      "departurePeriod": "PM",
+      "arrival": "01:45",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 137,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "01:45",
+      "departurePeriod": "AM",
+      "arrival": "01:30",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 138,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "01:30",
+      "departurePeriod": "AM",
+      "arrival": "01:15",
+      "arrivalPeriod": "AM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 139,
+      "destination": {
+        "si": "ත්රීකුණාමලය",
+        "en": "Trincomalee"
+      },
+      "departure": "01:30",
+      "departurePeriod": "PM",
+      "arrival": "01:20",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "දියතලාව",
+        "en": "Diyatalawa"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 140,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "01:30",
+      "departurePeriod": "PM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 141,
+      "destination": {
+        "si": "පන්නල්ගම",
+        "en": "Pannalgama"
+      },
+      "departure": "01:30",
+      "departurePeriod": "PM",
+      "arrival": null,
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 142,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "01:30",
+      "departurePeriod": "PM",
+      "arrival": "01:15",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 143,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "01:15",
+      "departurePeriod": "PM",
+      "arrival": "01:00",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "අරලගංවිල",
+        "en": "Aralaganwila"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 144,
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departure": "01:00",
+      "departurePeriod": "PM",
+      "arrival": "12:50",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 145,
+      "destination": {
+        "si": "ත්රීකුණාමලය",
+        "en": "Trincomalee"
+      },
+      "departure": "01:00",
+      "departurePeriod": "AM",
+      "arrival": "12:30",
+      "arrivalPeriod": null,
+      "origin": {
+        "si": "දියතලාව",
+        "en": "Diyatalawa"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 146,
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departure": "01:00",
+      "departurePeriod": "PM",
+      "arrival": "12:50",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    },
+    {
+      "excelRow": 147,
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departure": "01:00",
+      "departurePeriod": "PM",
+      "arrival": "12:45",
+      "arrivalPeriod": "PM",
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "serviceTypeSi": null,
+      "serviceTypeEn": null,
+      "operator": null,
+      "days": null
+    }
+  ],
+  "additionalNote": "According to the combined SLTB and private bus timetable, buses depart every 15 minutes from 5:00 AM to 5:15 PM."
+}
