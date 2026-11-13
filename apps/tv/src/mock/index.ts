@@ -21,11 +21,16 @@ export async function loadMockIfRequested(): Promise<ScheduleDocument | null> {
   const { mockSchedule } = await import('./mock-schedule.js');
   const params = options();
   const rows = Number(params.get('rows'));
-  return {
+  const rowsPerPage =
+    Number.isInteger(rows) && rows >= 3 && rows <= 6
+      ? rows
+      : DEFAULT_DISPLAY_SETTINGS.rowsPerPage;
+
+  const baseDoc: ScheduleDocument = {
     ...mockSchedule,
     services: [
       ...mockSchedule.services,
-      ...['00:12', '00:18'].map((departure, index) => ({
+      ...(['00:12', '00:18'] as const).map((departure, index) => ({
         ...mockSchedule.services[index]!,
         id: '00000000-0000-4000-8000-00000000010' + index,
         departure,
@@ -35,10 +40,7 @@ export async function loadMockIfRequested(): Promise<ScheduleDocument | null> {
     display: {
       ...DEFAULT_DISPLAY_SETTINGS,
       safeAreaPercent: DEFAULT_SAFE_AREA_PERCENT,
-      rowsPerPage:
-        Number.isInteger(rows) && rows >= 3 && rows <= 6
-          ? rows
-          : DEFAULT_DISPLAY_SETTINGS.rowsPerPage,
+      rowsPerPage,
     },
     alert:
       params.get('alert') === 'critical'
@@ -53,4 +55,16 @@ export async function loadMockIfRequested(): Promise<ScheduleDocument | null> {
           }
         : null,
   };
+
+  // &stress=1 — long-name stress fixture, tree-shaken from production.
+  if (params.has('stress')) {
+    const { stressSchedule } = await import('./stress-schedule.js');
+    return {
+      ...baseDoc,
+      services: stressSchedule.services,
+      display: { ...baseDoc.display, rowsPerPage },
+    };
+  }
+
+  return baseDoc;
 }
