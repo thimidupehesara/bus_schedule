@@ -7,56 +7,55 @@ import { pollDelay } from './freshness.js';
 export type ScheduleState = {
   doc: ScheduleDocument | null;
   status: 'LOADING' | 'READY' | 'UNAVAILABLE';
-  error?: string | null;
+  offset: number | null;
+  lastSuccess: number | null;
+  offline: boolean;
+};
+
+const initial: ScheduleState = {
+  doc: null,
+  status: 'LOADING',
+  offset: null,
+  lastSuccess: null,
+  offline: false,
 };
 
 export function useSchedule(): ScheduleState {
-  const [state, setState] = useState<ScheduleState>({ doc: null, status: 'LOADING', error: null });
+  const [state, setState] = useState(initial);
   useEffect(() => {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let interval = 180;
-    const setUnavailable = (err?: unknown) => {
-      if (!controller.signal.aborted) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : typeof err === 'string'
-              ? err
-              : 'Unknown error occurred while loading schedule';
-        setState((previous) => (previous.doc ? previous : { doc: null, status: 'UNAVAILABLE', error: message }));
-      }
-    };
+    let active: AbortController | null = null;
+    let copy: Copy | null = null;
+    let failures = 0;
+    let queued = false;
+    let pendingSave = Promise.resolve();
+
     const poll = async () => {
-      try {
-        const scheduleUrl = `${import.meta.env.BASE_URL}schedule.json`;
-        const response = await fetch(scheduleUrl, {
-          cache: 'no-cache',
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error(`Schedule request failed (${response.status})`);
-        const raw: unknown = await response.json();
-        const display = raw && typeof raw === 'object' && 'display' in raw ? raw.display : null;
-        const schedule =
-          raw &&
-          typeof raw === 'object' &&
-          display &&
-          typeof display === 'object' &&
-          !Array.isArray(display) &&
-          (!('safeAreaPercent' in display) || display.safeAreaPercent == null)
-            ? { ...raw, display: { ...display, safeAreaPercent: DEFAULT_SAFE_AREA_PERCENT } }
-            : raw;
-        const result = validateScheduleDocument(schedule);
-        if (!result.ok) {
-          throw new Error(`Schedule document did not validate: ${result.errors.join(', ')}`);
-        }
-        if (controller.signal.aborted) return;
-        interval = result.data.display.pollIntervalSeconds;
-        setState({ doc: result.data, status: 'READY', error: null });
-      } catch (err) {
-        setUnavailable(err);
-      } finally {
-        if (!controller.signal.aborted) timer = setTimeout(() => void poll(), interval * 1000);
+      if (active || stopped) return;
+      clearTimeout(timer);
+      active = new AbortController();
+      const result = await fetchSchedule(copy, active);
+      active = null;
+      if (stopped) return;
+      if (result.ok) {
+        copy = result.copy;
+        failures = 0;
+        setState((previous) => ({
+          doc: result.copy.doc,
+          status: 'READY',
+          offline: false,
+          offset: result.offset ?? previous.offset,
+          lastSuccess: performance.now(),
+        }));
+        pendingSave = pendingSave.then(() => setSaved(result.copy.saved));
+      } else {
+        failures++;
+        setState((previous) => ({
+          ...previous,
+          offline: true,
+          status: previous.doc ? 'READY' : 'UNAVAILABLE',
+        }));
       }
       timer = setTimeout(
         () => void poll(),
@@ -88,15 +87,13 @@ export function useSchedule(): ScheduleState {
       }
       for (const saved of await getSaved()) {
         try {
-          const { loadMockIfRequested, previewUnavailable } = await import('../mock/index.js');
-          if (controller.signal.aborted) return;
-          if (previewUnavailable()) return setUnavailable(new Error('Preview unavailable requested'));
-          const mock = await loadMockIfRequested();
-          if (controller.signal.aborted) return;
-          if (mock) {
-            setState({ doc: mock, status: 'READY', error: null });
-            return;
-          }
+          const doc = decodeSchedule(saved.schedule);
+          if (
+            !copy ||
+            doc.version > copy.doc.version ||
+            (doc.version === copy.doc.version && saved.savedAt > copy.saved.savedAt)
+          )
+            copy = { doc, saved };
         } catch {
           // Ignore invalid or obsolete cache entries.
         }

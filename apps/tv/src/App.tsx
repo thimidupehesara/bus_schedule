@@ -478,6 +478,11 @@ function Board({
         <Header doc={doc} now={now} syncing={board.mode === 'CLOCK_UNSYNCED'} />
         {/* 1.5vh gap between masthead and table header row */}
         <div className="masthead-gap" aria-hidden="true" />
+        {staleWarning && (
+          <aside className="stale-warning" role="status">
+            <Pair text={offlineLabels.stale} />
+          </aside>
+        )}
         {alert && <Alert alert={alert} />}
         <PagedBoard
           board={board}
@@ -492,8 +497,11 @@ function Board({
 }
 
 export default function App() {
-  const { doc, status, error } = useSchedule();
-  const now = useNow();
+  const { doc, status, offset, lastSuccess, offline } = useSchedule();
+  const { now, heartbeat } = useNow();
+  useMaintenance(heartbeat, offset, doc?.display.reloadAtLocalTime);
+  const clock = clockState(import.meta.env.DEV ? now : Date.now(), offset, doc?.publishedAt ?? '');
+  const age = lastSuccess === null ? null : performance.now() - lastSuccess;
   return doc ? (
     <Board
       doc={doc}
@@ -505,23 +513,6 @@ export default function App() {
   ) : (
     <main className="empty fullscreen" role="status">
       <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />
-      {status === 'UNAVAILABLE' && error && (
-        <div
-          style={{
-            marginTop: '1.5rem',
-            fontSize: '1rem',
-            color: '#94a3b8',
-            fontWeight: 400,
-            fontFamily: 'monospace',
-            maxWidth: '80%',
-            textAlign: 'center',
-            wordBreak: 'break-word',
-            opacity: 0.85,
-          }}
-        >
-          {error}
-        </div>
-      )}
     </main>
   );
 }
