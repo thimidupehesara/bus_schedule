@@ -1,7 +1,8 @@
 import type { ScheduleDocument } from '@bus-schedule/shared';
-import { validateScheduleDocument } from '@bus-schedule/shared';
 import { useEffect, useState } from 'react';
-import { DEFAULT_SAFE_AREA_PERCENT } from '../config.js';
+import { getSaved, setSaved } from './cache.js';
+import { decodeSchedule, fetchSchedule, type Copy } from './scheduleFetch.js';
+import { pollDelay } from './freshness.js';
 
 export type ScheduleState = {
   doc: ScheduleDocument | null;
@@ -12,7 +13,7 @@ export type ScheduleState = {
 export function useSchedule(): ScheduleState {
   const [state, setState] = useState<ScheduleState>({ doc: null, status: 'LOADING', error: null });
   useEffect(() => {
-    const controller = new AbortController();
+    let stopped = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let interval = 180;
     const setUnavailable = (err?: unknown) => {
@@ -57,9 +58,35 @@ export function useSchedule(): ScheduleState {
       } finally {
         if (!controller.signal.aborted) timer = setTimeout(() => void poll(), interval * 1000);
       }
+      timer = setTimeout(
+        () => void poll(),
+        queued
+          ? 0
+          : pollDelay(copy?.doc.display.pollIntervalSeconds ?? 180, failures, Math.random()),
+      );
+      queued = false;
     };
+    const online = () => {
+      if (active) queued = true;
+      else void poll();
+    };
+    const offline = () => setState((previous) => ({ ...previous, offline: true }));
     const start = async () => {
       if (import.meta.env.DEV) {
+        const { loadMockIfRequested, previewUnavailable } = await import('../mock/index.js');
+        if (stopped) return;
+        if (previewUnavailable()) return setState({ ...initial, status: 'UNAVAILABLE' });
+        const mock = await loadMockIfRequested();
+        if (stopped) return;
+        if (mock)
+          return setState({
+            ...initial,
+            status: 'READY',
+            doc: mock,
+            lastSuccess: performance.now(),
+          });
+      }
+      for (const saved of await getSaved()) {
         try {
           const { loadMockIfRequested, previewUnavailable } = await import('../mock/index.js');
           if (controller.signal.aborted) return;
@@ -71,15 +98,36 @@ export function useSchedule(): ScheduleState {
             return;
           }
         } catch {
-          if (controller.signal.aborted) return;
+          // Ignore invalid or obsolete cache entries.
         }
       }
-      await poll();
+      if (stopped) return;
+      if (copy) {
+        const age = Date.now() - copy.saved.savedAt;
+        setState({
+          ...initial,
+          status: 'READY',
+          doc: copy.doc,
+          offline: !navigator.onLine,
+          lastSuccess: age >= 0 ? performance.now() - age : null,
+        });
+      }
+      // Yield so React can commit the saved board before attempting the network.
+      timer = setTimeout(() => {
+        window.addEventListener('online', online);
+        window.addEventListener('offline', offline);
+        void poll();
+      }, 0);
     };
-    void start();
+    void start().catch(() => {
+      if (!stopped) void poll();
+    });
     return () => {
-      controller.abort();
+      stopped = true;
+      active?.abort();
       clearTimeout(timer);
+      window.removeEventListener('online', online);
+      window.removeEventListener('offline', offline);
     };
   }, []);
   return state;

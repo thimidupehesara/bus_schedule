@@ -30,6 +30,9 @@ writeFileSync(
   Cache-Control: no-store
 /tv/*
   Cache-Control: no-cache
+/tv/sw.js
+  ! Cache-Control
+  Cache-Control: no-cache
 `,
 );
 console.log('Assembled /tv/ and /admin/ with security headers.');

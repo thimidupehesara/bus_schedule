@@ -4,6 +4,9 @@ export const SHOW_BAY_COLUMN = false;
 export const SHOW_LAST_VERIFIED = false;
 export const CREDITS_NAME: string = '';
 export const SHOW_VIA = false;
+export const STALE_NOTICE_MINUTES = 30;
+export const STALE_WARNING_HOURS = 72;
+
 export const DEFAULT_SAFE_AREA_PERCENT = 2;
 export const WEEKDAY_CODES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] as const;
 export const TEXT_MIN_SCALE = 0.65;

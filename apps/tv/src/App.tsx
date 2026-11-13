@@ -26,6 +26,10 @@ import {
 } from './config.js';
 import { useSchedule } from './data/useSchedule.js';
 import { useNow } from './data/useNow.js';
+import { clockState } from './data/clock.js';
+import { showOfflineNotice, showStaleWarning } from './data/freshness.js';
+import { offlineLabels } from './data/labels.js';
+import { useMaintenance } from './data/reload.js';
 import { qrPath } from './qr.js';
 import { PageCountdown } from './PageCountdown.js';
 import { FittedText, FitLayout } from './FittedText.js';
@@ -145,9 +149,11 @@ function Alert({ alert }: { alert: NonNullable<ScheduleDocument['alert']> }) {
 const Footer = memo(function Footer({
   doc,
   setIndicator,
+  savedNotice,
 }: {
   doc: ScheduleDocument;
   setIndicator: (element: HTMLDivElement | null) => void;
+  savedNotice: boolean;
 }) {
   const url = doc.station.mobileUrl;
   const path = useMemo(() => qrPath(url), [url]);
@@ -173,6 +179,11 @@ const Footer = memo(function Footer({
       </div>
       <div className="indicator" ref={setIndicator} />
       <div className="verification">
+        {savedNotice && (
+          <div className="saved-notice">
+            <Pair text={offlineLabels.saved} />
+          </div>
+        )}
         {SHOW_LAST_VERIFIED && (
           <>
             <Pair text={LABELS.lastVerified} />
@@ -417,9 +428,24 @@ function useScreenShift() {
   return positions[position]!;
 }
 
-function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
+function Board({
+  doc,
+  now,
+  clockPlausible,
+  savedNotice,
+  staleWarning,
+}: {
+  doc: ScheduleDocument;
+  now: number;
+  clockPlausible: boolean;
+  savedNotice: boolean;
+  staleWarning: boolean;
+}) {
   const [indicator, setIndicator] = useState<HTMLDivElement | null>(null);
-  const board = useMemo(() => buildBoard(doc, now, { clockSynced: true }), [doc, now]);
+  const board = useMemo(
+    () => buildBoard(doc, now, { clockSynced: clockPlausible }),
+    [doc, now, clockPlausible],
+  );
   const [x, y] = useScreenShift();
   const alert =
     doc.alert?.enabled && (!doc.alert.expiresAt || Date.parse(doc.alert.expiresAt) > now)
@@ -436,7 +462,7 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
   } as CSSProperties;
   return (
     <main
-      className={`screen${alert ? ' with-alert' : ''}${tallAlert ? ' tall-alert' : ''}${densePlaces ? ' dense-places' : ''}${board.usedFallbackWindow && board.totalRows > 0 ? ' with-fallback' : ''}`}
+      className={`screen${alert ? ' with-alert' : ''}${tallAlert ? ' tall-alert' : ''}${densePlaces ? ' dense-places' : ''}${board.usedFallbackWindow && board.totalRows > 0 ? ' with-fallback' : ''}${staleWarning ? ' with-stale-warning' : ''}`}
       style={style}
     >
       <FitLayout
@@ -446,6 +472,7 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
           alert?.text.si,
           alert?.text.en,
           board.usedFallbackWindow,
+          staleWarning,
         ].join('|')}
       >
         <Header doc={doc} now={now} syncing={board.mode === 'CLOCK_UNSYNCED'} />
@@ -458,7 +485,7 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
           weekday={colomboParts(now).weekday}
           indicator={indicator}
         />
-        <Footer doc={doc} setIndicator={setIndicator} />
+        <Footer doc={doc} setIndicator={setIndicator} savedNotice={savedNotice} />
       </FitLayout>
     </main>
   );
@@ -468,7 +495,13 @@ export default function App() {
   const { doc, status, error } = useSchedule();
   const now = useNow();
   return doc ? (
-    <Board doc={doc} now={now} />
+    <Board
+      doc={doc}
+      now={clock.now}
+      clockPlausible={import.meta.env.DEV || clock.clockPlausible}
+      savedNotice={showOfflineNotice(age)}
+      staleWarning={clock.clockPlausible && showStaleWarning(offline, clock.now, doc.publishedAt)}
+    />
   ) : (
     <main className="empty fullscreen" role="status">
       <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />

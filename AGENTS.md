@@ -11,11 +11,24 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 ## Architecture
 
 - One Cloudflare Worker, `mahiyanganaya-bus`, and D1 serve `/tv/`, `/admin/`, staff-only `/api/*`, public `/schedule.json`, and `/health`. The public schedule uses ETag/304 and no-cache.
-- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The table currently polls and keeps the last valid document in memory. Persistent caching and clock recovery are pending.
+- The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The offline engine keeps the last validated timetable and recovers the clock from successful responses.
 - Staff sign in through Cloudflare Access email one-time PIN. The Worker independently verifies the Access JWT on every `/api/*` request. ADMIN and EDITOR roles live in the D1 `users` table.
 - Staff edit a draft and publish separately. Published snapshots are immutable. Rollback creates a new version. Keep 50 snapshots. The backend supports rollback and the staff UI will expose it as a one-click action.
 - Later Android task: a Trusted Web Activity (TWA) running Chrome 101 on the budget Q96L2 box, 1–2 GB RAM, no RTC battery and frequent power cuts.
 - These architecture decisions are settled. Rejected options include Flutter/React Native, Neon/Postgres, Netlify and custom password/PIN login.
+
+## TV offline design
+
+- An online first visit precaches the TV shell and saves a validated timetable.
+- A /tv/ service worker serves cached navigation after a three-second network timeout.
+- The service worker leaves /schedule.json to the app.
+- IndexedDB stores the raw schedule and validators; localStorage and memory are fallbacks.
+- The TV displays the saved copy before checking for a new version.
+- ETag polling retains the last valid version through errors and backs off up to ten minutes.
+- The online event triggers a retry; successful responses restore normal polling.
+- Server time offsets are session-only; an implausible clock shows the unfiltered board.
+- The footer and banner distinguish an offline copy from an old timetable.
+- Worker updates, the heartbeat watchdog, and synced daily reloads share a durable loop guard.
 
 ## Data rules
 
@@ -73,7 +86,7 @@ Root commands, all invoked with `npm run <script>`:
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
 | TV table UI                                                                     | Done    |
-| TV offline engine, polling, clock recovery and watchdog                         | Pending |
+| TV offline engine, polling, clock recovery and watchdog                         | Implemented; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
 | Kotlin launcher                                                                 | Pending |
