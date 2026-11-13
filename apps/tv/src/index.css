@@ -39,15 +39,14 @@ body {
   --masthead: 8.6vh;
   --footer: 10vh;
   --alert: 0vh;
-  --note: 0vh;
   --stale: 0vh;
   /* 1.5% gap between masthead and table header row */
   --masthead-gap: 1.5vh;
   --table-h: calc(
     100vh - var(--safe) * 2vh - var(--masthead) - var(--masthead-gap) - var(--footer) -
-      var(--alert) - var(--note) - var(--stale) - 8px
+      var(--alert) - var(--stale) - 8px
   );
-  --head-row: var(--header-row-min);
+  --head-row: calc(var(--table-h) * 0.08);
   --row-h: calc((var(--table-h) - var(--head-row)) / var(--rows));
 }
 .screen > * {
@@ -62,9 +61,6 @@ body {
 .tall-alert .alert .si,
 .tall-alert .alert .en {
   font-size: 1rem;
-}
-.screen.with-fallback {
-  --note: 4.3vh;
 }
 .masthead {
   height: var(--masthead);
@@ -178,12 +174,6 @@ body {
 .table-region {
   flex: 1 1 auto;
   min-height: 0;
-}
-.fallback {
-  height: var(--note);
-  display: flex;
-  align-items: center;
-  color: #facc15;
 }
 table {
   table-layout: fixed;
@@ -418,7 +408,7 @@ td {
 }
 .page-progress {
   display: flex;
-  flex-direction: column;
+  text-align: center;
   align-items: center;
 }
 
@@ -427,7 +417,6 @@ td {
    The screen has bottom padding 0 so the bar sits at the absolute bottom. */
 .countdown-bar-track {
   position: fixed;
-  z-index: 10;
   bottom: 0;
   left: 0;
   right: 0;
@@ -547,9 +536,6 @@ td {
 .clock-time > * + *,
 .alert > * + * {
   margin-left: 1vw;
-}
-.fallback > * + * {
-  margin-left: 0.9vw;
 }
 .phone,
 .verification {

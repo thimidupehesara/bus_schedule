@@ -47,7 +47,7 @@ describe('snapshot contract', () => {
     expect(diff.removed).toHaveLength(1);
     expect(diff.changed).toHaveLength(1);
     expect(diff.changed[0]!.fields).toEqual([
-      { field: 'departure', before: '01:00', after: '01:05' },
+      { field: 'departure', before: live.services[0]!.departure, after: '01:05' },
     ]);
     expect(diff).toMatchObject({
       alertChanged: true,
@@ -80,10 +80,8 @@ describe('snapshot contract', () => {
     const codes = publishWarnings(draft, live, new Date('2026-11-11')).map((w) => w.code);
     for (const code of ['COUNT_DROPPED', 'NO_ACTIVE_SERVICES', 'VERIFICATION_OLD', 'ALERT_EXPIRED'])
       expect(codes).toContain(code);
-    draft.services = [
-      live.services[0]!,
-      { ...live.services[0]!, id: crypto.randomUUID(), departure: '01:04' },
-    ];
+    const baseline = { ...live.services[0]!, departure: '01:00' };
+    draft.services = [baseline, { ...baseline, id: crypto.randomUUID(), departure: '01:04' }];
     expect(
       publishWarnings(draft, live).some(
         (w) => w.code === 'NEAR_DUPLICATE' && w.serviceId && w.severity === 'warning',
