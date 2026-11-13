@@ -200,36 +200,20 @@ const Footer = memo(function Footer({
   );
 });
 
-function PageIndicator({
-  page,
-  count,
-  deadline,
-  reduced,
-  dwellSeconds,
-}: {
-  page: number;
-  count: number;
-  deadline: number | null;
-  reduced: boolean;
-  dwellSeconds: number;
-}) {
-  if (count <= 1) return null;
+function PageIndicator({ page, count }: { page: number; count: number }) {
   const dotCount = Math.min(count, 7);
   const firstDot = Math.min(Math.max(0, page - 3), count - dotCount);
   return (
     <div className="page-progress">
       <div>
-        <div>
-          <span lang="si">{LABELS.page.si}</span> / {LABELS.page.en} {page + 1} / {count}
-        </div>
+        <span lang="si">{LABELS.page.si}</span> / {LABELS.page.en} {page + 1} / {count}
+      </div>
+      {count > 1 && (
         <div className="dots" aria-hidden="true">
           {Array.from({ length: dotCount }, (_, index) => (
             <span key={index} className={firstDot + index === page ? 'current' : undefined} />
           ))}
         </div>
-      </div>
-      {deadline !== null && (
-        <PageCountdown deadline={deadline} reduced={reduced} dwellSeconds={dwellSeconds} />
       )}
     </div>
   );
@@ -262,11 +246,7 @@ function Row({ row, weekday }: { row?: BoardRow | undefined; weekday: Weekday })
               </>
             )}
             {bus && key === 'departure' && (
-              <Time
-                value={bus.departure}
-                badge={isDeparted ? null : day}
-                departed={isDeparted}
-              />
+              <Time value={bus.departure} badge={isDeparted ? null : day} departed={isDeparted} />
             )}
             {bus &&
               key === 'arrival' &&
@@ -388,27 +368,10 @@ function PagedBoard({
         )}
       </div>
       {indicator &&
-        createPortal(
-          <PageIndicator
-            page={page}
-            count={count}
-            deadline={deadline}
-            reduced={reduced}
-            dwellSeconds={display.dwellSeconds}
-          />,
-          indicator,
-        )}
-      {/* Countdown bar: full-width at screen bottom, outside safe-area padding */}
-      {count > 1 &&
-        deadline !== null &&
-        createPortal(
-          <PageCountdown
-            deadline={deadline}
-            reduced={reduced}
-            dwellSeconds={display.dwellSeconds}
-          />,
-          document.body,
-        )}
+        count > 0 &&
+        createPortal(<PageIndicator page={page} count={count} />, indicator)}
+      {count > 0 &&
+        createPortal(<PageCountdown deadline={deadline} reduced={reduced} />, document.body)}
     </>
   );
 }
@@ -503,7 +466,12 @@ function Board({
 export default function App() {
   const { doc, status, offset, lastSuccess, offline } = useSchedule();
   const { now, heartbeat } = useNow();
-  useMaintenance(heartbeat, offset, doc?.display.reloadAtLocalTime, offline || lastSuccess === null);
+  useMaintenance(
+    heartbeat,
+    offset,
+    doc?.display.reloadAtLocalTime,
+    offline || lastSuccess === null,
+  );
   const clock = clockState(import.meta.env.DEV ? now : Date.now(), offset, doc?.publishedAt ?? '');
   const age = lastSuccess === null ? null : performance.now() - lastSuccess;
   return doc ? (
