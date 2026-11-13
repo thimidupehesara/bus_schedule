@@ -86,7 +86,7 @@ Root commands, all invoked with `npm run <script>`:
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
 | TV table UI                                                                     | Done    |
-| TV offline engine, polling, clock recovery and watchdog                         | Chrome 52 compatibility restored locally; real box verification pending |
+| TV offline engine, polling, clock recovery and watchdog                         | Chrome 52 checkpoint restored; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
 | Kotlin launcher                                                                 | Pending |
@@ -137,3 +137,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-13 — Restored the TV legacy bundle, added the manifest and icons, removed unsupported service worker syntax, and paused automatic reloads while offline.
 
 - 2026-11-13 — Restored row-based sizing fallbacks, centered the page indicator and kept one bottom bar. The live four-service sample fits on one page. The bar stays steady on a single page and counts down on rotating pages.
+
+- 2026-11-13 — Reverted the later TV sizing, paging and countdown changes to restore the Chrome 52 offline checkpoint from PR #10.
