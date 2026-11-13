@@ -135,3 +135,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-13 — Repaired the offline engine merge. Restored live schedule polling, saved timetable startup, clock recovery, guarded reloads and service worker generation while retaining the TV layout and Worker configuration.
 
 - 2026-11-13 — Restored the TV legacy bundle, added the manifest and icons, removed unsupported service worker syntax, and paused automatic reloads while offline.
+
+- 2026-11-13 — Restored row-based sizing fallbacks, centered the page indicator and kept one bottom bar. The live four-service sample fits on one page. The bar stays steady on a single page and counts down on rotating pages.
