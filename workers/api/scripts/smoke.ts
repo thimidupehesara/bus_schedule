@@ -63,6 +63,15 @@ async function main() {
     false,
     persist,
   );
+  await start();
+  const assetLinks = await fetch(`${origin}/.well-known/assetlinks.json`, {
+    signal: AbortSignal.timeout(10000),
+  });
+  assert.equal(assetLinks.status, 200);
+  assert.equal(assetLinks.headers.get('Content-Type'), 'application/json; charset=utf-8');
+  assert(Array.isArray(await assetLinks.json()));
+  pass('public Asset Links route serves a JSON array without authentication');
+  await stop();
   await start('smoke-admin@example.com');
   assert.equal((await call('/api/auth/me')).response.status, 200);
   pass('local Access development identity authenticates');

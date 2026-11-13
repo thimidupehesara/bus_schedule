@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, unlinkSync, rmdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, rmdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,7 +32,7 @@ export function executeSql(sql: string, remote = false, persist?: string): void 
       ...(persist ? ['--persist-to', persist] : []),
     ]);
   } finally {
-    unlinkSync(file);
+    rmSync(file, { force: true });
     rmdirSync(directory);
   }
 }
