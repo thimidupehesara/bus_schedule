@@ -200,19 +200,7 @@ const Footer = memo(function Footer({
   );
 });
 
-function PageIndicator({
-  page,
-  count,
-  deadline,
-  reduced,
-  dwellSeconds,
-}: {
-  page: number;
-  count: number;
-  deadline: number | null;
-  reduced: boolean;
-  dwellSeconds: number;
-}) {
+function PageIndicator({ page, count }: { page: number; count: number }) {
   if (count <= 1) return null;
   const dotCount = Math.min(count, 7);
   const firstDot = Math.min(Math.max(0, page - 3), count - dotCount);
@@ -228,9 +216,6 @@ function PageIndicator({
           ))}
         </div>
       </div>
-      {deadline !== null && (
-        <PageCountdown deadline={deadline} reduced={reduced} dwellSeconds={dwellSeconds} />
-      )}
     </div>
   );
 }
@@ -262,11 +247,7 @@ function Row({ row, weekday }: { row?: BoardRow | undefined; weekday: Weekday })
               </>
             )}
             {bus && key === 'departure' && (
-              <Time
-                value={bus.departure}
-                badge={isDeparted ? null : day}
-                departed={isDeparted}
-              />
+              <Time value={bus.departure} badge={isDeparted ? null : day} departed={isDeparted} />
             )}
             {bus &&
               key === 'arrival' &&
@@ -350,11 +331,6 @@ function PagedBoard({
   return (
     <>
       <div className="table-region">
-        {board.usedFallbackWindow && board.totalRows > 0 && (
-          <div className="fallback">
-            <Pair text={COPY.fallback} />
-          </div>
-        )}
         {board.mode === 'NO_SERVICES' ? (
           <div className="empty">
             <Pair text={COPY.empty} />
@@ -380,24 +356,14 @@ function PagedBoard({
               </tr>
             </thead>
             <tbody style={{ opacity: hidden ? 0 : 1, transitionDuration: `${fade / 2}ms` }}>
-              {Array.from({ length: display.rowsPerPage }, (_, slot) => (
-                <Row key={slot} weekday={weekday} row={board.pages[page]?.rows[slot]} />
+              {board.pages[page]?.rows.map((row) => (
+                <Row key={row.service.id} weekday={weekday} row={row} />
               ))}
             </tbody>
           </table>
         )}
       </div>
-      {indicator &&
-        createPortal(
-          <PageIndicator
-            page={page}
-            count={count}
-            deadline={deadline}
-            reduced={reduced}
-            dwellSeconds={display.dwellSeconds}
-          />,
-          indicator,
-        )}
+      {indicator && createPortal(<PageIndicator page={page} count={count} />, indicator)}
       {/* Countdown bar: full-width at screen bottom, outside safe-area padding */}
       {count > 1 &&
         deadline !== null &&
@@ -466,7 +432,7 @@ function Board({
   } as CSSProperties;
   return (
     <main
-      className={`screen${alert ? ' with-alert' : ''}${tallAlert ? ' tall-alert' : ''}${densePlaces ? ' dense-places' : ''}${board.usedFallbackWindow && board.totalRows > 0 ? ' with-fallback' : ''}${staleWarning ? ' with-stale-warning' : ''}`}
+      className={`screen${alert ? ' with-alert' : ''}${tallAlert ? ' tall-alert' : ''}${densePlaces ? ' dense-places' : ''}${staleWarning ? ' with-stale-warning' : ''}`}
       style={style}
     >
       <FitLayout
@@ -475,7 +441,6 @@ function Board({
           doc.display.rowsPerPage,
           alert?.text.si,
           alert?.text.en,
-          board.usedFallbackWindow,
           staleWarning,
         ].join('|')}
       >
@@ -503,7 +468,12 @@ function Board({
 export default function App() {
   const { doc, status, offset, lastSuccess, offline } = useSchedule();
   const { now, heartbeat } = useNow();
-  useMaintenance(heartbeat, offset, doc?.display.reloadAtLocalTime, offline || lastSuccess === null);
+  useMaintenance(
+    heartbeat,
+    offset,
+    doc?.display.reloadAtLocalTime,
+    offline || lastSuccess === null,
+  );
   const clock = clockState(import.meta.env.DEV ? now : Date.now(), offset, doc?.publishedAt ?? '');
   const age = lastSuccess === null ? null : performance.now() - lastSuccess;
   return doc ? (

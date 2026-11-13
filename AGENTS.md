@@ -85,7 +85,7 @@ Root commands, all invoked with `npm run <script>`:
 | Shared strict validation                                                        | Done    |
 | Board engine, 12-hour formatting and development mock                           | Done    |
 | Bilingual labels and departed row cap                                           | Done    |
-| TV table UI                                                                     | Done    |
+| TV table UI                                                                     | Three-row sample pagination restored |
 | TV offline engine, polling, clock recovery and watchdog                         | Chrome 52 checkpoint restored; real box verification pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
@@ -139,3 +139,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-13 — Restored row-based sizing fallbacks, centered the page indicator and kept one bottom bar. The live four-service sample fits on one page. The bar stays steady on a single page and counts down on rotating pages.
 
 - 2026-11-13 — Reverted the later TV sizing, paging and countdown changes to restore the Chrome 52 offline checkpoint from PR #10.
+
+- 2026-11-13 — Restored the TV preview and three-row sample pagination, removed placeholder rows and the fallback banner, and retained the Chrome 52 offline and PWA assets. The owner can publish the 12-service sample as a new version.

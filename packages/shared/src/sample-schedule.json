@@ -9,81 +9,60 @@
       "si": "මහියංගනය බස් නිලයම",
       "en": "Mahiyanganaya Bus Stand"
     },
-    "mobileUrl": "https://mahiyanganaya.bustand.lk"
+    "mobileUrl": "https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/tv/"
   },
   "alert": null,
   "display": {
-    "rowsPerPage": 5,
+    "rowsPerPage": 3,
     "dwellSeconds": 10,
     "fadeMs": 300,
     "departedGraceMinutes": 15,
     "soonThresholdMinutes": 15,
-    "lookaheadHours": 8,
+    "lookaheadHours": 24,
     "safeAreaPercent": 3.5,
     "pollIntervalSeconds": 180,
     "reloadAtLocalTime": "02:30"
   },
   "services": [
     {
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "id": "00000000-0000-4000-8000-000000000001",
       "destination": {
-        "si": "ත්‍රිකුණාමළය",
-        "en": "Trincomalee"
+        "si": "කොළඹ",
+        "en": "Colombo"
       },
       "origin": {
-        "si": "දෙහිඅත්තකන්දිය",
-        "en": "Dehiattakandiya"
+        "si": "යාපනය",
+        "en": "Jaffna"
       },
       "via": {
-        "si": "කුඩුරේ වෙල",
-        "en": "Kudurewela"
+        "si": "අම්පාර",
+        "en": "Ampara"
       },
-      "operator": "PVT",
+      "operator": "CTB",
       "serviceType": "NORMAL",
-      "arrival": "00:30",
-      "departure": "01:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": "A1",
+      "departure": "00:30",
+      "arrival": "00:20",
+      "tripStart": "23:30",
+      "destinationArrival": "02:30",
+      "bay": "B1",
       "days": [1, 2, 3, 4, 5, 6, 7],
       "active": true
     },
     {
-      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "id": "00000000-0000-4000-8000-000000000003",
       "destination": {
-        "si": "අක්කරෛපත්තු",
-        "en": "Akkaraipattu"
+        "si": "අම්පාර",
+        "en": "Ampara"
       },
       "origin": {
-        "si": "කොළඹ",
-        "en": "Colombo"
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
       },
       "via": null,
-      "operator": "PVT",
+      "operator": "CTB",
       "serviceType": "LUXURY",
-      "arrival": "00:30",
-      "departure": "00:40",
-      "tripStart": "18:45",
-      "destinationArrival": "03:15",
-      "bay": "B2",
-      "days": [1, 2, 3, 4, 5, 6, 7],
-      "active": true
-    },
-    {
-      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මිහින්තලේ",
-        "en": "Mihintale"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "02:00",
-      "departure": "02:10",
+      "departure": "02:15",
+      "arrival": null,
       "tripStart": null,
       "destinationArrival": null,
       "bay": null,
@@ -91,26 +70,223 @@
       "active": true
     },
     {
-      "id": "d4e5f6a7-b8c9-0123-def0-234567890123",
+      "id": "00000000-0000-4000-8000-000000000005",
+      "destination": {
+        "si": "ත්‍රිකුණාමලය",
+        "en": "Trincomalee"
+      },
+      "origin": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "04:25",
+      "arrival": null,
+      "tripStart": "03:25",
+      "destinationArrival": "06:25",
+      "bay": null,
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000009",
+      "destination": {
+        "si": "පොළොන්නරුව",
+        "en": "Polonnaruwa"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "NORMAL",
+      "departure": "06:30",
+      "arrival": null,
+      "tripStart": "05:30",
+      "destinationArrival": "08:30",
+      "bay": null,
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000012",
+      "destination": {
+        "si": "කුරුණෑගල",
+        "en": "Kurunegala"
+      },
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "08:20",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000015",
+      "destination": {
+        "si": "කන්තලේ",
+        "en": "Kantale"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "via": null,
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "10:10",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000018",
+      "destination": {
+        "si": "හසලක",
+        "en": "Hasalaka"
+      },
+      "origin": {
+        "si": "ත්‍රිකුණාමලය",
+        "en": "Trincomalee"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "12:15",
+      "arrival": null,
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": null,
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000021",
       "destination": {
         "si": "අම්පාර",
         "en": "Ampara"
       },
       "origin": {
-        "si": "දෙහිඅත්තකන්දිය",
+        "si": "දෙහිඅත්තකණ්ඩිය",
         "en": "Dehiattakandiya"
       },
       "via": null,
       "operator": "CTB",
       "serviceType": "NORMAL",
-      "arrival": "04:00",
-      "departure": "06:30",
+      "departure": "14:00",
+      "arrival": null,
+      "tripStart": "13:00",
+      "destinationArrival": "16:00",
+      "bay": null,
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000024",
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "via": null,
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "16:00",
+      "arrival": null,
       "tripStart": null,
       "destinationArrival": null,
-      "bay": "C3",
+      "bay": null,
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000028",
+      "destination": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "origin": {
+        "si": "කන්තලේ",
+        "en": "Kantale"
+      },
+      "via": {
+        "si": "කුරුණෑගල",
+        "en": "Kurunegala"
+      },
+      "operator": "PVT",
+      "serviceType": "EXPRESS",
+      "departure": "18:20",
+      "arrival": "18:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B3",
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000031",
+      "destination": {
+        "si": "මහරගම",
+        "en": "Maharagama"
+      },
+      "origin": {
+        "si": "හසලක",
+        "en": "Hasalaka"
+      },
+      "via": {
+        "si": "කන්තලේ",
+        "en": "Kantale"
+      },
+      "operator": "CTB",
+      "serviceType": "LUXURY",
+      "departure": "20:15",
+      "arrival": "20:05",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B1",
+      "days": [1, 2, 3, 4, 5, 6, 7],
+      "active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000034",
+      "destination": {
+        "si": "පස්සර",
+        "en": "Passara"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "via": {
+        "si": "හසලක",
+        "en": "Hasalaka"
+      },
+      "operator": "PVT",
+      "serviceType": "SEMI_LUXURY",
+      "departure": "22:20",
+      "arrival": "22:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "bay": "B4",
       "days": [1, 2, 3, 4, 5, 6, 7],
       "active": true
     }
   ]
 }
-

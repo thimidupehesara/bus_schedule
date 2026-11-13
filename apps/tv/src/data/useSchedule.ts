@@ -71,6 +71,17 @@ export function useSchedule(): ScheduleState {
     };
     const offline = () => setState((previous) => ({ ...previous, offline: true }));
     const start = async () => {
+      if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('mock') === '1') {
+        const { mockSchedule } = await import('../mock/mock-schedule.js');
+        if (!stopped)
+          setState({
+            ...initial,
+            status: 'READY',
+            doc: mockSchedule,
+            lastSuccess: performance.now(),
+          });
+        return;
+      }
       if (import.meta.env.DEV) {
         const { loadMockIfRequested, previewUnavailable } = await import('../mock/index.js');
         if (stopped) return;
@@ -117,7 +128,7 @@ export function useSchedule(): ScheduleState {
       }, 0);
     };
     void start().catch(() => {
-      if (!stopped) void poll();
+      if (!stopped) setState({ ...initial, status: 'UNAVAILABLE' });
     });
     return () => {
       stopped = true;
