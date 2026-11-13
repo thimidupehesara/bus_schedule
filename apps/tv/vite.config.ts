@@ -6,10 +6,8 @@ export default defineConfig({
   base: '/tv/',
   plugins: [react()],
   build: {
-    // Target Chrome 109 so the output runs on the WebView used in Android
-    // boxes with Chrome 119 engine. Chrome 109 is a safe conservative floor
-    // that covers all ES2022 features available in Chrome 119.
-    target: 'chrome109',
+    // The TV runs Chrome 101 inside a Trusted Web Activity.
+    target: 'chrome101',
     outDir: 'dist',
   },
 });

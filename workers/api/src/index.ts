@@ -21,6 +21,7 @@ import {
 } from './auth.js';
 import { ApiError, ok, fail, checkCsrf, readJson, object, security } from './http.js';
 import { Store } from './store.js';
+import { ASSET_LINKS } from './assetlinks.js';
 import {
   hasChanges,
   matchesEtag,
@@ -386,6 +387,15 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
 }
 async function route(request: Request, env: Env): Promise<Response> {
   const path = new URL(request.url).pathname;
+  if (path === '/.well-known/assetlinks.json' && request.method === 'GET') {
+    return new Response(JSON.stringify(ASSET_LINKS), {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    });
+  }
   if (path === '/health' && request.method === 'GET') return ok({ time: new Date().toISOString() });
   if (path === '/schedule.json' && request.method === 'GET') {
     const headers = new Headers({

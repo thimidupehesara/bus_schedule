@@ -14,7 +14,7 @@ The owner is a student and is often unavailable. Bus stand staff are non-technic
 - The TV is designed to run offline-first with IndexedDB and a service worker. It polls `/schedule.json` every three minutes and never talks to D1 directly. The table currently polls and keeps the last valid document in memory. Persistent caching and clock recovery are pending.
 - Staff sign in through Cloudflare Access email one-time PIN. The Worker independently verifies the Access JWT on every `/api/*` request. ADMIN and EDITOR roles live in the D1 `users` table.
 - Staff edit a draft and publish separately. Published snapshots are immutable. Rollback creates a new version. Keep 50 snapshots. The backend supports rollback and the staff UI will expose it as a one-click action.
-- Later Android task: a minimal Kotlin WebView Home-launcher APK for the budget Q96L2 box with WebView 119, 1–2 GB RAM, no RTC battery and frequent power cuts.
+- Later Android task: a Trusted Web Activity (TWA) running Chrome 101 on the budget Q96L2 box, 1–2 GB RAM, no RTC battery and frequent power cuts.
 - These architecture decisions are settled. Rejected options include Flutter/React Native, Neon/Postgres, Netlify and custom password/PIN login.
 
 ## Data rules
@@ -53,13 +53,14 @@ Root commands, all invoked with `npm run <script>`:
 | `validate:sample`                                         | Validate the shared sample schedule                                          |
 | `user:create`, `user:list`, `user:disable`, `user:enable` | Manage staff accounts locally                                                |
 | `db:migrate:local`, `db:seed:local`                       | Migrate or seed local D1                                                     |
+| `db:seed:remote` | Owner-only sample seed with interactive confirmation |
 | `deploy`                                                  | Owner-only first deployment command. AI tools must never run it              |
 
 ## Rules for AI tools
 
 - Work on a feature branch. Never push, deploy, run `wrangler d1 create`, or use `--remote`.
 - Never commit secrets or `.dev.vars`. State the reason for any new dependency.
-- Keep the TV build target at `chrome109`. Use no APIs newer than Chrome 119 in the TV or shared output.
+- Keep the TV build target at `chrome101`. Use no APIs newer than Chrome 101 in the TV or shared output.
 - Keep typecheck, lint, tests and build green. Before handing over, update the table below and append to the progress log.
 
 ## Status
@@ -76,7 +77,11 @@ Root commands, all invoked with `npm run <script>`:
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
 | Passenger mobile page for QR code                                               | Pending |
 | Kotlin launcher                                                                 | Pending |
-| First deploy                                                                    | Pending |
+| First deploy and remote D1 migration | Done |
+| Remote sample seed CLI | Implemented; owner must run |
+| Public TWA Asset Links route | Implemented; owner must fill signing details and deploy |
+
+The Worker is deployed at https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev. The remote D1 database `mahiyanganaya-bus-db` exists and its migration is applied. The owner reported no snapshots yet, so `/schedule.json` returns 503.
 
 The admin time picker must never use free-text time boxes. The backend PR was merged into main at `af9258c`. The local `feature/backend-fixes` branch exists at `75975db` and its commit is included in `feature/schedule-engine` and this feature branch. Local main does not include that commit. The locally known origin/main includes both the backend fixes and the schedule engine. The board labels branch started from the latest local `feature/schedule-engine` tip (`3386654`), which matched the local tracking ref for origin/feature/schedule-engine.
 
@@ -102,3 +107,5 @@ The admin time picker must never use free-text time boxes. The backend PR was me
 - 2026-11-12 — Polished the TV header and footer on feature/tv-polish. The Sinhala title is one line, the clock stacks English over Sinhala meridiem, and the footer shows the Thimidu credit and a dwell countdown. Reduced motion uses a static ring with whole seconds. A temporary local browser check verified an 80-character Sinhala destination with a via line at 1920×1080 and 1280×720.
 
 - 2026-11-12 — Updated TV proportions and text fitting on feature/tv-polish-2. The TV fills the viewport, falls back to a 2% safe area, and gives the clock and two-line date more room. Arrival and departure use the same size; From values are Sinhala only. Via and empty credits are hidden by default. Verified long names and title with 3, 5 and 6 rows at 1920×1080, 1366×768 and 1280×720.
+
+- 2026-11-13 — Added the guarded owner-only sample seed and public code-served TWA Asset Links route on feature/remote-seed. Recorded the existing deployment and remote D1 migration and updated the TV target to Chrome 101 in a TWA.

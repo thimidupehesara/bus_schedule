@@ -24,7 +24,8 @@
     "db:migrate:local": "npm run db:migrate:local --workspace=workers/api",
     "user:enable": "tsx workers/api/scripts/user-cli.ts enable",
     "test:smoke": "npm run assemble && tsx workers/api/scripts/smoke.ts",
-    "db:seed:local": "npm run build --workspace=packages/shared && tsx workers/api/scripts/seed.ts",
+    "db:seed:local": "npm run build --workspace=packages/shared && tsx workers/api/scripts/seed.ts --local",
+    "db:seed:remote": "npm run build --workspace=packages/shared && tsx workers/api/scripts/seed.ts --remote",
     "deploy": "npm run assemble && npm run deploy --workspace=workers/api",
     "assemble": "npm run build --workspace=packages/shared && tsx scripts/assemble-assets.ts",
     "user:list": "tsx workers/api/scripts/user-cli.ts list"

@@ -53,7 +53,7 @@ npm run build
 
 Build compiles shared code, builds both Vite apps, assembles
 `workers/api/public/{tv,admin}`, then runs **only** Wrangler's deploy dry-run.
-TV target stays `chrome109`. There is no SPA fallback; future UI routing must use
+The TV build targets Chrome 101 inside a Trusted Web Activity (TWA). There is no SPA fallback; future UI routing must use
 hash routes or no router. `npm run deploy` is a separate, explicit real deployment.
 Generated assets, local databases, environment files, and secret files are ignored.
 
@@ -171,3 +171,29 @@ References (review again at deployment):
 
 See [architecture](docs/ARCHITECTURE.md), [API contract](docs/API.md), and
 [implementation decisions](docs/BACKEND.md) for concurrency and operational limits.
+
+## Owner-only remote sample seed
+
+The Worker is deployed at <https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev>.
+Its D1 database exists and the migration has been applied. Before seeding, make
+sure `workers/api/wrangler.toml` has the real D1 database ID and Wrangler is
+signed in to the owning Cloudflare account. From the repo root, run one of:
+
+```sh
+npm run db:seed:remote
+npm run db:seed:remote -- --mobile-url https://your-passenger-site.example/
+```
+
+Type exactly `YES` at the prompt. The script refuses to write if there is
+already a snapshot. **SAMPLE DATA, NOT AN OFFICIAL TIMETABLE. Replace it from
+the admin page before real use.**
+
+## Android TWA Asset Links
+
+After building the TWA, put its Android application ID and the SHA-256
+fingerprint of the certificate that signs the installed APK in the
+`ASSET_LINKS` array in `workers/api/src/assetlinks.ts`. Use the app signing
+certificate if distributing through Play App Signing. Copy the statement
+shape in the comment above the array. After the owner deploys that change,
+verify that `/.well-known/assetlinks.json` on the TWA origin serves the
+statement as public JSON. The endpoint returns an empty array until configured.
