@@ -49,19 +49,25 @@ export function useMaintenance(
   heartbeat: { current: number },
   offset: number | null,
   reloadAt: string | undefined,
+  offline: boolean,
 ): void {
-  const settings = useRef({ offset, reloadAt });
+  const settings = useRef({ offset, reloadAt, offline });
   useEffect(() => {
-    settings.current = { offset, reloadAt };
-  }, [offset, reloadAt]);
+    settings.current = { offset, reloadAt, offline };
+  }, [offset, reloadAt, offline]);
   useEffect(() => {
     if (!import.meta.env.PROD) return;
     const watchdog = setInterval(() => {
-      if (performance.now() - heartbeat.current > 180_000) reload();
+      if (
+        !settings.current.offline &&
+        navigator.onLine &&
+        performance.now() - heartbeat.current > 180_000
+      )
+        reload();
     }, 60_000);
     const daily = setInterval(() => {
       const { offset, reloadAt } = settings.current;
-      if (offset === null || !reloadAt) return;
+      if (settings.current.offline || !navigator.onLine || offset === null || !reloadAt) return;
       const local = colomboParts(Date.now() + offset);
       const [hours, minutes] = reloadAt.split(':').map(Number);
       if (local.minutes === (hours ?? 0) * 60 + (minutes ?? 0)) reload(local.date);
@@ -87,7 +93,7 @@ export function useMaintenance(
       current = next;
       if (replaced) {
         pendingReload = true;
-        reload();
+        if (!settings.current.offline && navigator.onLine) reload();
       }
     };
     serviceWorker.addEventListener('controllerchange', change);
@@ -96,7 +102,7 @@ export function useMaintenance(
       updateViaCache: 'none',
     });
     const update = () => {
-      if (pendingReload) reload();
+      if (pendingReload && !settings.current.offline && navigator.onLine) reload();
       void registration.then((reg) => reg.update()).catch(() => {});
     };
     update();

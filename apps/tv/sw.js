@@ -1,12 +1,12 @@
-/* global self, caches, PRECACHE, CACHE_NAME, clients, Request, URL, AbortController, setTimeout, clearTimeout, fetch, Response */
+/* global self, caches, PRECACHE, CACHE_NAME, clients, URL, setTimeout, clearTimeout, fetch, Response */
 const index = '/tv/index.html';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(PRECACHE.map((url) => new Request(url, { cache: 'reload' }))))
-      .then(() => self.skipWaiting()),
+      .then((cache) => cache.addAll(PRECACHE))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -18,10 +18,10 @@ self.addEventListener('activate', (event) => {
         Promise.all(
           keys
             .filter((key) => key.startsWith('bus-tv-') && key !== CACHE_NAME)
-            .map((key) => caches.delete(key)),
-        ),
+            .map((key) => caches.delete(key))
+        )
       )
-      .then(() => clients.claim()),
+      .then(() => clients.claim())
   );
 });
 
@@ -35,29 +35,33 @@ self.addEventListener('fetch', (event) => {
   )
     return;
   if (request.mode === 'navigate' && (url.pathname === '/tv/' || url.pathname === index)) {
-    event.respondWith(
-      (async () => {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3000);
-        try {
-          const response = await fetch(request, { signal: controller.signal });
-          if (response.ok) return response;
-        } catch {
-          // Use the precached shell.
-        } finally {
-          clearTimeout(timer);
-        }
-        return (await caches.open(CACHE_NAME))
-          .match(index)
-          .then((response) => response ?? Response.error());
-      })(),
-    );
-  } else if (PRECACHE.includes(url.pathname) && url.pathname !== index) {
+    event.respondWith(navigationResponse(request));
+  } else if (PRECACHE.indexOf(url.pathname) !== -1 && url.pathname !== index) {
     event.respondWith(
       caches
         .open(CACHE_NAME)
         .then((cache) => cache.match(url.pathname))
-        .then((response) => response ?? fetch(request)),
+        .then((response) => (response != null ? response : fetch(request)))
     );
   }
 });
+
+// Chrome 52 supports Promise.race but lacks AbortController in workers.
+function navigationResponse(request) {
+  let timer;
+  const timeout = new Promise((resolve) => {
+    timer = setTimeout(() => resolve(null), 3000);
+  });
+  const network = fetch(request).then(
+    (response) => (response.ok ? response : null),
+    () => null
+  );
+  return Promise.race([network, timeout]).then((response) => {
+    clearTimeout(timer);
+    if (response != null) return response;
+    return caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.match(index))
+      .then((cached) => (cached != null ? cached : Response.error()));
+  });
+}
