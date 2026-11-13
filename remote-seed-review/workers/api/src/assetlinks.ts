@@ -16,4 +16,14 @@ export const ASSET_LINKS: {
         ],
       },
     },
+    {
+      relation: ['delegate_permission/common.handle_all_urls'],
+      target: {
+        namespace: 'android_app',
+        package_name: 'lk.mahiyanganaya.busmobile',
+        sha256_cert_fingerprints: [
+          '11:96:BC:80:69:08:4E:44:FF:7F:31:A9:65:6D:0B:BA:90:BA:FB:67:D7:4D:CC:4B:2F:D7:73:A6:37:E2:84:DE',
+        ],
+      },
+    },
   ];

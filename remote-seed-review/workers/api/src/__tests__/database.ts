@@ -7,6 +7,9 @@ import { readFileSync } from 'node:fs';
 export function database() {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec(readFileSync(new URL('../../migrations/0001_init.sql', import.meta.url), 'utf8'));
+  sqlite.exec(
+    readFileSync(new URL('../../migrations/0002_mobile_qr_suggestions.sql', import.meta.url), 'utf8'),
+  );
   class Statement {
     constructor(
       private query: string,

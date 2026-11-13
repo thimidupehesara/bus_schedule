@@ -12,11 +12,29 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | TV table UI                                                                     | Done    |
 | TV offline engine, polling, clock recovery and watchdog                         | Pending |
 | Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Pending |
-| Passenger mobile page for QR code                                               | Pending |
+| Passenger mobile page for QR code                                               | Done    |
 | Kotlin launcher                                                                 | Pending |
 | First deploy                                                                    | Done    |
 
+## Plan
+- [PLANNED] Final Credits/QR Slide in TV Rotation Loop:
+  - Keep margins at 1.5% without modifying timetable font sizes, column widths, or colors.
+  - Wire `credits-slide.png` (1920x1080) into `apps/tv` rotation loop as the final slide after all schedule pages.
+  - Set `totalSlides = totalSchedulePages + 1`. When index is `totalSchedulePages`, render full-bleed `credits-slide.png` (`width: 100vw; height: 100vh; object-fit: contain; background: #ffffff;`) with top green `PageCountdown` active at `z-index: 9999`.
+  - Retain existing 10-second dwell and smooth fade transitions into and out of the credits slide, looping back to Page 1.
+  - Keep `Page X / Y` indicators on timetable pages showing timetable count (`1 / N` to `N / N`).
+  - Run `npm run typecheck`, `npm test`, `npm run assemble`, and `npm run deploy` to verify live on Cloudflare Workers.
+
 ## Done
-- [DONE] FittedText Long City Names Auto-Fit: In apps/tv/src/FittedText.tsx, measured available container width (excluding horizontal padding), guarded with containerWidth > 50 so initial unmeasured layout never triggers erroneous shrinkage, maintained normal short city names (Colombo, Kandy, Ampara, Bibile) at 100% full large font size, and only reduced font size when textElement.scrollWidth > availableWidth so long names like `දෙහිඅත්තකණ්ඩිය` fit completely without clipping.
-- [DONE] Full-Width Green Countdown Bar: In apps/tv/src/index.css, set .page-countdown-bar to `position: fixed; top: 0; left: 0; right: 0; width: 100vw; height: 6px; z-index: 9999;` to span full-width across the very top edge of the screen.
-- [DONE] Assemble & Deploy: Passed `npm run typecheck`, 101 tests, assembled assets, deployed Worker to Cloudflare, and confirmed live `/tv/` HTTP 200.
+- [DONE] Staff Admin Portal & QR/Suggestions Integration:
+  - Built comprehensive Admin Portal UI in `apps/admin/src/App.tsx` with tabs for QR Visitor Analytics and Passenger Issue Reports.
+  - Added daily QR visitor stats cards (Today's Uniques, Today's Total Scans, All-Time Uniques) and 90-day history table.
+  - Added Suggestions table with status filters (All, Open, Resolved), category badges, and interactive "Mark Resolved" / "Reopen" buttons.
+  - Added `PATCH /api/admin/suggestions/:id` backend route in `workers/api/src/index.ts` with admin role and CSRF validation.
+  - Verified `station.mobileUrl` is configured to `https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/qr`.
+  - Executed `npm run typecheck`, `npm run assemble`, and `npm run deploy`. Verified live endpoints (HTTP 200 on `/admin/`, HTTP 302 on `/qr`, HTTP 201 on `POST /api/suggestions`).
+- [DONE] Direct APK Integration & Deployment:
+  - Copied `Mahiyanganaya Bus Timetable.apk` (3.27 MB) from `Mahiyanganaya Mobile APK/` into `apps/mobile/public/mahiyanganaya-bus-mobile.apk`.
+  - Configured custom security and download headers for `/mobile/*.apk` in `scripts/assemble-assets.ts` (`Content-Type: application/vnd.android.package-archive`, `Content-Disposition: attachment`).
+  - Executed `npm run deploy` inside `T:\New folder\remote-seed-review`.
+  - Verified live endpoint returning HTTP 200 OK at `https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/mobile/mahiyanganaya-bus-mobile.apk`. The mobile install banner will automatically surface the Direct APK Download button.

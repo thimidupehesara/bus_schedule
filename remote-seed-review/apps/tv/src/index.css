@@ -270,15 +270,15 @@ tbody tr:nth-child(even) {
 }
 
 tbody tr.soon {
-  background: rgba(249, 115, 22, 0.18);
+  background: rgba(250, 204, 21, 0.16);
 }
 
 tbody tr.soon td:first-child {
-  box-shadow: inset 0.5556vh 0 #f97316;
+  box-shadow: inset 0.5556vh 0 #facc15;
 }
 
 tbody tr.soon .departure .digits {
-  color: #fb923c;
+  color: #facc15;
 }
 
 tbody tr.departed {

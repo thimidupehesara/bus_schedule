@@ -1,0 +1,119 @@
+
+> bus-schedule-monorepo@0.0.1 build
+> npm run build --workspace=packages/shared && npm run assemble && npm run build --workspace=workers/api
+
+
+> @bus-schedule/shared@0.0.1 build
+> tsc --build
+
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+
+> bus-schedule-monorepo@0.0.1 assemble
+> npm run build --workspace=packages/shared && tsx scripts/assemble-assets.ts
+
+
+> @bus-schedule/shared@0.0.1 build
+> tsc --build
+
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+
+> @bus-schedule/tv@0.0.1 build
+> tsc --noEmit && vite build
+
+vite v6.4.6 building for production...
+transforming...
+✓ 57 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                      0.48 kB │ gzip:  0.34 kB
+dist/assets/noto-sans-sinhala-latin-ext-500-normal-B8PHRMY9.woff2    5.95 kB
+dist/assets/noto-sans-sinhala-latin-ext-600-normal-KywLvIv6.woff2    5.97 kB
+dist/assets/noto-sans-sinhala-latin-ext-700-normal-DcWahW2s.woff2    5.97 kB
+dist/assets/noto-sans-sinhala-latin-ext-700-normal-CNBMxhwx.woff     7.74 kB
+dist/assets/noto-sans-sinhala-latin-ext-600-normal-BZzCGw3A.woff     7.80 kB
+dist/assets/noto-sans-sinhala-latin-ext-500-normal-DTuWA2hs.woff     7.81 kB
+dist/assets/noto-sans-sinhala-latin-700-normal-Ccpti-OH.woff2        9.99 kB
+dist/assets/noto-sans-sinhala-latin-600-normal-D6FNRLlM.woff2       10.16 kB
+dist/assets/noto-sans-sinhala-latin-500-normal-CrMHrb4z.woff2       10.17 kB
+dist/assets/noto-sans-sinhala-latin-700-normal-B07LXaDZ.woff        12.64 kB
+dist/assets/noto-sans-sinhala-latin-600-normal-BdFTtdOd.woff        12.83 kB
+dist/assets/noto-sans-sinhala-latin-500-normal-Un7_n1B0.woff        12.84 kB
+dist/assets/inter-latin-500-normal-Cerq10X2.woff2                   24.27 kB
+dist/assets/inter-latin-700-normal-Yt3aPRUw.woff2                   24.36 kB
+dist/assets/inter-latin-600-normal-LgqL8muc.woff2                   24.45 kB
+dist/assets/inter-latin-600-normal-CiBQ2DWP.woff                    31.26 kB
+dist/assets/inter-latin-500-normal-BL9OpVg8.woff                    31.28 kB
+dist/assets/inter-latin-700-normal-BLAVimhd.woff                    31.32 kB
+dist/assets/noto-sans-sinhala-sinhala-700-normal-DAhmXSVd.woff2     35.78 kB
+dist/assets/noto-sans-sinhala-sinhala-500-normal-jksuUY-V.woff2     38.78 kB
+dist/assets/noto-sans-sinhala-sinhala-600-normal-Ds44rdly.woff2     38.97 kB
+dist/assets/noto-sans-sinhala-sinhala-700-normal-uhAc9xwn.woff      58.36 kB
+dist/assets/noto-sans-sinhala-sinhala-500-normal-D2ebDhBt.woff      62.11 kB
+dist/assets/noto-sans-sinhala-sinhala-600-normal-DJCf5vdU.woff      62.73 kB
+dist/assets/index-Bvc3yzx8.css                                      17.01 kB │ gzip:  4.38 kB
+dist/assets/index-B5J6DRcf.js                                      216.00 kB │ gzip: 65.86 kB
+✓ built in 1.42s
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+
+> @bus-schedule/admin@0.0.1 build
+> tsc --noEmit && vite build
+
+vite v6.4.6 building for production...
+transforming...
+✓ 27 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.44 kB │ gzip:  0.30 kB
+dist/assets/index-D68s9A3e.css    5.28 kB │ gzip:  1.58 kB
+dist/assets/index--QDaRXss.js   144.15 kB │ gzip: 46.37 kB
+✓ built in 1.02s
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+Assembled /tv/ and /admin/ with security headers.
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+
+> @bus-schedule/api@0.0.1 build
+> wrangler deploy --dry-run --outdir dist
+
+
+ ⛅️ wrangler 4.160.0 (update available 4.161.0)
+───────────────────────────────────────────────
+✨ Read 35 files from the assets directory T:\New folder\remote-seed-review\workers\api\public
+Total Upload: 184.95 KiB / gzip: 37.16 KiB
+Your Worker has access to the following bindings:
+Binding                                     Resource                  
+env.DB (mahiyanganaya-bus-db)               D1 Database               
+env.ASSETS                                  Assets                    
+env.TEAM_DOMAIN ("REPLACE_ME")              Environment Variable      
+env.ACCESS_AUD ("REPLACE_ME")               Environment Variable      
+
+--dry-run: exiting now.
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice
+npm notice
+npm notice New major version of npm available! 11.19.1 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice

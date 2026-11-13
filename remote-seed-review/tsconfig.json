@@ -4,6 +4,7 @@
     { "path": "./packages/shared" },
     { "path": "./apps/tv" },
     { "path": "./apps/admin" },
+    { "path": "./apps/mobile" },
     { "path": "./workers/api" }
   ]
 }

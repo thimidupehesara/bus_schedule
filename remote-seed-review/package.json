@@ -12,6 +12,7 @@
   },
   "scripts": {
     "dev:tv": "npm run dev --workspace=apps/tv",
+    "dev:mobile": "npm run dev --workspace=apps/mobile",
     "dev:admin": "npm run dev --workspace=apps/admin",
     "dev:api": "npm run assemble && npm run dev --workspace=workers/api",
     "build": "npm run build --workspace=packages/shared && npm run assemble && npm run build --workspace=workers/api",

@@ -198,6 +198,37 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       .all();
     return ok({ snapshots: rows.results.map((r) => ({ ...r, isLive: !!r['isLive'] })) });
   }
+  if (path === '/api/admin/suggestions' && method === 'GET') {
+    requireAdmin(user);
+    const rows = await store
+      .sql('SELECT * FROM suggestions ORDER BY created_at DESC LIMIT 200')
+      .all();
+    return ok({ suggestions: rows.results });
+  }
+  const suggestionPatchMatch = /^\/api\/admin\/suggestions\/([^/]+)$/.exec(path);
+  if (suggestionPatchMatch && method === 'PATCH') {
+    requireAdmin(user);
+    const id = suggestionPatchMatch[1]!;
+    const body = object(await readJson(request));
+    const status = String(body['status'] ?? 'RESOLVED').trim().toUpperCase();
+    if (!['OPEN', 'RESOLVED'].includes(status)) {
+      throw new ApiError(422, 'INVALID_STATUS', 'Status must be OPEN or RESOLVED.');
+    }
+    const updateRes = await store
+      .sql('UPDATE suggestions SET status = ? WHERE id = ?', status, id)
+      .run();
+    if (updateRes.meta.changes === 0) {
+      return notFound();
+    }
+    return ok({ id, status });
+  }
+  if (path === '/api/admin/qr-stats' && method === 'GET') {
+    requireAdmin(user);
+    const rows = await store
+      .sql('SELECT * FROM qr_daily_stats ORDER BY scan_date DESC LIMIT 90')
+      .all();
+    return ok({ stats: rows.results });
+  }
   const state = await store.draft();
   const live = state.live ? (JSON.parse(state.live.body) as ScheduleDocument) : null;
   if (path === '/api/draft' && method === 'GET')
@@ -385,6 +416,133 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
   }
   return notFound();
 }
+function colomboDate(now = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo' }).format(now);
+}
+
+async function handleQr(request: Request, env: Env): Promise<Response> {
+  const scanDate = colomboDate();
+  const rawIp = request.headers.get('cf-connecting-ip') || 'unknown';
+  const encoder = new TextEncoder();
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    encoder.encode(`${scanDate}:${rawIp}:mahiyanganaya-qr-v1`),
+  );
+  const ipHash = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+
+  try {
+    // Delete rows in qr_daily_uniques where scan_date < date(scanDate, '-2 days')
+    await env.DB.prepare("DELETE FROM qr_daily_uniques WHERE scan_date < date(?, '-2 days')")
+      .bind(scanDate)
+      .run();
+
+    // Check if new unique visitor for today
+    const existing = await env.DB.prepare(
+      'SELECT 1 FROM qr_daily_uniques WHERE scan_date = ? AND ip_hash = ?',
+    )
+      .bind(scanDate, ipHash)
+      .first();
+
+    const isNew = !existing;
+    if (isNew) {
+      await env.DB.prepare(
+        'INSERT OR IGNORE INTO qr_daily_uniques (scan_date, ip_hash) VALUES (?, ?)',
+      )
+        .bind(scanDate, ipHash)
+        .run();
+    }
+
+    // Upsert qr_daily_stats
+    await env.DB.prepare(`
+      INSERT INTO qr_daily_stats (scan_date, unique_visitors, total_scans)
+      VALUES (?, ?, 1)
+      ON CONFLICT(scan_date) DO UPDATE SET
+        total_scans = total_scans + 1,
+        unique_visitors = unique_visitors + excluded.unique_visitors
+    `)
+      .bind(scanDate, isNew ? 1 : 0)
+      .run();
+  } catch (err) {
+    console.error('QR tracking error:', err);
+  }
+
+  return Response.redirect(new URL('/mobile/', request.url).toString(), 302);
+}
+
+const VALID_CATEGORIES = ['WRONG_TIME', 'MISSING_BUS', 'APP_ISSUE', 'OTHER'] as const;
+type SuggestionCategory = (typeof VALID_CATEGORIES)[number];
+
+async function handleSuggestions(request: Request, env: Env): Promise<Response> {
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
+
+  if (request.method !== 'POST') {
+    throw new ApiError(405, 'METHOD_NOT_ALLOWED', 'Only POST is accepted.');
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = object(await readJson(request));
+  } catch {
+    throw new ApiError(400, 'INVALID_JSON', 'Invalid JSON body.');
+  }
+
+  const category = String(body['category'] ?? '').trim();
+  if (!VALID_CATEGORIES.includes(category as SuggestionCategory)) {
+    throw new ApiError(
+      422,
+      'INVALID_CATEGORY',
+      `Category must be one of: ${VALID_CATEGORIES.join(', ')}.`,
+    );
+  }
+
+  const rawMessage = typeof body['message'] === 'string' ? body['message'].trim() : '';
+  if (rawMessage.length < 3 || rawMessage.length > 500) {
+    throw new ApiError(
+      422,
+      'INVALID_MESSAGE',
+      'Message must be between 3 and 500 characters.',
+    );
+  }
+
+  let routeHint: string | null = null;
+  if (typeof body['routeHint'] === 'string') {
+    const trimmed = body['routeHint'].trim();
+    if (trimmed.length > 0) {
+      if (trimmed.length > 100) {
+        throw new ApiError(422, 'INVALID_ROUTE_HINT', 'Route hint must be at most 100 characters.');
+      }
+      routeHint = trimmed;
+    }
+  }
+
+  const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
+
+  await env.DB.prepare(
+    'INSERT INTO suggestions (id, created_at, category, route_hint, message, status) VALUES (?, ?, ?, ?, ?, ?)',
+  )
+    .bind(id, createdAt, category, routeHint, rawMessage, 'OPEN')
+    .run();
+
+  return new Response(JSON.stringify({ ok: true, id }), {
+    status: 201,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Access-Control-Allow-Origin': '*',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
+}
+
 async function route(request: Request, env: Env): Promise<Response> {
   const path = new URL(request.url).pathname;
   if (path === '/.well-known/assetlinks.json' && request.method === 'GET') {
@@ -398,7 +556,10 @@ async function route(request: Request, env: Env): Promise<Response> {
   }
   if (path === '/health' && request.method === 'GET') return ok({ time: new Date().toISOString() });
   if (path === '/qr' && request.method === 'GET') {
-    return Response.redirect(new URL('/tv/', request.url).toString(), 302);
+    return handleQr(request, env);
+  }
+  if (path === '/api/suggestions') {
+    return handleSuggestions(request, env);
   }
   if (path === '/schedule.json' && request.method === 'GET') {
     const headers = new Headers({
