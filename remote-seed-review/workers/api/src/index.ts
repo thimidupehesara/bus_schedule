@@ -243,6 +243,155 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       .run();
     return ok({ ok: true, reloadNonce: nonce });
   }
+  if (path === '/api/admin/users' && method === 'GET') {
+    requireAdmin(user);
+    const rows = await store
+      .sql(
+        'SELECT id, login_id, display_name, role, disabled, created_at, last_login_at FROM users ORDER BY id ASC',
+      )
+      .all<UserRow>();
+    return ok({ users: rows.results });
+  }
+  if (path === '/api/admin/users' && method === 'POST') {
+    requireAdmin(user);
+    const body = object(await readJson(request));
+    const loginIdRaw = body['login_id'] ?? body['email'];
+    if (!validEmail(loginIdRaw)) {
+      throw new ApiError(422, 'INVALID_EMAIL', 'A valid email address is required.');
+    }
+    const login_id = String(loginIdRaw).trim().toLowerCase();
+    const displayNameRaw = body['display_name'] ?? body['displayName'];
+    if (typeof displayNameRaw !== 'string' || !displayNameRaw.trim()) {
+      throw new ApiError(422, 'INVALID_NAME', 'Display name cannot be empty.');
+    }
+    const display_name = displayNameRaw.trim();
+    const roleRaw = String(body['role'] ?? '').trim().toUpperCase();
+    if (roleRaw !== 'ADMIN' && roleRaw !== 'EDITOR') {
+      throw new ApiError(422, 'INVALID_ROLE', "Role must be 'ADMIN' or 'EDITOR'.");
+    }
+    const role = roleRaw as Role;
+
+    const existing = await store
+      .sql('SELECT id FROM users WHERE login_id = ? COLLATE NOCASE', login_id)
+      .first();
+    if (existing) {
+      throw new ApiError(409, 'DUPLICATE_EMAIL', 'This email is already registered.');
+    }
+
+    const count = await store.sql('SELECT COUNT(*) AS n FROM users').first<{ n: number }>();
+    if (count && count.n >= 20) {
+      throw new ApiError(409, 'USER_LIMIT', 'At most 20 users are permitted.');
+    }
+
+    const nowIso = new Date().toISOString();
+    await store.transaction(
+      user,
+      [
+        store.sql(
+          'INSERT INTO users (login_id, display_name, role, disabled, created_at) VALUES (?, ?, ?, 0, ?)',
+          login_id,
+          display_name,
+          role,
+          nowIso,
+        ),
+        store.audit(user, 'USER_CREATE', { email: login_id, name: display_name, role }),
+      ],
+      '(SELECT COUNT(*) FROM users) < 20',
+    );
+
+    const created = await store
+      .sql(
+        'SELECT id, login_id, display_name, role, disabled, created_at, last_login_at FROM users WHERE login_id = ? COLLATE NOCASE',
+        login_id,
+      )
+      .first<UserRow>();
+
+    return ok({ ok: true, user: created }, 201);
+  }
+  const adminUserPatchMatch = /^\/api\/admin\/users\/(\d+)$/.exec(path);
+  if (adminUserPatchMatch && method === 'PATCH') {
+    requireAdmin(user);
+    const id = Number(adminUserPatchMatch[1]);
+    const body = object(await readJson(request));
+
+    const target = await store
+      .sql(
+        'SELECT id, login_id, display_name, role, disabled, created_at, last_login_at FROM users WHERE id = ?',
+        id,
+      )
+      .first<UserRow>();
+    if (!target) return notFound();
+
+    let newRole = target.role;
+    if (body['role'] !== undefined) {
+      const r = String(body['role']).trim().toUpperCase();
+      if (r !== 'ADMIN' && r !== 'EDITOR') {
+        throw new ApiError(422, 'INVALID_ROLE', "Role must be 'ADMIN' or 'EDITOR'.");
+      }
+      newRole = r as Role;
+    }
+
+    let newDisabled = target.disabled;
+    if (body['disabled'] !== undefined) {
+      if (body['disabled'] === 1 || body['disabled'] === true || body['disabled'] === '1') {
+        newDisabled = 1;
+      } else if (body['disabled'] === 0 || body['disabled'] === false || body['disabled'] === '0') {
+        newDisabled = 0;
+      } else {
+        throw new ApiError(422, 'INVALID_DISABLED', 'Disabled must be 0, 1, true, or false.');
+      }
+    }
+
+    const isSelf = user.loginId.toLowerCase() === target.login_id.toLowerCase();
+    const selfDemoting = newRole !== 'ADMIN' && target.role === 'ADMIN';
+    const selfDisabling = newDisabled === 1 && target.disabled === 0;
+
+    if (isSelf && (selfDemoting || selfDisabling)) {
+      throw new ApiError(
+        400,
+        'SELF_DEMOTION_PROHIBITED',
+        'You cannot disable or demote your own active admin account.',
+      );
+    }
+
+    const removesAdmin =
+      (newRole !== 'ADMIN' || newDisabled === 1) && target.role === 'ADMIN' && target.disabled === 0;
+    if (removesAdmin) {
+      const activeAdmins = await store
+        .sql("SELECT COUNT(*) AS n FROM users WHERE role = 'ADMIN' AND disabled = 0")
+        .first<{ n: number }>();
+      if (!activeAdmins || activeAdmins.n <= 1) {
+        throw new ApiError(
+          409,
+          'LAST_ADMIN',
+          'The last active administrator cannot be disabled or demoted.',
+        );
+      }
+    }
+
+    await store.transaction(
+      user,
+      [
+        store.sql(
+          'UPDATE users SET role = ?, disabled = ? WHERE id = ?',
+          newRole,
+          newDisabled,
+          id,
+        ),
+        store.audit(user, 'USER_UPDATE', { id, role: newRole, disabled: newDisabled }),
+      ],
+      removesAdmin ? "(SELECT COUNT(*) FROM users WHERE role = 'ADMIN' AND disabled = 0) > 1" : undefined,
+    );
+
+    const updated = await store
+      .sql(
+        'SELECT id, login_id, display_name, role, disabled, created_at, last_login_at FROM users WHERE id = ?',
+        id,
+      )
+      .first<UserRow>();
+
+    return ok({ ok: true, user: updated });
+  }
   const state = await store.draft();
   const live = state.live ? (JSON.parse(state.live.body) as ScheduleDocument) : null;
   if (path === '/api/draft' && method === 'GET')
@@ -568,7 +717,10 @@ async function route(request: Request, env: Env): Promise<Response> {
       },
     });
   }
-  if (path === '/health' && request.method === 'GET') return ok({ time: new Date().toISOString() });
+  if (path === '/health' && request.method === 'GET') {
+    const now = Date.now();
+    return ok({ time: new Date(now).toISOString(), serverTimeMs: now });
+  }
   if (path === '/qr' && request.method === 'GET') {
     return handleQr(request, env);
   }
@@ -576,10 +728,12 @@ async function route(request: Request, env: Env): Promise<Response> {
     return handleSuggestions(request, env);
   }
   if (path === '/schedule.json' && request.method === 'GET') {
+    const serverNow = Date.now();
     const headers = new Headers({
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-cache',
-      'X-Server-Time': new Date().toISOString(),
+      'Date': new Date(serverNow).toUTCString(),
+      'X-Server-Time': new Date(serverNow).toISOString(),
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Expose-Headers': 'ETag, X-Server-Time, Date',
       'X-Content-Type-Options': 'nosniff',
@@ -619,17 +773,23 @@ async function route(request: Request, env: Env): Promise<Response> {
       }
     } catch {}
 
+    const serverNow = Date.now();
     const headers = new Headers();
     headers.set('Content-Type', 'application/json; charset=utf-8');
     headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     headers.set('Pragma', 'no-cache');
     headers.set('Expires', '0');
+    headers.set('Access-Control-Allow-Origin', '*');
+    headers.set('Access-Control-Expose-Headers', 'Date, X-Server-Time');
+    headers.set('Date', new Date(serverNow).toUTCString());
+    headers.set('X-Server-Time', new Date(serverNow).toISOString());
 
     return new Response(
       JSON.stringify({
         buildId,
         reloadNonce,
         forceReloadToken: reloadNonce,
+        serverTimeMs: serverNow,
       }),
       { status: 200, headers },
     );

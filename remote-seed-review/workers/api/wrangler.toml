@@ -15,5 +15,5 @@ database_id = "77673af6-070e-4991-a2d9-7042495b1dc9"
 migrations_dir = "migrations"
 
 [vars]
-TEAM_DOMAIN = "REPLACE_ME"
-ACCESS_AUD = "REPLACE_ME"
+TEAM_DOMAIN = "https://misty-field-778f.cloudflareaccess.com"
+ACCESS_AUD = "ba6398c2281ee6f0efd4aba4c275a0cbb869c194dff9b63522ca567850b3d1f0"

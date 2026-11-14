@@ -2,6 +2,7 @@ import type { ScheduleDocument } from '@bus-schedule/shared';
 import { validateScheduleDocument } from '@bus-schedule/shared';
 import { useEffect, useState } from 'react';
 import { DEFAULT_SAFE_AREA_PERCENT } from '../config.js';
+import { syncClockWithResponse } from './clockSync.js';
 
 export type ScheduleState = {
   doc: ScheduleDocument | null;
@@ -72,6 +73,7 @@ export function useSchedule(): ScheduleState {
         });
         if (!response.ok) throw new Error('Schedule request failed');
         const raw: unknown = await response.json();
+        syncClockWithResponse(response, raw);
         const display = raw && typeof raw === 'object' && 'display' in raw ? raw.display : null;
         const schedule =
           raw &&

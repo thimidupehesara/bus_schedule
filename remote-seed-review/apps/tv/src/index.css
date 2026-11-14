@@ -116,6 +116,60 @@ body {
   flex-shrink: 0;
 }
 
+.clock.syncing {
+  justify-content: flex-end;
+}
+
+.clock-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8vw;
+  background: rgba(234, 179, 8, 0.16);
+  border: 1.5px solid rgba(250, 204, 21, 0.6);
+  color: #facc15;
+  padding: 0.8vh 1.4vw;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: clamp(1rem, 2.2vh, 1.5rem);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.clock-sync-badge .sync-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #facc15;
+  box-shadow: 0 0 8px #facc15;
+  flex-shrink: 0;
+  animation: sync-dot-pulse 1.8s ease-in-out infinite;
+}
+
+.clock-sync-badge .sync-dot {
+  opacity: 0.6;
+  font-size: 1.1em;
+}
+
+.clock-sync-badge .sync-si {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+}
+
+.clock-sync-badge .sync-en {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+@keyframes sync-dot-pulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
 .clock-time {
   display: flex;
   align-items: center;

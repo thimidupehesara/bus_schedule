@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { syncClockWithResponse } from '../data/clockSync.js';
 
 const CURRENT_BUILD_ID = (import.meta.env.VITE_BUILD_ID || '').trim();
 const POLL_INTERVAL_MS = 60_000;
@@ -27,7 +28,9 @@ export function useAutoReloadOnDeploy() {
           buildId?: string;
           reloadNonce?: string;
           forceReloadToken?: string;
+          serverTimeMs?: number;
         };
+        syncClockWithResponse(response, data);
         const remoteBuildId = data?.buildId?.trim();
         const remoteNonce = (data?.reloadNonce ?? data?.forceReloadToken ?? '').trim();
 

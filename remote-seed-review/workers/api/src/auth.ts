@@ -85,23 +85,66 @@ export function developmentEmail(request: Request, config: AuthConfig): string |
     ? config.DEV_BYPASS_AUTH_EMAIL.toLowerCase()
     : null;
 }
+export function normalizeDomain(rawDomain: unknown): string | null {
+  if (typeof rawDomain !== 'string') return null;
+  const domain = rawDomain.replace(/^https?:\/\//i, '').replace(/\/+$/, '').trim().toLowerCase();
+  if (
+    !domain ||
+    domain === 'replace_me' ||
+    !/^[a-zA-Z0-9-]+\.cloudflareaccess\.com$/.test(domain)
+  ) {
+    return null;
+  }
+  return domain;
+}
+
+export function extractAccessJwt(request: Request): string | null {
+  const assertion = request.headers.get('Cf-Access-Jwt-Assertion');
+  if (assertion && assertion.trim().length > 0) {
+    return assertion.trim();
+  }
+  const cookieHeader = request.headers.get('Cookie');
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(';');
+    for (const cookie of cookies) {
+      const idx = cookie.indexOf('=');
+      if (idx !== -1) {
+        const name = cookie.slice(0, idx).trim();
+        const value = cookie.slice(idx + 1).trim();
+        if (name === 'CF_Authorization') {
+          const unquoted = value.replace(/^"(.*)"$/, '$1').trim();
+          if (unquoted.length > 0) {
+            try {
+              return decodeURIComponent(unquoted);
+            } catch {
+              return unquoted;
+            }
+          }
+        }
+      }
+    }
+  }
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const bearer = authHeader.slice(7).trim();
+    if (bearer.length > 0) {
+      return bearer;
+    }
+  }
+  return null;
+}
+
 export async function verifyAccessJwt(
   token: string | null,
   config: AuthConfig,
   fetcher: typeof fetch = fetch,
   now = Date.now(),
 ): Promise<string | null> {
-  const { TEAM_DOMAIN: domain, ACCESS_AUD: aud } = config;
-  if (
-    !domain ||
-    !aud ||
-    domain === 'REPLACE_ME' ||
-    aud === 'REPLACE_ME' ||
-    !/^[a-zA-Z0-9-]+\.cloudflareaccess\.com$/.test(domain) ||
-    !token ||
-    token.length > 16384
-  )
+  const domain = normalizeDomain(config.TEAM_DOMAIN);
+  const aud = config.ACCESS_AUD;
+  if (!domain || !aud || aud === 'REPLACE_ME' || !token || token.length > 16384) {
     return null;
+  }
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
@@ -114,6 +157,7 @@ export async function verifyAccessJwt(
       unknown
     >;
     const issuer = `https://${domain}`;
+    const claimIss = typeof claims['iss'] === 'string' ? claims['iss'].replace(/\/+$/, '') : '';
     if (
       header['alg'] !== 'RS256' ||
       typeof header['kid'] !== 'string' ||
@@ -121,7 +165,7 @@ export async function verifyAccessJwt(
     )
       return null;
     if (
-      claims['iss'] !== issuer ||
+      claimIss !== issuer ||
       !(Array.isArray(claims['aud']) ? claims['aud'].includes(aud) : claims['aud'] === aud) ||
       typeof claims['exp'] !== 'number' ||
       !Number.isFinite(claims['exp']) ||
@@ -161,13 +205,14 @@ export class AccessAuthProvider implements AuthProvider {
     private config: AuthConfig,
   ) {}
   async authenticate(request: Request): Promise<User | null> {
+    const token = extractAccessJwt(request);
     const email =
       developmentEmail(request, this.config) ??
-      (await verifyAccessJwt(request.headers.get('Cf-Access-Jwt-Assertion'), this.config));
+      (await verifyAccessJwt(token, this.config));
     if (!email) return null;
     const row = await this.db
-      .prepare('SELECT * FROM users WHERE login_id = ? COLLATE NOCASE')
-      .bind(email)
+      .prepare('SELECT * FROM users WHERE LOWER(login_id) = LOWER(?)')
+      .bind(email.toLowerCase().trim())
       .first<UserRow>();
     if (!row || row.disabled)
       throw new ApiError(403, 'NOT_ALLOWED', 'Your email is not on the allow-list.');

@@ -30,6 +30,7 @@ import { qrPath } from './qr.js';
 import { PageCountdown } from './PageCountdown.js';
 import { FittedText, FitLayout } from './FittedText.js';
 import { useAutoReloadOnDeploy } from './hooks/useAutoReloadOnDeploy.js';
+import { initClockSync } from './data/clockSync.js';
 
 type Text = { si: string; en: string };
 const columns = getColumns();
@@ -91,25 +92,35 @@ const Header = memo(function Header({
       <h1 lang="si">
         <span className="title-label">{LABELS.title.si}</span>
       </h1>
-      <div className="clock">
-        <div className="clock-time">
-          <strong className="digits">{meridiem.clock}</strong>
-          <span className="clock-meridiem">
-            <span lang="en">{meridiem.en}</span>
-            <span lang="si">{meridiem.si}</span>
-          </span>
-        </div>
-        <div className="date">
-          <div>
-            <span lang="si">{weekday.si}</span>{' '}
-            <span lang="en">{WEEKDAY_CODES[local.weekday - 1]}</span>
+      <div className={`clock${syncing ? ' syncing' : ''}`}>
+        {syncing ? (
+          <div className="clock-sync-badge">
+            <span className="sync-pulse" aria-hidden="true" />
+            <span lang="si" className="sync-si">
+              වේලාව සමමුහුර්ත වෙමින්...
+            </span>
+            <span className="sync-dot">·</span>
+            <span lang="en" className="sync-en">
+              Syncing Clock...
+            </span>
           </div>
-          <time dateTime={local.date}>{local.date}</time>
-        </div>
-        {syncing && (
-          <div className="syncing">
-            <Pair text={LABELS.clockSyncing} />
-          </div>
+        ) : (
+          <>
+            <div className="clock-time">
+              <strong className="digits">{meridiem.clock}</strong>
+              <span className="clock-meridiem">
+                <span lang="en">{meridiem.en}</span>
+                <span lang="si">{meridiem.si}</span>
+              </span>
+            </div>
+            <div className="date">
+              <div>
+                <span lang="si">{weekday.si}</span>{' '}
+                <span lang="en">{WEEKDAY_CODES[local.weekday - 1]}</span>
+              </div>
+              <time dateTime={local.date}>{local.date}</time>
+            </div>
+          </>
         )}
       </div>
     </header>
@@ -314,7 +325,7 @@ function PagedBoard({
   }, [totalSlides, slideIndex, fade, display.dwellSeconds]);
   useEffect(() => {
     const img = new Image();
-    img.src = './credits-slide.png';
+    img.src = './credits-slide.webp';
     img.decode?.().catch(() => {});
   }, []);
   return (
@@ -333,11 +344,11 @@ function PagedBoard({
           aria-label="Credits"
         >
           <img
-            src="./credits-slide.png"
+            src="./credits-slide.webp"
             alt="Credits"
             className="credits-slide-img"
             loading="eager"
-            decoding="sync"
+            decoding="async"
           />
         </div>,
         document.body,
@@ -417,9 +428,20 @@ function useScreenShift() {
   return positions[position]!;
 }
 
-function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
+function Board({
+  doc,
+  now,
+  isClockSynced,
+}: {
+  doc: ScheduleDocument;
+  now: number;
+  isClockSynced: boolean;
+}) {
   const [indicator, setIndicator] = useState<HTMLDivElement | null>(null);
-  const board = useMemo(() => buildBoard(doc, now, { clockSynced: true }), [doc, now]);
+  const board = useMemo(
+    () => buildBoard(doc, now, { clockSynced: isClockSynced }),
+    [doc, now, isClockSynced],
+  );
   const [x, y] = useScreenShift();
   const alert =
     doc.alert?.enabled && (!doc.alert.expiresAt || Date.parse(doc.alert.expiresAt) > now)
@@ -446,9 +468,10 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
           alert?.text.si,
           alert?.text.en,
           board.usedFallbackWindow,
+          isClockSynced,
         ].join('|')}
       >
-        <Header doc={doc} now={now} syncing={board.mode === 'CLOCK_UNSYNCED'} />
+        <Header doc={doc} now={now} syncing={!isClockSynced || board.mode === 'CLOCK_UNSYNCED'} />
         {alert && <Alert alert={alert} />}
         <PagedBoard
           board={board}
@@ -464,17 +487,21 @@ function Board({ doc, now }: { doc: ScheduleDocument; now: number }) {
 
 export default function App() {
   useAutoReloadOnDeploy();
+  useEffect(() => {
+    return initClockSync();
+  }, []);
+
   const { doc, status } = useSchedule();
-  const now = useNow();
+  const { now, isClockSynced } = useNow();
 
   useEffect(() => {
     const img = new Image();
-    img.src = './credits-slide.png';
+    img.src = './credits-slide.webp';
     img.decode?.().catch(() => {});
   }, []);
 
   return doc ? (
-    <Board doc={doc} now={now} />
+    <Board doc={doc} now={now} isClockSynced={isClockSynced} />
   ) : (
     <main className="empty fullscreen" role="status">
       <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />

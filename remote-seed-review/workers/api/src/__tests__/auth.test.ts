@@ -1,6 +1,8 @@
 import { beforeAll, beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import {
   verifyAccessJwt,
+  normalizeDomain,
+  extractAccessJwt,
   developmentEmail,
   clearJwksCache,
   checkUserChange,
@@ -237,5 +239,50 @@ describe('CSRF and request bodies', () => {
         }),
       ),
     ).rejects.toMatchObject({ status: 413 });
+  });
+});
+describe('extractAccessJwt and domain normalization', () => {
+  it('normalizes TEAM_DOMAIN with and without https and trailing slash', () => {
+    expect(normalizeDomain('test.cloudflareaccess.com')).toBe('test.cloudflareaccess.com');
+    expect(normalizeDomain('https://test.cloudflareaccess.com')).toBe('test.cloudflareaccess.com');
+    expect(normalizeDomain('https://test.cloudflareaccess.com/')).toBe('test.cloudflareaccess.com');
+    expect(normalizeDomain('http://test.cloudflareaccess.com')).toBe('test.cloudflareaccess.com');
+    expect(normalizeDomain('REPLACE_ME')).toBeNull();
+    expect(normalizeDomain('evil.example.com/path')).toBeNull();
+    expect(normalizeDomain('')).toBeNull();
+    expect(normalizeDomain(null)).toBeNull();
+  });
+  it('verifies JWT with https:// prefixed TEAM_DOMAIN and trailing-slash issuer', async () => {
+    const fetcher = fetchKeys();
+    const cfg = { TEAM_DOMAIN: 'https://test.cloudflareaccess.com', ACCESS_AUD: config.ACCESS_AUD };
+    const jwtWithSlashIss = await token({ iss: 'https://test.cloudflareaccess.com/' });
+    expect(await verifyAccessJwt(jwtWithSlashIss, cfg, fetcher, now)).toBe('staff@example.com');
+  });
+  it('extracts JWT from Cf-Access-Jwt-Assertion header', () => {
+    const req = new Request('https://bus.example.com/api/draft', {
+      headers: { 'Cf-Access-Jwt-Assertion': 'header-jwt-123' },
+    });
+    expect(extractAccessJwt(req)).toBe('header-jwt-123');
+  });
+  it('extracts JWT from CF_Authorization cookie (plain and quoted)', () => {
+    const req1 = new Request('https://bus.example.com/api/draft', {
+      headers: { Cookie: 'session=abc; CF_Authorization=cookie-jwt-456; theme=dark' },
+    });
+    expect(extractAccessJwt(req1)).toBe('cookie-jwt-456');
+
+    const req2 = new Request('https://bus.example.com/api/draft', {
+      headers: { Cookie: 'CF_Authorization="quoted-jwt-789"' },
+    });
+    expect(extractAccessJwt(req2)).toBe('quoted-jwt-789');
+  });
+  it('extracts JWT from Authorization Bearer header', () => {
+    const req = new Request('https://bus.example.com/api/draft', {
+      headers: { Authorization: 'Bearer bearer-jwt-999' },
+    });
+    expect(extractAccessJwt(req)).toBe('bearer-jwt-999');
+  });
+  it('returns null when no token is present', () => {
+    const req = new Request('https://bus.example.com/api/draft');
+    expect(extractAccessJwt(req)).toBeNull();
   });
 });
