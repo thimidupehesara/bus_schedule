@@ -47,11 +47,11 @@ export type Operator = z.infer<typeof OperatorSchema>;
 export const ServiceTypeSchema = z.enum(['NORMAL', 'SEMI_LUXURY', 'LUXURY', 'EXPRESS']);
 export type ServiceType = z.infer<typeof ServiceTypeSchema>;
 
-/**
- * ISO weekday number: 1 = Monday … 7 = Sunday.
- * This refers to the weekday on which the bus DEPARTS from the stand.
- */
-export const WeekdaySchema = z.union([
+export const ALL_WEEKDAY_CODES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] as const;
+export type WeekdayCode = (typeof ALL_WEEKDAY_CODES)[number];
+
+export const WeekdayCodeSchema = z.enum(ALL_WEEKDAY_CODES);
+export const WeekdayNumSchema = z.union([
   z.literal(1),
   z.literal(2),
   z.literal(3),
@@ -60,6 +60,20 @@ export const WeekdaySchema = z.union([
   z.literal(6),
   z.literal(7),
 ]);
+export type WeekdayNum = z.infer<typeof WeekdayNumSchema>;
+
+/**
+ * ISO weekday number (1 = Mon … 7 = Sun) or code ('MON' … 'SUN').
+ * This refers to the weekday on which the bus DEPARTS from the stand.
+ */
+// Dispatch directly instead of constructing seven failed numeric-union errors for
+// every string weekday in every validation pass on the Worker CPU budget.
+export const WeekdaySchema = z.custom<WeekdayNum | WeekdayCode>((value) =>
+  typeof value === 'number'
+    ? Number.isInteger(value) && value >= 1 && value <= 7
+    : typeof value === 'string' && (ALL_WEEKDAY_CODES as readonly string[]).includes(value),
+  'Expected an ISO weekday number (1–7) or MON–SUN code',
+);
 export type Weekday = z.infer<typeof WeekdaySchema>;
 
 // ---------------------------------------------------------------------------
@@ -206,7 +220,7 @@ export const DEFAULT_DISPLAY_SETTINGS: DisplaySettings = {
   departedGraceMinutes: 15,
   soonThresholdMinutes: 15,
   lookaheadHours: 8,
-  safeAreaPercent: 3.5,
+  safeAreaPercent: 1.5,
   pollIntervalSeconds: 180,
   reloadAtLocalTime: '02:30',
 };

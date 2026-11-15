@@ -1,12 +1,49 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { syncClockWithResponse } from '../data/clockSync.js';
 
+export type TvHoldMode = 'auto' | 'credits' | 'page';
+
+export interface TvHoldState {
+  mode: TvHoldMode;
+  page?: number;
+  updatedAt?: number;
+}
+
+const DEFAULT_TV_HOLD: TvHoldState = {
+  mode: 'auto',
+  page: 1,
+  updatedAt: 0,
+};
+
+function readPersistedTvHold(): TvHoldState {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('tv_hold_state');
+      if (stored) {
+        const parsed = JSON.parse(stored) as TvHoldState;
+        if (
+          parsed &&
+          (parsed.mode === 'auto' || parsed.mode === 'credits' || parsed.mode === 'page')
+        ) {
+          return {
+            mode: parsed.mode,
+            page: typeof parsed.page === 'number' && parsed.page >= 1 ? Math.floor(parsed.page) : 1,
+            updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+          };
+        }
+      }
+    } catch {}
+  }
+  return DEFAULT_TV_HOLD;
+}
+
 const CURRENT_BUILD_ID = (import.meta.env.VITE_BUILD_ID || '').trim();
-const POLL_INTERVAL_MS = 60_000;
+const POLL_INTERVAL_MS = 2500;
 
 export function useAutoReloadOnDeploy() {
   const isReloading = useRef(false);
   const lastReloadNonce = useRef<string | null>(null);
+  const [tvHold, setTvHold] = useState<TvHoldState>(readPersistedTvHold);
 
   useEffect(() => {
     const checkVersion = async () => {
@@ -18,7 +55,7 @@ export function useAutoReloadOnDeploy() {
         const response = await fetch(`./version.json?t=${Date.now()}`, {
           cache: 'no-store',
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
             Pragma: 'no-cache',
           },
         });
@@ -29,8 +66,41 @@ export function useAutoReloadOnDeploy() {
           reloadNonce?: string;
           forceReloadToken?: string;
           serverTimeMs?: number;
+          tvHold?: TvHoldState;
         };
         syncClockWithResponse(response, data);
+
+        // Update tvHold state if present
+        if (
+          data?.tvHold &&
+          (data.tvHold.mode === 'auto' ||
+            data.tvHold.mode === 'credits' ||
+            data.tvHold.mode === 'page')
+        ) {
+          const freshHold: TvHoldState = {
+            mode: data.tvHold.mode,
+            page:
+              typeof data.tvHold.page === 'number' && data.tvHold.page >= 1
+                ? Math.floor(data.tvHold.page)
+                : 1,
+            updatedAt:
+              typeof data.tvHold.updatedAt === 'number' ? data.tvHold.updatedAt : Date.now(),
+          };
+          setTvHold((prev) => {
+            if (
+              prev.mode === freshHold.mode &&
+              prev.page === freshHold.page &&
+              prev.updatedAt === freshHold.updatedAt
+            ) {
+              return prev;
+            }
+            try {
+              localStorage.setItem('tv_hold_state', JSON.stringify(freshHold));
+            } catch {}
+            return freshHold;
+          });
+        }
+
         const remoteBuildId = data?.buildId?.trim();
         const remoteNonce = (data?.reloadNonce ?? data?.forceReloadToken ?? '').trim();
 
@@ -96,8 +166,8 @@ export function useAutoReloadOnDeploy() {
       }
     };
 
-    // First check after 10s, then periodic polling every 60s
-    const initialTimer = setTimeout(checkVersion, 10_000);
+    // First check after 500ms, then periodic polling every 2500ms (2.5s)
+    const initialTimer = setTimeout(checkVersion, 500);
     const intervalTimer = setInterval(checkVersion, POLL_INTERVAL_MS);
 
     return () => {
@@ -105,6 +175,8 @@ export function useAutoReloadOnDeploy() {
       clearInterval(intervalTimer);
     };
   }, []);
+
+  return { tvHold };
 }
 
 

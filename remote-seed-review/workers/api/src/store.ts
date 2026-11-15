@@ -3,6 +3,7 @@ import {
   colomboDate,
   validateScheduleDocument,
   type ScheduleDocument,
+  type BusService,
 } from '@bus-schedule/shared';
 import { type User } from './auth.js';
 import { ApiError } from './http.js';
@@ -86,7 +87,7 @@ export class Store {
     await this.initialize();
     const result = await this.db.batch([
       this.sql('SELECT * FROM draft_meta WHERE id=1'),
-      this.sql('SELECT data FROM draft_services'),
+      this.sql('SELECT id, data FROM draft_services'),
       this.sql(
         'SELECT s.* FROM snapshots s JOIN live_pointer p ON s.version=p.version WHERE p.id=1',
       ),
@@ -95,8 +96,19 @@ export class Store {
     const meta = result[0]!.results[0] as unknown as Meta;
     const live = (result[2]!.results[0] as unknown as Snapshot) ?? null;
     const maximum = Number((result[3]!.results[0] as { maximum: number }).maximum);
+
+    const parsedServices = result[1]!.results.map((row) => {
+      const stored = row as { id: string; data: string };
+      try {
+        const value: unknown = JSON.parse(stored.data);
+        return { ...(value && typeof value === 'object' && !Array.isArray(value) ? value : {}), id: stored.id } as BusService;
+      } catch {
+        return { id: stored.id } as BusService;
+      }
+    });
+
     return {
-      revision: meta.revision,
+      revision: meta?.revision ?? 0,
       maximum,
       live,
       document: {
@@ -104,13 +116,11 @@ export class Store {
         version: live?.version ?? 1,
         publishedAt: live?.published_at ?? new Date().toISOString(),
         timezone: 'Asia/Colombo',
-        station: JSON.parse(meta.station),
-        alert: meta.alert ? JSON.parse(meta.alert) : null,
-        display: JSON.parse(meta.display),
-        lastVerified: meta.last_verified,
-        services: sortServices(
-          result[1]!.results.map((row) => JSON.parse((row as { data: string }).data)),
-        ),
+        station: meta?.station ? JSON.parse(meta.station) : defaultStation,
+        alert: meta?.alert ? JSON.parse(meta.alert) : null,
+        display: meta?.display ? JSON.parse(meta.display) : DEFAULT_DISPLAY_SETTINGS,
+        lastVerified: meta?.last_verified ?? new Date().toISOString().slice(0, 10),
+        services: sortServices(parsedServices),
       },
     };
   }
@@ -220,22 +230,43 @@ export class Store {
       source.alert?.enabled === true &&
       source.alert.expiresAt !== null &&
       Date.parse(source.alert.expiresAt) <= Date.parse(now);
+    const normalizedDisplay = {
+      ...(source.display || DEFAULT_DISPLAY_SETTINGS),
+      rowsPerPage: 4,
+      dwellSeconds: 10,
+      fadeMs: 300,
+      safeAreaPercent: 1.5,
+    };
     const document: ScheduleDocument = {
       ...source,
       schemaVersion: 1,
       version,
       publishedAt: now,
+      display: normalizedDisplay,
       services: sortServices(source.services),
       alert: alertDisabled && source.alert ? { ...source.alert, enabled: false } : source.alert,
     };
     const { validation } = validateDocument(document);
-    if (kind === 'PUBLISH' && !validation.ok)
+    if (kind === 'PUBLISH' && !validation.ok) {
+      const errorSummaries = validation.errors.map((e) => {
+        const target = e.serviceId
+          ? (() => {
+              const svc = document.services.find((s) => s.id === e.serviceId);
+              return svc
+                ? `[Bus ${svc.departure} to ${svc?.destination?.en ?? 'Unknown'}]: `
+                : `[Service ${e.serviceId}]: `;
+            })()
+          : '';
+        return `${target}${e.message_en}`;
+      });
+      const detailedMessage = `Publish rejected due to ${validation.errors.length} validation error(s): ${errorSummaries.join('; ')}`;
       throw new ApiError(
         422,
         'VALIDATION',
-        'Correct all errors before publishing.',
+        detailedMessage,
         validation.errors,
       );
+    }
     // Prepare response diagnostics before committing so a warning failure cannot follow a successful write.
     const warnings =
       kind === 'ROLLBACK'
@@ -268,7 +299,10 @@ export class Store {
           'INSERT INTO live_pointer(id,version) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET version=excluded.version',
           version,
         ),
-        ...(kind === 'ROLLBACK' ? [...this.replace(document, user), this.revision(user)] : []),
+        ...(kind === 'ROLLBACK'
+          ? [...this.replace(document, user), this.revision(user)]
+          : [this.sql('UPDATE draft_meta SET display = ? WHERE id = 1', JSON.stringify(normalizedDisplay))]),
+        this.sql('INSERT INTO audit_log(at,login_id,action,detail) VALUES(?,?,?,?)', now, user.loginId, 'TV_RELOAD', `publish:${version}`),
         this.audit(user, kind, {
           version,
           rolledBackFrom,
@@ -276,16 +310,20 @@ export class Store {
           ...(kind === 'ROLLBACK' ? { alertDisabled } : {}),
         }),
         this.sql(
-          'DELETE FROM snapshots WHERE version NOT IN (SELECT version FROM snapshots ORDER BY version DESC LIMIT 50) AND version NOT IN (SELECT version FROM live_pointer) AND version != (SELECT MAX(version) FROM snapshots)',
+          'DELETE FROM snapshots WHERE version NOT IN (SELECT version FROM (SELECT version FROM snapshots ORDER BY version DESC LIMIT 50)) AND version NOT IN (SELECT version FROM live_pointer) AND version != (SELECT MAX(version) FROM snapshots)',
         ),
       ],
       '(SELECT revision FROM draft_meta WHERE id=1)=? AND (SELECT COALESCE(MAX(version),0) FROM snapshots)=?',
       [state.revision, state.maximum],
     );
     return {
+      ok: true,
       version,
+      publishedAt: now,
       etag,
+      reloadNonce: `publish:${version}`,
       draftRevision: state.revision + (kind === 'ROLLBACK' ? 1 : 0),
+      hasUnpublishedChanges: false,
       ...(kind === 'ROLLBACK'
         ? {
             alertDisabled,

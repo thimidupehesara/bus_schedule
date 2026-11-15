@@ -7,9 +7,9 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { TEXT_MIN_SCALE } from './config.js';
 
 const Layout = createContext('');
+const elementParent = (element: HTMLElement | null) => element?.parentElement;
 
 export function FitLayout({ layout, children }: { layout: string; children: ReactNode }) {
   const [revision, setRevision] = useState(0);
@@ -50,38 +50,29 @@ export function FittedText({
       const clientWidth = container.clientWidth;
       if (clientWidth <= 50) return;
 
-      let availableWidth = clientWidth;
-      if (container !== element) {
-        const cs = getComputedStyle(container);
-        const pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
-        availableWidth = Math.max(0, clientWidth - pad);
-      }
-
-      if (availableWidth <= 50) return;
-
-      if (element.scrollWidth > availableWidth) {
+      const cs = getComputedStyle(element);
+      const padding = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      // Fit to this element's actual content box, including its own max-width restriction.
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const available = Math.min(clientWidth, element.clientWidth) - padding;
+        const required = element.scrollWidth - padding;
+        if (available <= 0 || required <= available + 0.5) break;
         const base = parseFloat(getComputedStyle(element).fontSize);
-        const scale = (availableWidth - 2) / element.scrollWidth;
-        const minPx = 10;
-        const fittedPx = Math.max(minPx, base * scale);
-        element.style.fontSize = `${fittedPx}px`;
-
-        // Fine tune if still exceeding target width due to font rounding
-        if (element.scrollWidth > availableWidth && fittedPx > minPx) {
-          const fineScale = (availableWidth - 2) / element.scrollWidth;
-          element.style.fontSize = `${Math.max(minPx, fittedPx * fineScale)}px`;
-        }
+        element.style.fontSize = `${Math.max(6, base * (available - 1) / required)}px`;
       }
     };
 
     fit();
     const rafId = typeof requestAnimationFrame !== 'undefined' ? requestAnimationFrame(fit) : 0;
 
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null;
+    if (elementParent(ref.current)) observer?.observe(elementParent(ref.current)!);
     window.addEventListener('resize', fit);
     if (typeof document !== 'undefined' && 'fonts' in document) {
       void document.fonts.ready.then(fit);
     }
     return () => {
+      observer?.disconnect();
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener('resize', fit);
     };

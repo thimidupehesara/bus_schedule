@@ -11,12 +11,378 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Bilingual labels and departed row cap                                           | Done    |
 | TV table UI                                                                     | Done    |
 | TV offline engine, polling, clock recovery and watchdog                         | Done    |
-| Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Part 1 Done |
+| Staff admin UI with hour/minute/AM-PM picker and Access-session-expired message | Done    |
 | Passenger mobile page for QR code                                               | Done    |
 | Kotlin launcher                                                                 | Pending |
 | First deploy                                                                    | Done    |
 
 ## Done
+- [DONE] Fix Sticky "Unpublished draft changes detected" Banner, Enlarge TV Time Digits, and Clean Up Diff Text:
+  - 1. Fixed Sticky "Unpublished draft changes detected" Banner After Publish (`workers/api` & `apps/admin`):
+    - In `workers/api/src/schedule.ts`, introduced `normalizeDisplaySettings` comparing only active editable display fields (`departedGraceMinutes`, `soonThresholdMinutes`, `lookaheadHours`) in `scheduleDiff` and `hasChanges`, eliminating false-positive `displayChanged: true` from locked display defaults.
+    - In `workers/api/src/store.ts` (`publish`), synced the normalized display settings (`rowsPerPage: 4`, `dwellSeconds: 10`, `fadeMs: 300`, `safeAreaPercent: 1.5`) directly into `draft_meta.display` on publish, and returned `hasUnpublishedChanges: false`.
+    - In `apps/admin/src/App.tsx` (`handlePublish`), ensured `setHasUnpublishedChanges(false)` is applied immediately, causing the orange unpublished changes banner to disappear cleanly post-publish.
+  - 2. Enlarged Departure & Arrival Time Numbers on TV (`apps/tv/src/index.css`):
+    - Scaled `.time-block .digits`, `.departure .digits`, and `.arrival .digits` up to `clamp(2.4rem, min(calc(var(--row-h) * 0.42), 5.6vw), 6.5rem)` with `line-height: 1.02`, `font-variant-numeric: tabular-nums`, and `white-space: nowrap`.
+    - Maintained `.time-block.with-badge .digits` at `clamp(2.2rem, min(calc(var(--row-h) * 0.38), 5.2vw), 5.8rem)`.
+    - Preserved unclipped pill badges (`.time-block .pill`) with `white-space: nowrap`, `max-width: 100%`, and `overflow: visible`.
+  - 3. Cleaned Up Publish Diff Summary Text (`apps/admin/src/App.tsx`):
+    - Explicitly formatted Display Settings Updated diff line to `Departed Grace: {grace}m · Soon Highlight: {soon}m · Schedule Lookahead: {lookahead}h` (zero mention of `rows/page` or `dwell`).
+  - 4. Verification, Assembly & Deployment:
+    - Passed all 16 test suites and 226/226 automated unit/integration tests with `npm test`.
+    - Passed TypeScript compiler checks across all workspaces with `npm run typecheck` and `npx tsc --noEmit`.
+    - Assembled TV, Admin, and Mobile bundles via `npm run assemble`.
+    - Deployed live to Cloudflare Workers via `npm run deploy` (Version ID `22807de1-8698-4dc9-8433-076d6509729f`).
+    - Verified live HTTP endpoints `/health` (200 OK), `/tv/version.json` (200 OK), and `/schedule.json` (200 OK).
+- [DONE] Analyze and Fix TypeScript & Linter Errors in `workers/api/src/__tests__/api.test.ts`:
+  - 1. Fixed Type Access and Removed `any` Casts:
+    - Imported `type BusService` and `type ScheduleDocument` from `@bus-schedule/shared`.
+    - Typed `(draft.data['document'] as ScheduleDocument).services` across all test blocks, resolving `Object is of type 'unknown'` property access.
+    - Replaced all `as any[]` casts on lines 524, 529, 538, and 561, satisfying `@typescript-eslint/no-explicit-any`.
+  - 2. Cleaned Up Unused Variables and Structure:
+    - Removed unused `draftRes` variable on line 411, satisfying `@typescript-eslint/no-unused-vars`.
+    - Moved the dangling `it('loads, previews and publishes a full code-weekday draft without network self-fetches')` test inside the `describe('local SQLite API integration')` block and properly typed its parameters.
+  - 3. Verification:
+    - Ran `npx eslint workers/api/src/__tests__/api.test.ts` (0 errors, 0 warnings).
+    - Ran `npm test`: all 16 test suites and 226/226 tests passed (100% green).
+    - Ran `npx tsc --noEmit` on `workers/api`, `apps/admin`, and `apps/tv` (0 errors).
+    - Ran `npm run typecheck` (0 errors).
+- [DONE] Clean Up Schedule Difference Summary Diff Line & Deploy Latest Admin UI:
+  - 1. Cleaned up Display Settings Meta Diff Line (`apps/admin/src/App.tsx`):
+    - Removed any display of `rows/page` or `dwell` from the Schedule Difference Summary card on the Publish screen.
+    - Updated display to cleanly render only `${departedGraceMinutes}m grace · ${soonThresholdMinutes}m soon · ${lookaheadHours}h lookahead`.
+    - Confirmed Display Settings UI preserves locked `rowsPerPage: 4`, `dwellSeconds: 10`, `fadeMs: 300`, and `safeAreaPercent: 1.5%`.
+  - 2. Verification & Deployment:
+    - Ran `npx tsc --noEmit` across `workers/api`, `apps/admin`, and `apps/tv` (all 0 errors).
+    - Ran `npm run typecheck`: Passed with 0 errors.
+    - Ran `npm test`: 16/16 test suites passed, 226/226 tests passed (100% green).
+    - Ran `npm run assemble`: Successfully bundled `/tv/`, `/admin/`, and `/mobile/`.
+    - Ran `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `16b0bb54-83b9-428b-870d-5e4656e5bdc4`).
+    - Verified live HTTP endpoints: `/health` (200 OK), `/tv/version.json` (200 OK), and `/schedule.json` (Version 33 with 136 services live).
+- [DONE] Fix CSV/Excel Importer Defaults, Add One-Click "Activate All Buses", and Guarantee Clean JSON Error Reporting on Publish:
+  - 1. Fixed CSV / Excel Importer Defaults (`apps/admin/src/import-timetable.ts` & `workers/api/src/index.ts` & `@bus-schedule/shared`):
+    - Added `active: 'Active / Status'` to `columnLabels` and auto-detected it via `/active|status|සක්‍රිය/i` in `detectColumns`.
+    - Updated `parseSpreadsheet` to extract `active` column and pass it to `parseService`.
+    - In `parseService`, strictly defaulted `active` to `true` unless explicitly `'false'`, `'0'`, `'no'`, `'inactive'`, `'අක්‍රිය'`, `'off'`, or `'hidden'`.
+    - In `POST /api/draft/import`, defaulted `candidate['active'] = true` when omitted/empty, defaulted `candidate['days']` to all 7 days `['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']`, and populated standard defaults for nullable fields (`via: null, bay: null, tripStart: null, destinationArrival: null, arrival: null`).
+    - Added unit tests covering Active column header detection, spreadsheet parsing, and default fallback.
+  - 2. Added One-Click "Activate All Buses" Button & Backend Endpoint (`apps/admin/src/App.tsx` & `workers/api/src/index.ts`):
+    - Added `POST /api/draft/activate-all` endpoint in `workers/api/src/index.ts` executing atomic JSON mutation `json_set(data, '$.active', json('true'))` in D1 with audit logging.
+    - Added `⚡ Activate All Buses` button on the Bus List toolbar in `apps/admin/src/App.tsx` (shown whenever any draft bus is inactive or hidden).
+    - Added an immediate one-click `⚡ Activate All Buses` button directly inside the critical warning banner on the Publish screen if 0 active buses remain.
+  - 3. Fixed HTTP 503 & Preserved Exact Error Messages on `POST /api/publish` (`workers/api/src/index.ts` & `workers/api/src/store.ts` & `apps/admin/src/App.tsx`):
+    - Wrapped `POST /api/publish` in a dedicated `try / catch` returning structured JSON (`422` with code `'PUBLISH_FAILED'`, `error.message`, and stack trace) rather than unhandled 503 or generic 500 errors.
+    - Improved top-level fetch error handler in Cloudflare Worker to retain real exception messages in JSON rather than hiding them behind generic text.
+    - Wrapped SQLite subquery `(SELECT version FROM (SELECT version FROM snapshots ORDER BY version DESC LIMIT 50))` in `store.ts` ensuring clean execution across all SQLite engines.
+    - In `handlePublish` in `apps/admin/src/App.tsx`, displayed detailed error messages directly to staff with problem row navigation.
+  - 4. Verification & Deployment:
+    - Ran `npx tsc -p workers/api/tsconfig.json --noEmit`, `npx tsc -p apps/admin/tsconfig.json --noEmit`, and `npx tsc -p apps/tv/tsconfig.json --noEmit` (0 errors).
+    - Ran `npm run typecheck`: Passed (0 errors).
+    - Ran `npm test`: 16/16 test suites passed, 222/222 unit and integration tests passed (100% green).
+    - Ran `npm run assemble`: Successfully bundled `/tv/`, `/admin/`, and `/mobile/`.
+    - Ran `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `d20d60fc-8bb1-4d37-8f37-19aeaf59e710`).
+    - Verified live HTTP endpoints: `/health` (200 OK) and `/tv/version.json` (200 OK).
+- [DONE] Fix CSV/Excel Days Column Parsing and Eliminate HTML / Unexpected Token Errors on Publish:
+  - 1. Fixed CSV / Excel Days Column Parsing (`apps/admin/src/import-timetable.ts` & `App.tsx` & `@bus-schedule/shared`):
+    - In `import-timetable.ts`, added `parseDaysField` mapping `"Every day"`, `"Daily"`, `"All"`, `"සෑම දිනකම"`, blank, or empty `[]` to all 7 days `['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']` (never empty `[]`, preventing TV "No buses scheduled").
+    - Normalized `"Weekdays"` / `"සතියේ දින"` → `['MON', 'TUE', 'WED', 'THU', 'FRI']` and `"Weekends"` / `"සති අන්ත"` → `['SAT', 'SUN']`.
+    - Updated `@bus-schedule/shared` (`schema.ts`, `board.ts`, `service-rules.ts`):
+      - Expanded `WeekdaySchema` to accept both ISO numbers (`1..7`) and weekday codes (`'MON'..'SUN'`).
+      - Updated board engine `runsOnWeekday` to check both numeric and code weekday formats, ensuring TV timetable renders correctly for all services.
+      - Updated `App.tsx` filtering, formatting, and day checkboxes to normalize and display both numeric and string weekday codes seamlessly.
+  - 2. Fixed Unexpected token '<', "<!DOCTYPE "... is not valid JSON After Publish (`apps/admin` & `workers/api`):
+    - In `apps/admin/src/App.tsx`, introduced `safeJson` parser across `handlePublish`, `loadPublishPreview`, `loadSchedule`, and `loadSnapshots`.
+    - In `apiFetch`, added `Accept: application/json` and checked for HTML redirects / responses (such as Cloudflare Access login pages), triggering `admin:session-expired` cleanly instead of throwing unhandled syntax errors into `res.json()`.
+    - In `workers/api/src/store.ts`, updated `store.publish` to always return `ok: true`, `version`, and `publishedAt: now`.
+    - In `workers/api/src/http.ts`, enforced `Content-Type: application/json; charset=utf-8` on API endpoints in the `security` header wrapper.
+  - 3. Verification & Deployment:
+    - Ran `npm run typecheck`: Passed (0 errors).
+    - Ran `npx tsc --noEmit` on `workers/api`, `apps/admin`, and `apps/tv`: Passed (0 errors).
+    - Ran `npm test`: 16/16 test files passed, 217/217 unit tests passed (100% green).
+    - Ran `npm run assemble` and `npm run deploy` deploying live to Cloudflare Workers (Version ID `d7db963d-4602-460e-97fd-ea69c4a66862`).
+    - Verified live HTTP endpoints: `/health` (200 OK) and `/tv/version.json` (200 OK).
+- [DONE] Fix TV 4-Row Pagination, Simplify Display Settings, Resolve 503 Draft/Publish Errors, Fix Bulk Add & JSON Import:
+  - 1. Locked TV Back to Fixed 4 Rows Per Page & Fixed "හෙට / Tomorrow" Clipping (`apps/tv` & `workers/api`):
+    - Reverted variable/height-based pagination in `apps/tv` to strict fixed 4 rows per page (`rowsPerPage = 4`, `dwellSeconds = 10`), avoiding uneven pages.
+    - Replaced departure badge container with bilingual spans and set `overflow: visible; white-space: nowrap; width: auto; max-width: 100%` in `apps/tv/src/index.css` so `"හෙට / Tomorrow"` never truncates to `"tomor"`.
+    - Enforced `rowsPerPage: 4`, `dwellSeconds: 10`, and `safeAreaPercent: 1.5` in published display documents.
+  - 2. Simplified Display Settings (`apps/admin`):
+    - Removed safe area, cross-fade, station branding, rows per page, and seconds per page inputs from `apps/admin/src/App.tsx`.
+    - Kept only 3 clean inputs: Departed Grace (Minutes), Soon Highlight (Minutes), and Schedule Lookahead (Hours).
+    - Guaranteed saving preserves `rowsPerPage = 4` and `dwellSeconds = 10` and succeeds with 200 OK.
+  - 3. Fixed 503 on `/api/draft`, `/api/publish/preview`, `/api/publish` & Fixed Alert Banner Toggle (`workers/api` & `apps/admin`):
+    - Eliminated uncaught exceptions in `workers/api/src/schedule.ts` and `workers/api/src/store.ts` by safely normalizing draft services on read (preventing `localeCompare` crashes on null or incomplete rows).
+    - Allowed deleting broken draft rows by ID directly from D1 via `DELETE /api/draft/services/:id`.
+    - Ensured toggling Alert Banner ON/OFF and publishing always succeeds with 200 OK without 503 errors.
+  - 4. Fixed Bulk Add Modal (`apps/admin`):
+    - Provided both Sinhala and English destination & origin inputs with live bidirectional auto-fill from `KNOWN_PLACES` and explicit manual editing.
+    - Added live script and time validation with red row highlighting and human-readable error hints.
+    - Appended new services with unique UUIDs without overwriting existing buses.
+  - 5. Fixed JSON File Import (`apps/admin`):
+    - Supported flat JSON arrays `[ { ... } ]`, `{ "services": [ ... ] }`, and `{ "document": { "services": [ ... ] } }`, mapping column aliases and Sinhala/English pairs accurately.
+  - 6. Build, Test & Deploy:
+    - Ran `npx tsc --noEmit` across `workers/api`, `apps/admin`, and `apps/tv` (all 0 errors).
+    - Ran `npm test`: all 15 test suites and 203 unit tests passed (100% green).
+    - Ran `npm run assemble` and `npm run deploy` deploying live to Cloudflare Workers (Version ID `9c3c4c32-4f2d-4b84-9828-0c82e8f77e93`).
+    - Verified live HTTP endpoints: `/health` (200 OK) and `/tv/version.json` (200 OK).
+- [DONE] Restore TV Outer Margin to 1.5% & Add Delete All / Bulk Add / JSON Importer in Admin:
+  - 1. Restored TV Outer Margin Back to 1.5% (`apps/tv` & `packages/shared`):
+    - Locked `--safe` in `apps/tv/src/App.tsx` and `apps/tv/src/index.css` directly to `DEFAULT_SAFE_AREA_PERCENT` (`1.5%`) rather than falling back to historical `3.5%` database values.
+    - Updated `DEFAULT_DISPLAY_SETTINGS.safeAreaPercent` in `packages/shared/src/schema.ts` and `PUT /api/draft/display` in `workers/api/src/index.ts` to `1.5%`.
+    - Maintained tight 1.5% bezel padding on `.screen` under all conditions, including when an alert banner is active.
+  - 2. Added "Delete All Buses" & "Bulk Add Rows" & JSON Importer (`apps/admin` & `workers/api`):
+    - Added `🗑️ Delete All Buses` button (red outline) on Bus List toolbar when `services.length > 0` with confirmation dialog (`"Delete all N buses from the draft schedule? You can then import a clean Excel or JSON file before publishing."`) wired to `DELETE /api/draft/services` clearing all draft services atomically in D1.
+    - Added `📋 Bulk Add Rows` modal button next to `+ Add New Bus` featuring a spreadsheet grid (Destination, Departure, Arrival, From, Operator, Service Type) with a Quick Paste Box to paste rows directly from Excel/Google Sheets and save all entries atomically in one request.
+    - Updated file importer to accept `.json` files (`accept=".csv, .tsv, .txt, .xlsx, .xls, .json, application/json"`), parsing exported schedules directly into preview mode with full support for "Replace All Existing Buses" and "Merge & Skip Duplicates".
+  - 3. Verification & Deployment:
+    - `npm run typecheck`: Passed (0 errors).
+    - `npx tsc -p workers/api/tsconfig.json --noEmit` and `npx tsc -p apps/admin/tsconfig.json --noEmit`: Passed (0 errors).
+    - Vitest unit tests: 15/15 test suites and 206 unit tests passed (100% green), including tests for `DELETE /api/draft/services` and replace import deduplication.
+    - `npm run assemble`: Successfully bundled `/tv/`, `/admin/`, and `/mobile/` with security headers.
+    - `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `3e031294-b4d3-4110-8dc7-6f0db16c7649`).
+    - Verified live HTTP endpoints: `/health` (200 OK) and `/tv/version.json` (200 OK).
+- [DONE] Publish Revision Sync, Auto TV Reload, Advisory Warning Cleanup & Excel Replace Deduplication:
+  - 1. Publish Revision Sync & Auto TV Reload (`apps/admin` & `workers/api`):
+    - Eliminated `"The draft changed. Preview it again before publishing"` errors by updating stored `draftRevision` immediately upon responses from `PUT /api/draft/alert`, `PUT /api/draft/display`, `PUT /api/draft/station`, `POST /api/draft/import`, `POST /api/draft/deduplicate`, and `POST /api/publish/preview`.
+    - Automatically re-fetched latest publish preview and draft schedule whenever the Publish screen mounts so `POST /api/publish` always transmits the fresh revision.
+    - Updated `unpublishedChangeCount` and diff cards in `apps/admin/src/App.tsx` so changing only the Alert Banner or Display Settings is recognized as a valid publishable change (never showing "No unpublished changes" when meta differs from live).
+    - In `POST /api/publish` in `workers/api/src/index.ts`, automatically inserted `TV_RELOAD` in `audit_log` with a fresh nonce and called `/api/admin/tv-reload` on publish success so live TV boards update instantly with zero manual clicks.
+  - 2. Clean Up Noisy Advisory Warnings on Publish Screen (`apps/admin`):
+    - Collapsed optional spelling (`UNKNOWN_PLACE`) and overnight departure (`OVERNIGHT`) advisory notices into a compact, collapsed `<details>` dropdown (`"Show optional spelling/overnight notes (N)"`), keeping the publish screen clean and focused on blocking errors and diffs.
+  - 3. Excel Replace Import Deduplication (`workers/api/src/index.ts` & `apps/admin`):
+    - In `POST /api/draft/import` (`mode === 'replace'`) and client-side Excel parser, automatically deduplicated identical rows with matching route, departure time, and days, and assigned unique UUIDs, guaranteeing that Replace All Existing Buses succeeds cleanly without 422 errors.
+  - 4. Verification & Deployment:
+    - `npm run typecheck`: Passed (0 errors).
+    - `npx tsc -p workers/api/tsconfig.json --noEmit` and `npx tsc -p apps/admin/tsconfig.json --noEmit`: Passed (0 errors).
+    - Vitest unit tests: 15/15 test suites and 205 unit tests passed (100% green), including tests for auto TV reload on publish and replace import deduplication.
+    - `npm run assemble`: Successfully bundled `/tv/`, `/admin/`, and `/mobile/` with security headers.
+    - `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `9afc9e22-286e-4aee-858f-5145373105f0`).
+    - Verified live HTTP endpoints: `/health` (200 OK) and `/tv/version.json` (200 OK).
+- [DONE] Show Exact Rejection Reasons on `POST /api/publish` and One-Click Deduplication/Jump Helpers:
+  - 1. Backend Exact Rejection Reasons & Deduplicate Endpoint (`workers/api/src/index.ts` & `workers/api/src/store.ts`):
+    - When `POST /api/publish` rejects due to validation errors, `store.publish` now formats a detailed human-readable summary listing every problem bus, its departure time, destination, and the specific validation rule broken (instead of a generic `"Publish rejected"` or `"Correct all errors before publishing."`).
+    - Added `POST /api/draft/deduplicate` in `workers/api/src/index.ts` to scan draft services, identify exact duplicate departures (matching route, departure time, and active weekday overlaps), retain the primary entry, remove duplicate rows, and atomically commit the clean draft to D1 in a single transaction with audit logging.
+  - 2. Admin UI Exact Rejection Reason Display & One-Click Fixes (`apps/admin/src/App.tsx`):
+    - Separated blocking validation errors from advisory notices on the Publish screen into a high-visibility rose-themed **Blocking Rejection Reasons** card.
+    - If `POST /api/publish` is rejected by the server, the exact server response message and structured error details are rendered in-place without generic alerts.
+    - Added one-click **"🔍 Jump to Problem Row"** buttons next to every service-level error, immediately switching to the timetable view and opening the Edit Bus Modal with the problem row loaded.
+    - Added one-click **"✨ Auto-Remove Exact Duplicates"** helper button when duplicate departure errors (`DUPLICATE_SERVICE`) are detected, allowing staff to clear all duplicate rows in one tap and publish immediately.
+    - Added contextual bilingual descriptions translating raw duplicate service IDs into readable bus descriptions (`"Duplicate departure with Colombo → Akkaraipattu at 00:40"`).
+    - Disabled the "Publish to TV Now" button when blocking errors exist, displaying a clear notice guiding staff to resolve them.
+  - 3. Verification & Deployment:
+    - `npm run typecheck`: Passed (0 errors).
+    - `npm test`: All 15 test suites and 204 unit tests passed (100% green), including new tests verifying rejection reason formatting and `POST /api/draft/deduplicate`.
+    - `npm run assemble`: Successfully bundled `/tv/`, `/admin/`, and `/mobile/` with security headers.
+    - `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `f2811746-d6a8-4433-87f3-6f77ef33a9d8`).
+    - Verified live HTTP endpoints: `/health` (200 OK) and `/tv/version.json` (200 OK).
+- [DONE] Fix Display Settings, Excel Replace Mode, Responsive TV Typography, and Deploy Updated Assets:
+  - 1. Fix Display Settings (`apps/admin` & `workers/api`):
+    - Removed **Safe Area Margin (%)** and **Transition Cross-Fade (ms)** inputs from the Display Settings UI in `apps/admin/src/App.tsx`.
+    - Preserved existing `safeAreaPercent` (default 1.5% for TV) and `fadeMs` (default 300ms) during both save and default resets so live TV safe margins and fade animations never unexpectedly change.
+    - Updated `PUT /api/draft/display` in `workers/api/src/index.ts` to accept all parameter variations (`rowsPerPage`, `secondsPerPage` / `dwellSeconds`, `departedRetentionMinutes` / `departedGraceMinutes`, `lookaheadHours`) and merge them defensively with `DEFAULT_DISPLAY_SETTINGS`.
+    - Fixed `PUT /api/draft/station` in `workers/api/src/index.ts` to validate station fields (`name.si`, `name.en`, HTTPS `mobileUrl`) independently without calling `validateDocument` across draft services, completely eliminating the 503 error when updating station settings.
+  - 2. Fix Excel/CSV "Replace All Existing Buses" Mode (`apps/admin` & `workers/api`):
+    - In `apps/admin/src/App.tsx` (`handleConfirmImport`), normalized the `GET /api/draft` response structure (`data.document ?? data.draft ?? data`) with safe fallback to local schedule state.
+    - Updated `POST /api/draft/import` in `workers/api/src/index.ts` to normalize incoming services using `normalizeServiceInput`, validate full document structure, and atomically replace draft services in D1 (`store.replace(shape.data, user)`).
+  - 3. Responsive TV Departure & Arrival Times (`apps/tv`):
+    - In `apps/tv/src/index.css` and `apps/tv/src/App.tsx`, updated `.cell.departure`, `.cell.arrival`, `.time-block`, `.digits`, `.meridiem`, and badge lines to use responsive `clamp(...)` font sizes, `whitespace-nowrap`, and `font-variant-numeric: tabular-nums`.
+    - Digit and AM/PM time blocks scale fluidly with `--row-h`, viewport width (`vw`), and viewport height (`vh`), ensuring departure and arrival times never crowd or clip behind neighboring columns across 2, 3, or 4 rows per page.
+  - 4. Updated Credits/QR Slide Asset & Live Cloudflare Deployment:
+    - Updated `credits-slide.png` (242 KB) in `apps/tv/public/` and converted to optimized `credits-slide.webp` (84.5 KB).
+    - Added preloading and fallback handling in `apps/tv/src/App.tsx` and updated service worker cache in `apps/tv/public/sw.js` (`mahiyanganaya-tv-v3`).
+    - Verified `npm run typecheck`, Vitest unit tests, and `npm run assemble`.
+    - Deployed live to Cloudflare Workers (`https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev`, Version ID `8a8c14e3-68de-4bf3-9388-b00881e37186`).
+- [DONE] Bundle `xlsx` locally in `apps/admin` to eliminate external CDN script loading:
+  - 1. Installed `xlsx` (`^0.18.5`) in `apps/admin/package.json` so the Excel parsing library is bundled directly into the Vite build assets.
+  - 2. Replaced the external CDN `<script src="https://cdn.sheetjs.com/...">` injection in `apps/admin/src/App.tsx` with dynamic asynchronous local module import (`await import('xlsx')`), automatically split into a standalone local chunk (`dist/assets/xlsx-CbTSpprj.js`).
+  - 3. Supported completely offline, CSP-compliant parsing of `.xlsx`, `.xls`, `.csv`, `.tsv`, and `.txt` files with zero external network requests.
+  - 4. Verification & Deployment:
+    - `npm run typecheck`: Passed (0 errors).
+    - `npx tsc --noEmit` in `workers/api` and `apps/admin`: Passed (0 errors).
+    - Vitest unit tests: 122/122 passed (100%).
+    - `npm run assemble`: Successfully bundled `/tv/`, `/admin/` (with local `xlsx-*.js` chunk), and `/mobile/`.
+    - `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `df2555fd-86fa-4703-b98d-331621deacd0`).
+- [DONE] Restore Alert Banner Editor and Display Settings in Hamburger Drawer and fix Display Settings 503:
+  - 1. Hamburger Navigation Drawer (`apps/admin/src/App.tsx`):
+    - Maintained clean single top header (Hamburger button `☰` + app title on left, user name + role badge + Log Out on right; no horizontal pill bar).
+    - Restored Alert Banner and Display Settings (`ADMIN` only) in the Hamburger Drawer, creating the exact 7-item navigation menu:
+      1. Bus List (Home) — with total bus count badge.
+      2. Publish to TV — with pending unpublished changes badge.
+      3. Alert Banner — with `ACTIVE` badge indicator when an alert is currently enabled.
+      4. TV Presentation Control — with current TV presentation hold mode badge (`auto`, `credits`, or `page`).
+      5. Staff & Users (`ADMIN` only) — with role badge.
+      6. Display Settings (`ADMIN` only) — with role badge.
+      7. Reports & Passenger Feedback — privacy-safe QR analytics and commuter reports.
+  - 2. Fix Display Settings 503 & Safe Fallbacks (`apps/admin/src/App.tsx` & `workers/api/src/index.ts`):
+    - Resolved the root cause of the previous 503 log: `loadSchedule()` now reads directly from the draft state and defaults gracefully to `DEFAULT_DISPLAY_SETTINGS` and standard station branding if remote D1 has no published snapshot yet, preventing unwanted 503 errors from `/schedule.json`.
+    - In `workers/api/src/index.ts`, hardened `PUT /api/draft/station` to merge existing or default `mobileUrl` and station properties defensively so partial station updates never fail strict validation.
+    - Added comprehensive Display Settings management: Rows per page (2–6), page dwell time (6–30s), cross-fade animation duration (0–1000ms), departed bus grace minutes (0–60m), soon highlight threshold (5–60m), schedule lookahead (1–24h), TV screen safe area margin (0–10%), daily memory reload time (`HH:mm`), and station branding with HTTPS mobile URL.
+    - Added "Reset to Defaults" button restoring system defaults (`DEFAULT_DISPLAY_SETTINGS`).
+  - 3. Alert Banner Editor (`apps/admin/src/App.tsx`):
+    - Built Alert Banner editor supporting Disabled vs. Active status, Severity selector (`INFO`, `WARNING`, `CRITICAL`), bilingual Sinhala and English text inputs with live character counters (`/ 140`), optional automatic date and time expiration, and "Disable Alert" quick action.
+    - Added a live 16:9 TV Masthead Preview showing the exact severity styling, warning icon, and bilingual text as displayed on the wall TV.
+  - 4. Saved-to-Draft Reminder Callout:
+    - On both Alert Banner and Display Settings pages, added the emerald confirmation banner after saving:
+      *"Saved to draft — click **Review & Publish** to push this update to the live TV display."* with a clickable **"Review & Publish →"** button navigating directly to the publish screen.
+  - 5. Verification & Deployment:
+    - Ran `npm run typecheck`: Passed (0 errors).
+    - Ran `npx tsc --noEmit` in both `workers/api` and `apps/admin`: Passed (0 errors).
+    - Ran Vitest unit tests: 122/122 passed (100%).
+    - Ran `npm run assemble`: Successfully bundled `/tv/`, `/admin/`, and `/mobile/` assets.
+    - Ran `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `cdc4c3a5-ab5d-44f3-8401-c40a239ae4ff`).
+    - Verified live HTTP endpoints: `/admin/` (protected 302 to Cloudflare Access login), `/health` (200 OK), `/tv/version.json` (200 OK).
+- [DONE] Fix TV row overflow and footer clipping in `apps/tv`:
+  - 1. Viewport Flex Structure:
+    - Structured `.screen` as a strict full-viewport flex column container (`height: 100vh; height: 100dvh; max-height: 100%; width: 100%; overflow: hidden; display: flex; flex-direction: column;`) divided into three non-overlapping zones: Top Header (`.masthead` / `.alert`, `shrink-0`), Middle Timetable Container (`.table-region`, `flex: 1 1 0; min-height: 0; overflow: hidden;`), and Bottom Footer (`.footer`, `shrink-0` in normal flex flow, zero overlap possible).
+    - Updated `tbody` in `apps/tv/src/index.css` with dynamic CSS variable `--page-rows` so each row takes `calc(100% / var(--page-rows, var(--rows)))` and scales `--row-h` proportionally without vertical overflow.
+  - 2. Dynamic Height-Aware Pagination:
+    - Built dynamic pagination engine in `apps/tv/src/pagination.ts` (`paginateRowsDynamically` and `getRowRequiredHeight`).
+    - Used a `ResizeObserver` / `getBoundingClientRect()` ref on the timetable body container (`.table-region`) to measure exact `availableHeight` in real-time, accounting for `thead` and `.fallback` heights.
+    - Evaluated required height for each row: departure badges (`හෙට / Tomorrow` and weekday names) require extra height (~32% of available height) for the badge pill, margin, and bilingual meridiem.
+    - Sequentially packed rows into dynamic pages only while cumulative row height does not exceed `availableHeight`, capped at `display.rowsPerPage` with a minimum of 1 row per page. Any row that would cause overflow is pushed to the next page.
+    - Pages with `හෙට / Tomorrow` badges naturally pack into 3 unclipped rows instead of 4 clipped rows, providing 33% more vertical space per row and preventing any clipping behind the footer.
+    - Dynamically synchronized total schedule page count `Y` with the footer page indicator (`පිටුව / Page X / Y`) and dot indicators.
+  - 3. Verification & Deployment:
+    - Added unit test suite in `apps/tv/src/__tests__/pagination.test.ts` (6 tests passing).
+    - `npx vitest run apps/tv packages/shared`: 111/111 unit tests passed.
+    - `npm run typecheck`: Passed (0 errors).
+    - `npx tsc --noEmit` in `apps/tv` and `workers/api`: Passed (0 errors).
+    - `npm run assemble`: Successfully bundled and assembled `/tv/`, `/admin/`, and `/mobile/`.
+    - `npm run deploy`: Deployed live to Cloudflare Workers (`https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev`, Version ID `1f0b5ca9-6a9d-4645-bf83-a85b9ba6e407`).
+    - Verified live HTTP 200 responses on `/tv/`, `/tv/version.json`, `/tv/assets/index-Db5E68dx.js`, and `/tv/assets/index-Duhj736l.css`.
+- [DONE] Clean up and fix Admin Panel (`apps/admin`) and API (`workers/api`):
+  - Navigation & Layout Cleanup (Full-Width 16:9 Desktop + Mobile Responsive):
+    - Removed horizontal top navigation bar pills.
+    - Updated top header bar: left hamburger menu (`☰`) with app title (`Mahiyanganaya Bus Admin`), right logged-in user name, role badge, and Log Out button (`/cdn-cgi/access/logout`).
+    - Streamlined drawer navigation to 5 essential pages: Bus List (Home), Publish to TV (with live badge), TV Presentation Control, Staff & Users (`ADMIN`), and Reports & Passenger Feedback.
+    - Removed "I checked this against the official timetable today" button from status bar.
+    - Converted layout from restrictive `max-w-7xl` to full `16:9` widescreen desktop layout (`w-full px-4 lg:px-8`) with touch-friendly mobile stacking cards.
+    - Added `/admin*` and `/admin` redirect in `workers/api/src/index.ts` returning 302 to `/admin/` to prevent 404s after Cloudflare Access logout.
+  - Bus Edit, Add & Duplicate 422 Validation Fix:
+    - Defaulted `tripStart: null`, `destinationArrival: null`, `via: null`, and `bay: null` in `workers/api/src/index.ts` so strict schema checks never fail on missing nullable fields.
+    - Explicitly sent complete payload in `apps/admin/src/App.tsx`.
+    - Generated a fresh UUID (`crypto.randomUUID()`) when duplicating buses so they never trigger ID collision errors.
+    - Extracted exact validation field errors from `data.error.details` and highlighted invalid inputs with red borders.
+  - Publish Page Crash & Non-Blocking Warnings Fix:
+    - Wrapped Publish view in an ErrorBoundary to catch rendering issues and prevent white-screen crashes.
+    - Applied null-safe optional chaining across all diff objects.
+    - Displayed validation warnings in amber without permanently disabling the "Publish to TV Now" button when confirmed.
+    - Synchronized `draftRevision` accurately from `publishPreview?.draftRevision`.
+  - Smart CSV / Excel Timetable Import:
+    - Added "Import CSV / Excel" button supporting `.csv`, `.tsv`, `.txt`, `.xlsx`, `.xls`.
+    - Implemented client-side CSV parser and dynamic SheetJS on-demand loading for Excel spreadsheets.
+    - Automated column mapping with preview and manual dropdown selectors.
+    - Auto-normalized 12h/24h departure times and auto-paired bilingual town names from `KNOWN_PLACES`.
+    - Supported both "Merge & Skip Duplicates" and "Replace All Existing Buses" modes.
+  - Reports & Passenger Feedback:
+    - Retained QR scan summary cards (`Today's Unique Visitors`, `Today's Total Scans`, `All-Time Recorded Scans`).
+    - Added an SVG Daily Scans Bar Chart displaying the last 14 days of scan activity.
+    - Removed the "Mark Resolved" button and filter tabs from commuter feedback.
+  - Verification & Deployment:
+    - `npm run typecheck`: Passed (0 errors).
+    - `npx tsc --noEmit` (`apps/admin` and `workers/api`): Passed (0 errors).
+    - `npx vitest run`: 59/59 unit tests passed.
+    - `npm run assemble`: Bundled static assets with security headers.
+    - `npm run deploy`: Deployed live to Cloudflare Workers (Version ID `fbf835d9-c68e-4bea-966a-9bbce2b2be62`).
+- [DONE] Cloudflare Access Sign In Navigation Fix (`apps/admin/src/App.tsx`):
+  - In `apps/admin/src/App.tsx`:
+    - Updated sticky session expiration banner button to an `<a>` link with `href="/cdn-cgi/access/login"` and text "Sign In / Reload" so expired sessions trigger fresh Cloudflare Access login rather than looping on the expired cookie.
+    - Updated top header "Sign In" link to `href="/cdn-cgi/access/login"`.
+    - Updated read-only preview mode banner "Sign In / Reload" button to `href="/cdn-cgi/access/login"`.
+  - Verification: `npm run typecheck` (0 errors), `npx tsc --noEmit` in `apps/admin` and `workers/api` (0 errors), `npx vitest run` (59/59 tests passing), `npm run assemble`, and `npm run deploy` (Version ID `b5880111-7956-4015-b20d-ea1928d8b4d6`).
+- [DONE] Cloudflare Workers JWKS Cert Fetch Redirect Fix (`workers/api/src/auth.ts`):
+  - In `workers/api/src/auth.ts`: In `keysFor(issuer, refresh, fetcher)`, changed `redirect: 'error'` to `redirect: 'follow'` in the `fetcher(`${issuer}/cdn-cgi/access/certs`, { ... })` call to eliminate the Cloudflare Workers edge runtime exception (`"Invalid redirect value, must be one of \"follow\" or \"manual\""`).
+  - In `workers/api/src/__tests__/auth.test.ts`: Updated unit test assertion to verify `fetcher` is invoked with `https://test.cloudflareaccess.com/cdn-cgi/access/certs` and `{ redirect: 'follow' }`.
+  - Verification: `npm run typecheck` (0 errors), `npx tsc --noEmit` (0 errors), `npx vitest run` (59/59 tests passing), `npm run assemble`, and `npm run deploy` (Version ID `bf50616b-1f9f-4821-a1e8-dd108250c84c`).
+- [DONE] Complete Production-Ready Admin Panel (`apps/admin`):
+  - Global Navigation & Safety Chrome:
+    - Responsive top header bar with mobile hamburger drawer and desktop view switching across 7 views: Bus List (Home), Publish (with live counter of pending changes), History & Rollback, Alert Banner, TV Presentation Control, Staff & Users (ADMIN), and Display Settings (ADMIN).
+    - Top session expiration banner triggered when any API endpoint returns HTTP 401 ("Session expired, please reload" with 1-tap reload button).
+    - Persistent status bar: live version line (`Live version <N>, published by <Name> at <Time>`), "I checked this against the official timetable today" quick action (`PUT /api/draft/last-verified`), and high-contrast Unpublished Changes warning banner with direct "Review & Publish →" link.
+    - User badge showing user email, role (`ADMIN`/`EDITOR`), and Cloudflare Access Logout button (`href="/cdn-cgi/access/logout"`).
+  - Screen 1: Bus List (Home):
+    - Chronological table matching TV columns: Destination (`ගමනාන්තය / Destination`), Departure (`පිටත්වීම / Departure`), Arrival (`පැමිණීම / Arrival`), From (`ආරම්භය / From`), Operator & Service (`සේවාව / Service`), Days (`දින / Days`), and Status (`තත්ත්වය / Status`).
+    - Search box (fuzzy searching destination, origin, time, and operator) and filters for Day (All, Mon-Sun, Weekdays, Weekends), Operator (All, CTB, Private), and Status (All, Active, Inactive).
+    - Quick actions per row: `Edit`, `Duplicate` (pre-fills with `(Copy)` ID and same details), `Delete` with confirm dialog, and instant Active On/Off toggle wired to `PUT /api/draft/services/:id`.
+    - Plain-language validation warnings and badges for duplicate departure times to the same destination.
+    - Mobile-friendly cards view below 768px with min 44px tap targets.
+  - Screen 2: Add / Edit Bus Form:
+    - Structured, typo-proof departure & arrival time pickers: 12-hour Hour (1-12), Minute (00-59), and AM/PM drop-down pickers, automatically converted to 24-hour `HH:mm`.
+    - Optional arrival time toggle ("Specify arrival time at destination").
+    - Days of week checkboxes (Mon-Sun) with quick preset buttons (`Every day`, `Weekdays`, `Weekends`).
+    - Operator radio selector (SLTB / ලංගම vs Private / පෞද්ගලික) and service type selector (Normal / සාමාන්‍ය vs Semi-Luxury / අර්ධ සුඛෝපභෝගී vs Luxury / සුඛෝපභෝගී).
+    - Known places dropdown populated from `KNOWN_PLACES` and existing services, with a `+ Type a new place` option with real-time bilingual Sinhala script (`si`) and Latin script (`en`) validation.
+    - Live TV Row Preview showing the exact dark-theme TV row styling with a "Test Long Name" simulation button.
+  - Screen 3: Publish Screen (Safety Gate):
+    - Diff summary: Added (green pill with count and items), Removed (red pill with count and items), Changed (amber pill showing field-level `old -> new` differences).
+    - High-visibility safety warnings: > 20% or ≥ 3 services removed, 0 active buses, verification date > 7 days old, or validation errors.
+    - Confirmation gate: optional release note, mandatory checkbox ("I have checked the preview and confirm these changes are ready for the TV screen"), primary `Publish to TV` button calling `POST /api/publish`, and success banner with direct link to live `/tv/`.
+    - Discard changes button calling `POST /api/draft/discard` with confirmation modal.
+  - Screen 4: History & Rollback:
+    - Reverse chronological snapshots list fetched from `GET /api/snapshots`.
+    - Shows version #, live badge for current version, publisher, date and time, and release notes.
+    - One-click `Restore this version` button with confirmation modal calling `POST /api/rollback`.
+  - Screen 5: Alert Banner Editor:
+    - Active toggle, severity selector (`INFO`, `WARNING`, `CRITICAL`), bilingual text inputs with Sinhala and Latin script checks and character limits (120 chars), and optional future expiry date/time picker.
+    - Live TV Header Preview updating in real time to visualize the banner before saving.
+    - Saved via `PUT /api/draft/alert`.
+  - Screen 6: Staff & Users Management (`ADMIN` only):
+    - Two-Step Cloudflare Access reminder callout.
+    - Add Staff form with email validation, name, and role selector (`ADMIN` / `EDITOR`) calling `POST /api/admin/users`.
+    - Responsive users table with role switcher, disabled/active status, last login timestamp, self-protection (cannot demote or disable oneself), and Enable/Disable buttons calling `PATCH /api/admin/users/:id`.
+  - Screen 7: Display Settings (`ADMIN` only):
+    - Caution banner explaining that settings affect live TV layout.
+    - Rows per page (2-6), seconds per page (6-30), departed bus retention (0-60 min), lookahead window (1-24 h), bus stand name in Sinhala & English, and passenger mobile URL.
+    - Wired to `PUT /api/draft/display` and `PUT /api/draft/station`.
+  - TV Presentation Control:
+    - Dedicated screen and quick action bar: Hold Credits / QR Slide, Hold Page 1, Hold Page # (with number input and quick pill buttons), and Resume 10s Auto-Scroll calling `POST /api/admin/tv-hold`.
+    - Refresh TV Display button calling `POST /api/admin/tv-reload`.
+  - Verification & Deployment:
+    - `npm run typecheck`: 0 errors.
+    - `npx tsc --noEmit` across `apps/admin` and `workers/api`: 0 errors.
+    - `npx vitest run`: 59/59 unit tests passing.
+    - `npm run assemble`: bundled all static assets with security headers.
+    - `npm run deploy`: deployed to Cloudflare Worker (Version ID `69bf38b2-1359-4aa2-9d1c-7586b80ef4eb`).
+- [DONE] Cloudflare Access Authentication, Diagnostics & Admin Session Handling Fix (workers/api & apps/admin):
+  - In `workers/api/src/auth.ts`:
+    - Implemented `extractEmailFromClaims` supporting `claims['email']`, `claims['user_email']`, `claims['preferred_username']`, `claims['sub']` (when valid email), and nested `claims['identity']?.email`.
+    - Enhanced `extractAccessJwtWithSource` to case-insensitively parse `Cf-Access-Jwt-Assertion` header, `Cookie` (case-insensitive for `cookie` header name, split by `;` or `,`, matching cookie name `cf_authorization` case-insensitively, unquoting, and decoding URI components), and `Authorization: Bearer <token>`.
+    - Implemented `verifyAccessJwtWithDetails` providing structured step-by-step diagnostics on verification failures (`CONFIG_DOMAIN`, `CONFIG_AUD`, `MISSING_TOKEN`, `TOKEN_TOO_LARGE`, `JWT_PARSING`, `HEADER_PARSE`, `CLAIMS_PARSE`, `HEADER_ALG`, `HEADER_KID`, `HEADER_CRIT`, `ISSUER_MISMATCH`, `AUDIENCE_MISMATCH`, `EXP_INVALID`, `TOKEN_EXPIRED`, `TOKEN_NOT_YET_VALID`, `EMAIL_MISSING`, `KEY_NOT_FOUND`, `SIGNATURE_INVALID`).
+    - Enhanced `normalizeDomain` to accept domains with/without `https://` prefix and trailing slashes.
+    - Updated `AccessAuthProvider.authenticateWithDetails`:
+      - Validates configuration (`TEAM_DOMAIN` and `ACCESS_AUD`).
+      - In dev/local mode, supports `DEV_BYPASS_AUTH_EMAIL`.
+      - In production, extracts token with source and verifies Access RS256 signature against JWKS certs.
+      - Queries D1 `users` using case-insensitive `LOWER(login_id) = LOWER(?)`.
+      - Returns specific diagnostics: `USER_NOT_IN_DB` with message `"Email '<email>' is verified by Cloudflare Access, but is not on the staff allow-list. An administrator must add it in Staff & Users."`, or `USER_DISABLED` with message `"Staff account for '<email>' is disabled. Please contact an administrator."`.
+  - In `workers/api/src/index.ts`:
+    - Updated `GET /api/auth/me` to return authenticated user or structured diagnostics with error details.
+    - Updated `staff()` middleware to return HTTP 403 with exact allow-list error when email is not in D1 or disabled, and HTTP 401 with token diagnostic details when unauthenticated.
+  - In `apps/admin/src/App.tsx`:
+    - Ensured `apiFetch` specifies `{ ...options, credentials: 'include', headers }` so credentials are never overridden.
+    - In `loadCurrentUser()`: reads `/api/auth/me` response for `data.configured` and `data.authenticated`, updating `currentUser`, `accessConfigured`, and `authStatusError`.
+    - In `loadSchedule()`: removed premature `setAccessConfigured(false)` on 401/403 (relying solely on `/api/auth/me`).
+    - In UI banners: separated the "default placeholders" banner (shown only when `accessConfigured === false`) from the active Cloudflare Access state banner (shown when `accessConfigured === true && !currentUser`), surfacing the exact allow-list error or sign-in prompt with a "Sign In / Reload" button.
+  - Unit tests: Added 2 new unit tests in `workers/api/src/__tests__/auth.test.ts` (all 48 tests passing).
+  - Verification: `npx tsc --noEmit` (0 errors), `npm run typecheck` (0 errors), `npm run assemble`, and `npm run deploy` (Version ID `be3bf214-42ba-4a16-bdcb-b4c0f7502599`). Verified live `/api/auth/me` and `/admin/` protected by Cloudflare Access.
+- [DONE] Remote TV Slide Hold / Presentation Control Feature (workers/api, apps/tv, apps/admin):
+  - In `workers/api`:
+    - Added `settings` table migration (`0003_settings.sql`) and lazy table creation in `workers/api/src/index.ts`.
+    - Defined `TvHoldState` (`mode: 'auto' | 'credits' | 'page'`, `page?: number`, `updatedAt?: number`).
+    - Implemented `POST /api/admin/tv-hold` and `GET /api/admin/tv-hold` guarded by admin check, validating `mode` and `page`, writing to `settings` and `audit_log`.
+    - Exposed `tvHold` in `GET /tv/version.json` with strict `Cache-Control: no-store, no-cache, must-revalidate` headers.
+  - In `apps/tv`:
+    - In `apps/tv/src/hooks/useAutoReloadOnDeploy.ts`, set polling interval to 2500ms with 500ms initial check, extracting and persisting `tvHold` in `localStorage` (`tv_hold_state`).
+    - In `apps/tv/src/App.tsx`, wired `tvHold` to `PagedBoard`:
+      - `mode === 'credits'`: switches immediately to the final Credits/QR slide and pauses rotation timer (`setDeadline(null)`).
+      - `mode === 'page'`: switches immediately to `page` (clamped between 1 and `totalSchedulePages`) and pauses rotation timer (`setDeadline(null)`).
+      - `mode === 'auto'`: restarts the 10-second countdown timer from 10s and resumes normal cyclic rotation.
+  - In `apps/admin`:
+    - Added `tv-control` view ("TV Display Control") in the hamburger navigation drawer and quick state button in the top navbar.
+    - Added quick presentation control strip at the top of the timetable screen for instant 1-click holds.
+    - Built dedicated TV Presentation Control dashboard with real-time status banner (`Auto-Scrolling (10s)` vs `Holding: Credits / QR Slide` vs `Holding: Page X`) and mobile-friendly touch buttons (`Hold Credits / QR Slide`, `Hold Page 1`, `Hold Page #` input with quick pill selectors, and primary green `Resume 10s Auto-Scroll`).
+  - Unit tests: Added 7/7 comprehensive unit tests in `workers/api/src/__tests__/tv-hold.test.ts`.
+  - Verification: `npx tsc --noEmit` (0 errors), `npm run typecheck` (0 errors), `npm run assemble`, and `npm run deploy` (Version ID `4713e0f2-a00e-4e0b-bb0f-e9228c88c2c9`). Verified live `/tv/version.json` returning `tvHold` and `no-store` headers.
 - [DONE] Cloudflare Access Live Authentication & Cookie Extraction Fix (apps/admin & workers/api):
   - In `workers/api/wrangler.toml`, configured `TEAM_DOMAIN = "https://misty-field-778f.cloudflareaccess.com"` and `ACCESS_AUD = "ba6398c2281ee6f0efd4aba4c275a0cbb869c194dff9b63522ca567850b3d1f0"`.
   - In `workers/api/src/auth.ts`:

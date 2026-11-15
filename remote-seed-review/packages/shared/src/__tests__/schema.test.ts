@@ -116,6 +116,19 @@ describe('validateScheduleDocument — invalid inputs', () => {
       expect(result.errors.some((e) => /services\[2\]\.departure/.test(e))).toBe(true);
     }
   });
+  it('accepts string weekday codes like ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]', () => {
+    const doc = structuredClone(sampleSchedule);
+    (doc.services[0] as Record<string, unknown>)['days'] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    const result = validateScheduleDocument(doc);
+    expect(result.ok).toBe(true);
+  });
+
+  it('accepts numeric weekdays like [1, 2, 3, 4, 5, 6, 7]', () => {
+    const doc = structuredClone(sampleSchedule);
+    (doc.services[0] as Record<string, unknown>)['days'] = [1, 2, 3, 4, 5, 6, 7];
+    const result = validateScheduleDocument(doc);
+    expect(result.ok).toBe(true);
+  });
 });
 
 it.each([0, 15, 60, 61])('validates a departed grace of %i minutes', (departedGraceMinutes) => {

@@ -60,6 +60,10 @@ export function dayLabel(
   if (dayOffset === 1) return { en: 'Tomorrow', si: 'හෙට' };
   if (todayWeekday === undefined)
     return { en: `In ${dayOffset} days`, si: `දින ${dayOffset} කින්` };
-  const label = WEEKDAYS[(todayWeekday - 1 + (dayOffset % 7)) % 7]!;
+  const todayNum =
+    typeof todayWeekday === 'number'
+      ? todayWeekday
+      : ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].indexOf(todayWeekday) + 1;
+  const label = WEEKDAYS[(todayNum - 1 + (dayOffset % 7)) % 7]!;
   return { ...label };
 }

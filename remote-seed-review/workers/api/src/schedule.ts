@@ -1,32 +1,51 @@
 import {
   validateScheduleDocument,
+  BusServiceSchema,
   validateServiceStrict,
   validateAlertStrict,
   validateLastVerified,
   minutes,
   timeDistance,
   colomboDate,
+  toWeekdayNumber,
   type ScheduleDocument,
   type FieldIssue,
   type BusService,
+  type DisplaySettings,
 } from '@bus-schedule/shared';
 export const sortServices = (services: readonly BusService[]): BusService[] =>
   [...services].sort(
     (a, b) =>
-      a.departure.localeCompare(b.departure) ||
-      a.destination.en.localeCompare(b.destination.en, 'en') ||
-      a.id.localeCompare(b.id),
+      String(a?.departure ?? '').localeCompare(String(b?.departure ?? '')) ||
+      String(a?.destination?.en ?? '').localeCompare(String(b?.destination?.en ?? ''), 'en') ||
+      String(a?.id ?? '').localeCompare(String(b?.id ?? '')),
   );
 export function validateDocument(document: ScheduleDocument, now = new Date()) {
   const shape = validateScheduleDocument(document);
-  const issues = document.services.map((service) => ({
-    serviceId: service.id,
-    ...validateServiceStrict(service, document),
-  }));
+  const services = Array.isArray(document?.services) ? document.services : [];
+  const validServices = shape.ok ? shape.data.services : services.filter(service => BusServiceSchema.safeParse(service).success);
+  const routes = new Map<string, BusService[]>();
+  const bays = new Map<string, BusService[]>();
+  const routeKey = (service: BusService) => JSON.stringify([service.origin.en.toLowerCase(), service.destination.en.toLowerCase()]);
+  for (const service of validServices) {
+    const key = routeKey(service);
+    const route = routes.get(key) ?? [];
+    route.push(service); routes.set(key, route);
+    if (service.bay) {
+      const key = service.bay.toLowerCase();
+      const bay = bays.get(key) ?? [];
+      bay.push(service); bays.set(key, bay);
+    }
+  }
+  const issues = services.map((service) => {
+    const route = typeof service?.origin?.en === 'string' && typeof service?.destination?.en === 'string' ? routes.get(routeKey(service)) ?? [] : [];
+    const bay = typeof service?.bay === 'string' ? bays.get(service.bay.toLowerCase()) ?? [] : [];
+    return { serviceId: service?.id, ...validateServiceStrict(service, { ...document, services: [...new Set([...route, ...bay])] }) };
+  });
   const errors: (FieldIssue & { serviceId?: string })[] = [
     ...issues.flatMap((row) => row.errors.map((error) => ({ ...error, serviceId: row.serviceId }))),
-    ...validateAlertStrict(document.alert, now),
-    ...validateLastVerified(document.lastVerified, now),
+    ...validateAlertStrict(document?.alert ?? null, now),
+    ...validateLastVerified(document?.lastVerified, now),
     ...(!shape.ok
       ? shape.errors.map((message) => ({
           field: 'document',
@@ -66,11 +85,23 @@ const equal = (a: unknown, b: unknown): boolean => {
   }
   return false;
 };
-const label = (s: BusService) => `${s.origin.en} → ${s.destination.en} ${s.departure}`;
+const label = (s: BusService) =>
+  `${s?.origin?.en ?? 'Mahiyanganaya'} → ${s?.destination?.en ?? 'Unknown'} ${s?.departure ?? '--:--'}`;
+export function normalizeDisplaySettings(
+  display?: Partial<DisplaySettings> | null,
+): { departedGraceMinutes: number; soonThresholdMinutes: number; lookaheadHours: number } | null {
+  if (!display) return null;
+  return {
+    departedGraceMinutes: display.departedGraceMinutes ?? 15,
+    soonThresholdMinutes: display.soonThresholdMinutes ?? 15,
+    lookaheadHours: display.lookaheadHours ?? 8,
+  };
+}
 export function scheduleDiff(live: ScheduleDocument | null, draft: ScheduleDocument) {
-  const before = new Map(live?.services.map((s) => [s.id, s]) ?? []);
-  const after = new Map(draft.services.map((s) => [s.id, s]));
-  const changed = draft.services.flatMap((s) => {
+  const before = new Map(live?.services?.map((s) => [s?.id, s]) ?? []);
+  const after = new Map(draft?.services?.map((s) => [s?.id, s]) ?? []);
+  const changed = (draft?.services ?? []).flatMap((s) => {
+    if (!s || !s.id) return [];
     const old = before.get(s.id);
     if (!old) return [];
     const fields = (Object.keys(s) as (keyof BusService)[])
@@ -79,17 +110,20 @@ export function scheduleDiff(live: ScheduleDocument | null, draft: ScheduleDocum
     return fields.length ? [{ id: s.id, label: label(s), fields }] : [];
   });
   return {
-    added: draft.services
-      .filter((s) => !before.has(s.id))
+    added: (draft?.services ?? [])
+      .filter((s) => s && s.id && !before.has(s.id))
       .map((s) => ({ id: s.id, label: label(s) })),
     removed: (live?.services ?? [])
-      .filter((s) => !after.has(s.id))
+      .filter((s) => s && s.id && !after.has(s.id))
       .map((s) => ({ id: s.id, label: label(s) })),
     changed,
-    alertChanged: !equal(live?.alert ?? null, draft.alert),
-    displayChanged: !equal(live?.display, draft.display),
-    lastVerifiedChanged: live?.lastVerified !== draft.lastVerified,
-    stationChanged: !equal(live?.station, draft.station),
+    alertChanged: !equal(live?.alert ?? null, draft?.alert ?? null),
+    displayChanged: !equal(
+      normalizeDisplaySettings(live?.display),
+      normalizeDisplaySettings(draft?.display),
+    ),
+    lastVerifiedChanged: live?.lastVerified !== draft?.lastVerified,
+    stationChanged: !equal(live?.station, draft?.station),
   };
 }
 export function hasChanges(live: ScheduleDocument | null, draft: ScheduleDocument): boolean {
@@ -119,8 +153,10 @@ export function publishWarnings(
   document: ScheduleDocument,
   live: ScheduleDocument | null,
   now = new Date(),
+  validated = validateDocument(document, now),
 ): PublishWarning[] {
-  const warnings: PublishWarning[] = validateDocument(document, now).issues.flatMap((row) =>
+  const services = Array.isArray(document?.services) ? document.services : [];
+  const warnings: PublishWarning[] = validated.issues.flatMap((row) =>
     row.warnings.map((w) => ({ ...w, severity: 'warning' as const, serviceId: row.serviceId })),
   );
   const add = (code: string, message_en: string, message_si: string, serviceId?: string) =>
@@ -131,36 +167,44 @@ export function publishWarnings(
       message_si,
       ...(serviceId ? { serviceId } : {}),
     });
-  if (live && document.services.length < live.services.length * 0.7)
+  if (live && Array.isArray(live.services) && services.length < live.services.length * 0.7)
     add(
       'COUNT_DROPPED',
       'Service count dropped by more than 30%.',
       'බස් සේවා ගණන සියයට 30 කට වඩා අඩු වී ඇත.',
     );
-  if (!document.services.some((s) => s.active))
+  if (!services.some((s) => s?.active))
     add('NO_ACTIVE_SERVICES', 'There are zero active services.', 'සක්‍රිය බස් සේවා කිසිවක් නැත.');
-  if (Date.parse(colomboDate(now)) - Date.parse(document.lastVerified) > 14 * 86400000)
+  if (document?.lastVerified && Date.parse(colomboDate(now)) - Date.parse(document.lastVerified) > 14 * 86400000)
     add(
       'VERIFICATION_OLD',
       'The timetable was last verified over 14 days ago.',
       'කාලසටහන අවසන් වරට තහවුරු කර දින 14 කට වැඩිය.',
     );
   if (
-    document.alert?.enabled &&
+    document?.alert?.enabled &&
     document.alert.expiresAt &&
     Date.parse(document.alert.expiresAt) <= now.getTime()
   )
     add('ALERT_EXPIRED', 'The enabled alert has expired.', 'සක්‍රිය නිවේදනයේ කාලය අවසන් වී ඇත.');
-  for (let i = 0; i < document.services.length; i++) {
-    const s = document.services[i]!;
-    if (!s.active) continue;
-    for (const other of document.services.slice(i + 1)) {
+  for (let i = 0; i < services.length; i++) {
+    const s = services[i]!;
+    if (!s?.active) continue;
+    const sDest = typeof s.destination?.en === 'string' ? s.destination.en.toLowerCase() : '';
+    const sOrig = typeof s.origin?.en === 'string' ? s.origin.en.toLowerCase() : '';
+    for (const other of services.slice(i + 1)) {
       if (
-        other.active &&
-        s.destination.en.toLowerCase() === other.destination.en.toLowerCase() &&
-        s.origin.en.toLowerCase() === other.origin.en.toLowerCase() &&
+        other?.active &&
+        sDest &&
+        sDest === String(other.destination?.en ?? '').toLowerCase() &&
+        sOrig &&
+        sOrig === String(other.origin?.en ?? '').toLowerCase() &&
+        typeof s.departure === 'string' &&
+        typeof other.departure === 'string' &&
         timeDistance(s.departure, other.departure) <= 5 &&
-        s.days.some((d) => other.days.includes(d))
+        Array.isArray(s.days) &&
+        Array.isArray(other.days) &&
+        s.days.some((d) => other.days.some((e) => toWeekdayNumber(d) === toWeekdayNumber(e)))
       )
         add(
           'NEAR_DUPLICATE',
@@ -170,20 +214,19 @@ export function publishWarnings(
         );
     }
   }
-  for (let day = 1; day <= 7; day++)
-    for (let hour = 0; hour < 24; hour++) {
-      const count = document.services.filter(
-        (s) =>
-          s.active &&
-          s.days.some((d) => d === day) &&
-          Math.floor(minutes(s.departure) / 60) === hour,
-      ).length;
-      if (count > 20)
-        add(
-          'BUSY_HOUR',
-          `${count} departures on weekday ${day} during hour ${hour}.`,
-          `සතියේ ${day} දින ${hour} පැය තුළ බස් පිටත්වීම් ${count} ක් ඇත.`,
-        );
+  const counts = new Map<number, number>();
+  for (const service of services) {
+    if (!service?.active || !Array.isArray(service.days) || typeof service.departure !== 'string' || !/^\d{2}:\d{2}$/.test(service.departure)) continue;
+    const hour = Math.floor(minutes(service.departure) / 60);
+    for (const day of new Set(service.days.map(toWeekdayNumber))) {
+      const key = day * 24 + hour;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
     }
+  }
+  for (const [key, count] of [...counts].sort(([a], [b]) => a - b)) {
+    if (count <= 20) continue;
+    const day = Math.floor(key / 24), hour = key % 24;
+    add('BUSY_HOUR', `${count} departures on weekday ${day} during hour ${hour}.`, `සතියේ ${day} දින ${hour} පැය තුළ බස් පිටත්වීම් ${count} ක් ඇත.`);
+  }
   return warnings;
 }

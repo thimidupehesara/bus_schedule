@@ -56,6 +56,10 @@ describe('Access RS256 validation', () => {
     expect(await verifyAccessJwt(jwt, config, fetcher, now)).toBe('staff@example.com');
     expect(await verifyAccessJwt(jwt, config, fetcher, now)).toBe('staff@example.com');
     expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher).toHaveBeenCalledWith(
+      'https://test.cloudflareaccess.com/cdn-cgi/access/certs',
+      expect.objectContaining({ redirect: 'follow' }),
+    );
   });
   it.each([
     { aud: ['wrong'] },
@@ -284,5 +288,21 @@ describe('extractAccessJwt and domain normalization', () => {
   it('returns null when no token is present', () => {
     const req = new Request('https://bus.example.com/api/draft');
     expect(extractAccessJwt(req)).toBeNull();
+  });
+  it('extracts JWT from lowercase cf_authorization cookie and handles folded cookies', () => {
+    const req = new Request('https://bus.example.com/api/draft', {
+      headers: { cookie: 'cf_authorization=lower-token-111, other=val' },
+    });
+    expect(extractAccessJwt(req)).toBe('lower-token-111');
+  });
+  it('extracts email from various claim fields (email, user_email, sub, preferred_username)', async () => {
+    const fetcher = fetchKeys();
+    // Test user_email claim fallback
+    const jwtUserEmail = await token({ email: undefined, user_email: 'fallback@example.com' });
+    expect(await verifyAccessJwt(jwtUserEmail, config, fetcher, now)).toBe('fallback@example.com');
+
+    // Test sub claim fallback (when sub is an email)
+    const jwtSub = await token({ email: undefined, sub: 'sub-user@example.com' });
+    expect(await verifyAccessJwt(jwtSub, config, fetcher, now)).toBe('sub-user@example.com');
   });
 });

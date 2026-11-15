@@ -1,4 +1,5 @@
-import { memo, useEffect, useLayoutEffect, useMemo, useState, type CSSProperties } from 'react';
+import { paginateRows, TV_ROWS_PER_PAGE, TV_DWELL_SECONDS } from './pagination.js';
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import {
   buildBoard,
@@ -29,7 +30,7 @@ import { useNow } from './data/useNow.js';
 import { qrPath } from './qr.js';
 import { PageCountdown } from './PageCountdown.js';
 import { FittedText, FitLayout } from './FittedText.js';
-import { useAutoReloadOnDeploy } from './hooks/useAutoReloadOnDeploy.js';
+import { useAutoReloadOnDeploy, type TvHoldState } from './hooks/useAutoReloadOnDeploy.js';
 import { initClockSync } from './data/clockSync.js';
 
 type Text = { si: string; en: string };
@@ -116,7 +117,7 @@ const Header = memo(function Header({
             <div className="date">
               <div>
                 <span lang="si">{weekday.si}</span>{' '}
-                <span lang="en">{WEEKDAY_CODES[local.weekday - 1]}</span>
+                <span lang="en">{WEEKDAY_CODES[(typeof local.weekday === 'number' ? local.weekday : (WEEKDAY_CODES.indexOf(local.weekday) + 1)) - 1]}</span>
               </div>
               <time dateTime={local.date}>{local.date}</time>
             </div>
@@ -272,13 +273,17 @@ function PagedBoard({
   display,
   weekday,
   indicator,
+  tvHold,
 }: {
   board: ReturnType<typeof buildBoard>;
   display: ScheduleDocument['display'];
   weekday: Weekday;
   indicator: HTMLDivElement | null;
+  tvHold: TvHoldState;
 }) {
-  const totalSchedulePages = board.pages.length;
+  const tableRegionRef = useRef<HTMLDivElement>(null);
+  const pages = useMemo(() => paginateRows(board.pages.flatMap(page => page.rows)), [board.pages]);
+  const totalSchedulePages = pages.length;
   const scheduleCount = Math.max(1, totalSchedulePages);
   const totalSlides = scheduleCount + 1;
   const [index, setIndex] = useState(0);
@@ -290,6 +295,8 @@ function PagedBoard({
   const slideIndex = clampPage(index, totalSlides);
   const isCreditsSlide = slideIndex === scheduleCount;
   const page = isCreditsSlide ? 0 : clampPage(slideIndex, scheduleCount);
+  const currentRows = pages[page] ?? [];
+  const targetSlots = TV_ROWS_PER_PAGE;
   const fade = reduced ? 0 : display.fadeMs;
   useEffect(() => {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -300,13 +307,31 @@ function PagedBoard({
   useLayoutEffect(() => {
     setIndex((previous) => clampPage(previous, totalSlides));
   }, [totalSlides]);
+
+  // When tvHold changes to credits or page, switch to that slide immediately
+  useEffect(() => {
+    if (tvHold.mode === 'credits') {
+      setIndex(scheduleCount);
+      setHidden(false);
+    } else if (tvHold.mode === 'page') {
+      const targetPage = Math.min(Math.max(1, tvHold.page ?? 1), scheduleCount);
+      setIndex(targetPage - 1);
+      setHidden(false);
+    }
+  }, [tvHold.mode, tvHold.page, tvHold.updatedAt, scheduleCount]);
+
+  // Handle slide rotation timer (only when tvHold.mode is 'auto')
   useLayoutEffect(() => {
     setHidden(false);
+    if (tvHold.mode !== 'auto') {
+      setDeadline(null);
+      return;
+    }
     if (totalSlides <= 1) {
       setDeadline(null);
       return;
     }
-    const duration = display.dwellSeconds * 1000;
+    const duration = TV_DWELL_SECONDS * 1000;
     setDeadline(performance.now() + duration);
     let swap: ReturnType<typeof setTimeout> | undefined;
     const advance = () => {
@@ -322,11 +347,14 @@ function PagedBoard({
       clearTimeout(dwell);
       clearTimeout(swap);
     };
-  }, [totalSlides, slideIndex, fade, display.dwellSeconds]);
+  }, [totalSlides, slideIndex, fade, display.dwellSeconds, tvHold.mode, tvHold.updatedAt]);
   useEffect(() => {
     const img = new Image();
     img.src = './credits-slide.webp';
     img.decode?.().catch(() => {});
+    const imgPng = new Image();
+    imgPng.src = './credits-slide.png';
+    imgPng.decode?.().catch(() => {});
   }, []);
   return (
     <>
@@ -345,6 +373,12 @@ function PagedBoard({
         >
           <img
             src="./credits-slide.webp"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.src.endsWith('credits-slide.png')) {
+                target.src = './credits-slide.png';
+              }
+            }}
             alt="Credits"
             className="credits-slide-img"
             loading="eager"
@@ -354,6 +388,7 @@ function PagedBoard({
         document.body,
       )}
       <div
+        ref={tableRegionRef}
         className="table-region"
         style={{
           visibility: isCreditsSlide ? 'hidden' : 'visible',
@@ -390,9 +425,9 @@ function PagedBoard({
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {Array.from({ length: display.rowsPerPage }, (_, slot) => (
-                <Row key={slot} weekday={weekday} row={board.pages[page]?.rows[slot]} />
+            <tbody style={{ '--page-rows': targetSlots } as CSSProperties}>
+              {Array.from({ length: targetSlots }, (_, slot) => (
+                <Row key={slot} weekday={weekday} row={currentRows[slot]} />
               ))}
             </tbody>
           </table>
@@ -432,39 +467,49 @@ function Board({
   doc,
   now,
   isClockSynced,
+  tvHold,
 }: {
   doc: ScheduleDocument;
   now: number;
   isClockSynced: boolean;
+  tvHold: TvHoldState;
 }) {
   const [indicator, setIndicator] = useState<HTMLDivElement | null>(null);
+  const effectiveDisplay = useMemo(
+    () => ({
+      ...doc.display,
+      rowsPerPage: TV_ROWS_PER_PAGE,
+      dwellSeconds: TV_DWELL_SECONDS,
+      fadeMs: 300,
+    }),
+    [doc.display],
+  );
   const board = useMemo(
-    () => buildBoard(doc, now, { clockSynced: isClockSynced }),
-    [doc, now, isClockSynced],
+    () => buildBoard({ ...doc, display: effectiveDisplay }, now, { clockSynced: isClockSynced }),
+    [doc, effectiveDisplay, now, isClockSynced],
   );
   const [x, y] = useScreenShift();
   const alert =
     doc.alert?.enabled && (!doc.alert.expiresAt || Date.parse(doc.alert.expiresAt) > now)
       ? doc.alert
       : null;
-  const densePlaces = doc.display.rowsPerPage >= 5;
   const tallAlert = alert && Math.max(alert.text.si.length, alert.text.en.length) > 80;
   const style = {
     ...TV_TYPE,
-    '--safe': doc.display.safeAreaPercent ?? DEFAULT_SAFE_AREA_PERCENT,
-    '--rows': doc.display.rowsPerPage,
+    '--safe': DEFAULT_SAFE_AREA_PERCENT, // Strictly locked to 1.5% outer margin for tight bezel fit
+    '--rows': 4,
     '--shift-x': x + 'px',
     '--shift-y': y + 'px',
   } as CSSProperties;
   return (
     <main
-      className={`screen${alert ? ' with-alert' : ''}${tallAlert ? ' tall-alert' : ''}${densePlaces ? ' dense-places' : ''}${board.usedFallbackWindow && board.totalRows > 0 ? ' with-fallback' : ''}`}
+      className={`screen${alert ? ' with-alert' : ''}${tallAlert ? ' tall-alert' : ''}${board.usedFallbackWindow && board.totalRows > 0 ? ' with-fallback' : ''}`}
       style={style}
     >
       <FitLayout
         layout={[
-          doc.display.safeAreaPercent,
-          doc.display.rowsPerPage,
+          DEFAULT_SAFE_AREA_PERCENT,
+          4,
           alert?.text.si,
           alert?.text.en,
           board.usedFallbackWindow,
@@ -475,9 +520,10 @@ function Board({
         {alert && <Alert alert={alert} />}
         <PagedBoard
           board={board}
-          display={doc.display}
+          display={effectiveDisplay}
           weekday={colomboParts(now).weekday}
           indicator={indicator}
+          tvHold={tvHold}
         />
         <Footer doc={doc} setIndicator={setIndicator} />
       </FitLayout>
@@ -486,7 +532,7 @@ function Board({
 }
 
 export default function App() {
-  useAutoReloadOnDeploy();
+  const { tvHold } = useAutoReloadOnDeploy();
   useEffect(() => {
     return initClockSync();
   }, []);
@@ -498,10 +544,13 @@ export default function App() {
     const img = new Image();
     img.src = './credits-slide.webp';
     img.decode?.().catch(() => {});
+    const imgPng = new Image();
+    imgPng.src = './credits-slide.png';
+    imgPng.decode?.().catch(() => {});
   }, []);
 
   return doc ? (
-    <Board doc={doc} now={now} isClockSynced={isClockSynced} />
+    <Board doc={doc} now={now} isClockSynced={isClockSynced} tvHold={tvHold} />
   ) : (
     <main className="empty fullscreen" role="status">
       <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />

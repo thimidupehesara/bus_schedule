@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ScheduleDocumentSchema } from '@bus-schedule/shared';
+import { ScheduleDocumentSchema, validateServiceStrict } from '@bus-schedule/shared';
 import sample from '../../../../packages/shared/src/sample-schedule.json' with { type: 'json' };
 import {
   hasChanges,
@@ -8,6 +8,7 @@ import {
   nextVersion,
   publishWarnings,
   scheduleDiff,
+  sortServices,
   validateDocument,
 } from '../schedule.js';
 const document = () => ScheduleDocumentSchema.parse(structuredClone(sample));
@@ -40,6 +41,8 @@ describe('snapshot contract', () => {
     draft.services.push({ ...draft.services[1]!, id: crypto.randomUUID() });
     draft.station.mobileUrl = 'https://example.com';
     draft.display.dwellSeconds = 13;
+    expect(scheduleDiff(live, draft).displayChanged).toBe(false);
+    draft.display.departedGraceMinutes = 20;
     draft.lastVerified = '2026-11-10';
     draft.alert = { enabled: false, severity: 'INFO', text: { en: '', si: '' }, expiresAt: null };
     const diff = scheduleDiff(live, draft);
@@ -101,4 +104,68 @@ describe('snapshot contract', () => {
     }));
     expect(publishWarnings(draft, null).filter((w) => w.code === 'BUSY_HOUR')).toHaveLength(1);
   });
+  it('safely handles corrupted or malformed services without throwing', () => {
+    const malformed = [
+      {
+        id: 'bad-1',
+        destination: null as any,
+        origin: null as any,
+        departure: '--:--',
+        arrival: null,
+        via: null,
+        tripStart: null,
+        destinationArrival: null,
+        operator: 'PVT' as const,
+        serviceType: 'NORMAL' as const,
+        days: [1 as const],
+        bay: null,
+        active: true,
+      },
+      {
+        id: 'bad-2',
+        destination: { si: 'කොළඹ' } as any, // missing .en
+        origin: { si: 'මහියංගනය' } as any,
+        departure: '06:30',
+        arrival: null,
+        via: null,
+        tripStart: null,
+        destinationArrival: null,
+        operator: 'PVT' as const,
+        serviceType: 'NORMAL' as const,
+        days: [1 as const],
+        bay: null,
+        active: true,
+      },
+    ];
+    // sortServices should not throw
+    const sorted = sortServices(malformed as any);
+    expect(sorted).toHaveLength(2);
+
+    // scheduleDiff should not throw
+    const draft = {
+      ...document(),
+      services: malformed as any,
+    };
+    const diff = scheduleDiff(document(), draft);
+    expect(diff.changed).toBeDefined();
+
+    // publishWarnings should not throw
+    const warnings = publishWarnings(draft, null);
+    expect(Array.isArray(warnings)).toBe(true);
+  });
+});
+
+it('indexed validation preserves all strict service errors and warnings', () => {
+  const doc = document();
+  doc.services = doc.services.slice(0, 8).map(service => ({ ...service, bay: 'A', days: ['MON', 'WED', 'SUN'] }));
+  const duplicate = { ...doc.services[0]!, id: crypto.randomUUID() };
+  doc.services.push(duplicate);
+  const indexed = validateDocument(doc);
+  const sorted = (issues: unknown[]) => issues.map(issue => JSON.stringify(issue)).sort();
+  for (const row of indexed.issues) {
+    const expected = validateServiceStrict(doc.services.find(service => service.id === row.serviceId), doc);
+    expect(sorted(row.errors)).toEqual(sorted(expected.errors));
+    expect(sorted(row.warnings)).toEqual(sorted(expected.warnings));
+  }
+  expect(publishWarnings(doc, null, new Date(), indexed)).toEqual(publishWarnings(doc, null));
 });

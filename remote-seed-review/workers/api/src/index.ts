@@ -1,13 +1,16 @@
 import {
   BusServiceSchema,
   DisplaySettingsSchema,
+  DEFAULT_DISPLAY_SETTINGS,
   ScheduleDocumentSchema,
   normalizeServiceInput,
   validateServiceStrict,
   validateAlertStrict,
   validateLastVerified,
   validateScheduleDocument,
+  toWeekdayNumber,
   type ScheduleDocument,
+  type BusService,
 } from '@bus-schedule/shared';
 import {
   AccessAuthProvider,
@@ -20,7 +23,7 @@ import {
   type Role,
 } from './auth.js';
 import { ApiError, ok, fail, checkCsrf, readJson, object, security } from './http.js';
-import { Store } from './store.js';
+import { Store, defaultStation } from './store.js';
 import { ASSET_LINKS } from './assetlinks.js';
 import {
   hasChanges,
@@ -34,6 +37,67 @@ import {
 export interface Env extends AuthConfig {
   DB: D1Database;
   ASSETS: Fetcher;
+}
+
+export type TvHoldMode = 'auto' | 'credits' | 'page';
+
+export interface TvHoldState {
+  mode: TvHoldMode;
+  page?: number;
+  updatedAt?: number;
+}
+
+export const DEFAULT_TV_HOLD: TvHoldState = {
+  mode: 'auto',
+  page: 1,
+  updatedAt: 0,
+};
+
+export async function getTvHoldSetting(db: D1Database): Promise<TvHoldState> {
+  try {
+    const row = await db
+      .prepare("SELECT value FROM settings WHERE key = 'tvHoldState'")
+      .first<{ value: string }>();
+    if (row?.value) {
+      const parsed = JSON.parse(row.value) as TvHoldState;
+      if (parsed && (parsed.mode === 'auto' || parsed.mode === 'credits' || parsed.mode === 'page')) {
+        return {
+          mode: parsed.mode,
+          page: typeof parsed.page === 'number' && parsed.page >= 1 ? Math.floor(parsed.page) : 1,
+          updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+        };
+      }
+    }
+  } catch {
+    try {
+      await db
+        .prepare('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
+        .run();
+    } catch { }
+  }
+  return { ...DEFAULT_TV_HOLD };
+}
+
+export async function setTvHoldSetting(db: D1Database, state: TvHoldState): Promise<void> {
+  const serialized = JSON.stringify(state);
+  try {
+    await db
+      .prepare(
+        "INSERT INTO settings (key, value) VALUES ('tvHoldState', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+      )
+      .bind(serialized)
+      .run();
+  } catch {
+    await db
+      .prepare('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
+      .run();
+    await db
+      .prepare(
+        "INSERT INTO settings (key, value) VALUES ('tvHoldState', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+      )
+      .bind(serialized)
+      .run();
+  }
 }
 const invalid = (details: unknown): never => {
   throw new ApiError(422, 'VALIDATION', 'Please correct the highlighted fields.', details);
@@ -177,16 +241,37 @@ async function usersRoute(
   return notFound();
 }
 async function staff(request: Request, env: Env, path: string): Promise<Response> {
-  const user = await new AccessAuthProvider(env.DB, env).authenticate(request);
-  if (!user) throw new ApiError(401, 'UNAUTHENTICATED', 'Sign in through Cloudflare Access.');
+  const provider = new AccessAuthProvider(env.DB, env);
+  const { user, diagnostics } = await provider.authenticateWithDetails(request);
+  const method = request.method;
+
+  if (!user) {
+    const isForbidden = diagnostics.step === 'USER_NOT_IN_DB' || diagnostics.step === 'USER_DISABLED';
+    const status = isForbidden ? 403 : 401;
+    const code =
+      diagnostics.step === 'USER_NOT_IN_DB'
+        ? 'NOT_ALLOWED'
+        : diagnostics.step === 'USER_DISABLED'
+          ? 'USER_DISABLED'
+          : 'UNAUTHENTICATED';
+    const message = diagnostics.error || 'Sign in through Cloudflare Access.';
+    throw new ApiError(status, code, message, diagnostics);
+  }
+
   checkCsrf(request);
-  const store = new Store(env.DB),
-    method = request.method;
-  if (path === '/api/auth/me' && method === 'GET')
-    return ok({ user: { email: user.loginId, displayName: user.displayName, role: user.role } });
+  const store = new Store(env.DB);
+  if (path === '/api/auth/me' && method === 'GET') {
+    return ok({
+      ok: true,
+      configured: diagnostics.configured,
+      authenticated: true,
+      user: { email: user.loginId, displayName: user.displayName, role: user.role },
+      diagnostics,
+    });
+  }
   if (path === '/api/users' || path.startsWith('/api/users/'))
     return usersRoute(request, path, store, user);
-  if (['/api/draft/display', '/api/draft/station', '/api/draft/import'].includes(path))
+  if (['/api/draft/display', '/api/draft/station', '/api/draft/import', '/api/draft/activate-all'].includes(path))
     requireAdmin(user);
   if (path === '/api/snapshots' && method === 'GET') {
     const rows = await store
@@ -242,6 +327,43 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       )
       .run();
     return ok({ ok: true, reloadNonce: nonce });
+  }
+  if (path === '/api/admin/tv-hold' && method === 'GET') {
+    requireAdmin(user);
+    const tvHold = await getTvHoldSetting(env.DB);
+    return ok({ ok: true, tvHold });
+  }
+  if (path === '/api/admin/tv-hold' && method === 'POST') {
+    requireAdmin(user);
+    const body = object(await readJson(request));
+    const mode = String(body['mode'] ?? '').trim().toLowerCase();
+    if (!['auto', 'credits', 'page'].includes(mode)) {
+      throw new ApiError(422, 'INVALID_MODE', 'Mode must be "auto", "credits", or "page".');
+    }
+    let page = 1;
+    if (body['page'] !== undefined && body['page'] !== null) {
+      const p = Number(body['page']);
+      if (!Number.isInteger(p) || p < 1 || p > 100) {
+        throw new ApiError(422, 'INVALID_PAGE', 'Page must be an integer between 1 and 100.');
+      }
+      page = p;
+    }
+    const tvHold: TvHoldState = {
+      mode: mode as TvHoldMode,
+      page,
+      updatedAt: Date.now(),
+    };
+    await setTvHoldSetting(env.DB, tvHold);
+    await store
+      .sql(
+        'INSERT INTO audit_log (at, login_id, action, detail) VALUES (?, ?, ?, ?)',
+        new Date().toISOString(),
+        user.loginId,
+        'TV_HOLD',
+        JSON.stringify(tvHold),
+      )
+      .run();
+    return ok({ ok: true, tvHold });
   }
   if (path === '/api/admin/users' && method === 'GET') {
     requireAdmin(user);
@@ -404,10 +526,12 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
     });
   if (path === '/api/publish/preview' && method === 'POST') {
     await readJson(request);
+    const now = new Date();
+    const validated = validateDocument(state.document, now);
     return ok({
       diff: scheduleDiff(live, state.document),
-      warnings: publishWarnings(state.document, live),
-      ...validateDocument(state.document),
+      warnings: publishWarnings(state.document, live, now, validated),
+      ...validated,
       draftRevision: state.revision,
       nextVersion: nextVersion(state.maximum),
     });
@@ -416,13 +540,10 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
     const body = object(await readJson(request));
     confirmed(body);
     if (!Number.isSafeInteger(body['draftRevision']) || body['draftRevision'] !== state.revision)
-      throw new ApiError(
-        409,
-        'STALE_REVISION',
-        'The draft changed. Preview it again before publishing.',
-      );
+      throw new ApiError(409, 'STALE_REVISION', 'The draft changed. Preview it again before publishing.');
     return ok(await store.publish(state, user, state.document, 'PUBLISH', noteFrom(body)));
   }
+
   if (path === '/api/rollback' && method === 'POST') {
     const body = object(await readJson(request));
     confirmed(body);
@@ -455,10 +576,19 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
   if (serviceMatch && ['POST', 'PUT', 'DELETE'].includes(method)) {
     const id = serviceMatch[1],
       duplicate = !!serviceMatch[2];
-    const original = state.document.services.find((s) => s.id === id);
-    if (id && !original) return notFound();
+    if (method === 'DELETE' && !id) {
+      await readJson(request).catch(() => ({}));
+      const revision = await store.edit(
+        state,
+        user,
+        [store.sql('DELETE FROM draft_services')],
+        'SERVICE_DELETE_ALL',
+        { count: state.document.services.length },
+      );
+      return ok({ draftRevision: revision, deletedCount: state.document.services.length });
+    }
     if (method === 'DELETE' && id && !duplicate) {
-      await readJson(request);
+      await readJson(request).catch(() => ({}));
       const revision = await store.edit(
         state,
         user,
@@ -468,14 +598,25 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       );
       return ok({ draftRevision: revision });
     }
+    const original = state.document.services.find((s) => s.id === id);
+    if (id && !original) return notFound();
     if (!((method === 'POST' && (!id || duplicate)) || (method === 'PUT' && id && !duplicate)))
       return notFound();
     const body = object(await readJson(request));
     // Duplicate accepts overrides so a different time/day can pass the exact-duplicate defence.
     const raw = normalizeServiceInput({
-      ...(duplicate ? original : {}),
+      via: null,
+      bay: null,
+      tripStart: null,
+      destinationArrival: null,
+      ...(method === 'PUT' || duplicate ? original : {}),
       ...body,
-      id: method === 'PUT' ? id : crypto.randomUUID(),
+      id:
+        method === 'PUT'
+          ? id
+          : body['id'] && typeof body['id'] === 'string' && /^[0-9a-f-]{36}$/i.test(body['id'])
+            ? body['id']
+            : crypto.randomUUID(),
     });
     const issues = validateServiceStrict(raw, state.document);
     if (issues.errors.length) return invalid(issues.errors);
@@ -510,26 +651,143 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       draftRevision: await store.edit(state, user, store.replace(live, user), 'DRAFT_DISCARD'),
     });
   }
+  if (path === '/api/draft/invalid-services' && method === 'DELETE') {
+    const raw = object(await readJson(request));
+    confirmed(raw);
+    if (raw['draftRevision'] !== state.revision) throw new ApiError(409, 'STALE_REVISION', 'The draft changed. Refresh the preview before deleting rows.');
+    const invalidIds = new Set(validateDocument(state.document).validation.errors.map(e => e.serviceId).filter(Boolean));
+    const requested = Array.isArray(raw['ids']) ? raw['ids'].filter((id): id is string => typeof id === 'string') : [];
+    if (!requested.length || requested.some(id => !invalidIds.has(id))) throw new ApiError(422, 'INVALID_SELECTION', 'Select only the invalid rows shown in the latest preview.');
+    const ids = [...new Set(requested)];
+    const revision = await store.edit(state, user, [store.sql('DELETE FROM draft_services WHERE id IN (SELECT value FROM json_each(?))', JSON.stringify(ids))], 'INVALID_SERVICES_DELETE', { ids });
+    return ok({ draftRevision: revision, deletedCount: ids.length });
+  }
   if (path === '/api/draft/import' && method === 'POST') {
     const raw = object(await readJson(request));
-    if (Array.isArray(raw['services']) && raw['services'].length > 300)
-      return invalid([
-        {
-          field: 'services',
-          code: 'SERVICE_LIMIT',
-          message_en: 'At most 300 services are permitted.',
-          message_si: 'බස් සේවා 300 ක් දක්වා පමණක් ඇතුළත් කරන්න.',
-        },
-      ]);
-    if (Array.isArray(raw['services']))
-      raw['services'] = raw['services'].map(normalizeServiceInput);
-    const shape = validateScheduleDocument(raw);
+    const append = raw['mode'] === 'append' || raw['mode'] === 'MERGE';
+    if (!Array.isArray(raw['services']) || raw['services'].length > 300) throw new ApiError(422, 'VALIDATION', 'Supply an array of at most 300 services.');
+    // Replacement must not overwrite changes made after the browser loaded its draft.
+    if (!append && raw['draftRevision'] !== undefined && raw['draftRevision'] !== state.revision)
+      throw new ApiError(409, 'STALE_REVISION', 'The draft changed. Reload it before replacing the timetable.');
+    const incoming: BusService[] = [];
+    const seenIds = new Set(append ? state.document.services.map(s => s.id) : []);
+    const errors: Array<{ serviceId?: string; field: string; code: string; message_en: string; message_si: string }> = [];
+    for (const [index, entry] of raw['services'].entries()) {
+      const normalized = normalizeServiceInput(entry);
+      const candidate: Record<string, unknown> = {
+        via: null,
+        bay: null,
+        tripStart: null,
+        destinationArrival: null,
+        arrival: null,
+        ...(normalized && typeof normalized === 'object' && !Array.isArray(normalized) ? normalized : {}),
+      };
+      if (candidate['active'] === undefined || candidate['active'] === null || candidate['active'] === '') {
+        candidate['active'] = true;
+      }
+      if (!Array.isArray(candidate['days']) || candidate['days'].length === 0) {
+        candidate['days'] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+      }
+      if (append || typeof candidate['id'] !== 'string' || seenIds.has(candidate['id'])) candidate['id'] = crypto.randomUUID();
+      const id = String(candidate['id']);
+      seenIds.add(id);
+      const result = validateServiceStrict(candidate, { station: state.document.station, services: [] });
+      errors.push(...result.errors.map(error => ({ ...error, serviceId: id, message_en: `Row ${index + 1} (${String((candidate['destination'] as { en?: unknown })?.en ?? 'Unknown')}, ${String(candidate['departure'] ?? 'missing time')}): ${error.field}: ${error.message_en}` })));
+      if (!result.errors.length) incoming.push(candidate as BusService);
+    }
+    if (errors.length) return invalid(errors);
+    // Only discard truly identical records; differing weekdays or bilingual labels must not be lost.
+    const signature = (service: BusService) => JSON.stringify({ ...service, id: '', days: [...service.days].sort() });
+    const kept: BusService[] = [];
+    const signatures = new Set(append ? state.document.services.map(signature) : []);
+    for (const service of incoming) {
+      const key = signature(service);
+      if (!signatures.has(key)) { kept.push(service); signatures.add(key); }
+    }
+    const services = append ? [...state.document.services, ...kept] : kept;
+    const mergedDoc = { ...state.document, ...(!append ? raw : {}), services, schemaVersion: 1, timezone: 'Asia/Colombo' };
+    const shape = validateScheduleDocument(mergedDoc);
     if (!shape.ok) return invalid(shape.errors);
-    const result = validateDocument(shape.data);
-    if (!result.validation.ok) return invalid(result.validation.errors);
+    const strictErrors = kept.flatMap(service => validateServiceStrict(service, shape.data).errors.map(error => ({ ...error, serviceId: service.id, message_en: `${service.destination.en} ${service.departure} — ${error.field}: ${error.message_en}` })));
+    if (strictErrors.length) return invalid(strictErrors);
+    // Append inserts only the new rows. Metadata and existing service bytes stay untouched.
+    const statements = append ? [store.sql("INSERT INTO draft_services(id,data,updated_at,updated_by) SELECT json_extract(value,'$.id'),value,?,? FROM json_each(?)", new Date().toISOString(), user.loginId, JSON.stringify(kept))] : store.replace(shape.data, user);
+    const revision = await store.edit(state, user, statements, append ? 'SERVICES_APPEND' : 'DRAFT_IMPORT');
+    return ok({ draftRevision: revision, servicesCount: services.length, addedCount: kept.length, skippedCount: incoming.length - kept.length, warnings: publishWarnings(shape.data, live) });
+  }
+  if (path === '/api/draft/activate-all' && method === 'POST') {
+    requireAdmin(user);
+    const revision = await store.edit(
+      state,
+      user,
+      [
+        store.sql(
+          "UPDATE draft_services SET data = json_set(data, '$.active', json('true')), updated_at = ?, updated_by = ?",
+          new Date().toISOString(),
+          user.loginId,
+        ),
+      ],
+      'ACTIVATE_ALL_SERVICES',
+      {},
+    );
+    return ok({ ok: true, draftRevision: revision, activatedCount: state.document.services.length });
+  }
+  if (path === '/api/draft/deduplicate' && method === 'POST') {
+    await readJson(request);
+    const services = state.document.services;
+    const kept: BusService[] = [];
+    const removed: BusService[] = [];
+
+    for (const s of services) {
+      const isDuplicate = kept.some((k) => {
+        const sameRoute =
+          k.origin.en.trim().toLowerCase() === s.origin.en.trim().toLowerCase() &&
+          k.destination.en.trim().toLowerCase() === s.destination.en.trim().toLowerCase();
+        const sameDeparture = k.departure === s.departure;
+        const daysOverlap = s.days.some((d) => k.days.some((e) => toWeekdayNumber(d) === toWeekdayNumber(e)));
+        return sameRoute && sameDeparture && daysOverlap;
+      });
+
+      if (isDuplicate) {
+        removed.push(s);
+      } else {
+        kept.push(s);
+      }
+    }
+
+    if (removed.length === 0) {
+      return ok({
+        removedCount: 0,
+        removedServices: [],
+        draftRevision: state.revision,
+        message: 'No duplicate departures found.',
+      });
+    }
+
+    const dedupedDoc: ScheduleDocument = {
+      ...state.document,
+      services: kept,
+    };
+    const shape = validateScheduleDocument(dedupedDoc);
+    if (!shape.ok) return invalid(shape.errors);
+
+    const revision = await store.edit(
+      state,
+      user,
+      store.replace(shape.data, user),
+      'DRAFT_DEDUPLICATE',
+      { removedCount: removed.length, removedIds: removed.map((r) => r.id) },
+    );
+
     return ok({
-      draftRevision: await store.edit(state, user, store.replace(shape.data, user), 'DRAFT_IMPORT'),
-      warnings: publishWarnings(shape.data, live),
+      removedCount: removed.length,
+      removedServices: removed.map((r) => ({
+        id: r.id,
+        departure: r.departure,
+        destination: r.destination,
+        origin: r.origin,
+      })),
+      draftRevision: revision,
     });
   }
   if (
@@ -555,17 +813,67 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       column = 'last_verified';
       value = date as string;
     } else if (path.endsWith('/display')) {
-      const result = DisplaySettingsSchema.strict().safeParse(raw);
+      const rawObj = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+      const current = state.document.display || DEFAULT_DISPLAY_SETTINGS;
+      const normalized = {
+        rowsPerPage: 4,
+        dwellSeconds: 10,
+        fadeMs:
+          typeof rawObj['fadeMs'] === 'number'
+            ? rawObj['fadeMs']
+            : typeof rawObj['crossFadeMs'] === 'number'
+              ? rawObj['crossFadeMs']
+              : current.fadeMs,
+        departedGraceMinutes:
+          typeof rawObj['departedGraceMinutes'] === 'number'
+            ? rawObj['departedGraceMinutes']
+            : typeof rawObj['departedRetentionMinutes'] === 'number'
+              ? rawObj['departedRetentionMinutes']
+              : current.departedGraceMinutes,
+        soonThresholdMinutes:
+          typeof rawObj['soonThresholdMinutes'] === 'number'
+            ? rawObj['soonThresholdMinutes']
+            : current.soonThresholdMinutes,
+        lookaheadHours:
+          typeof rawObj['lookaheadHours'] === 'number'
+            ? rawObj['lookaheadHours']
+            : current.lookaheadHours,
+        safeAreaPercent: 1.5,
+        pollIntervalSeconds:
+          typeof rawObj['pollIntervalSeconds'] === 'number'
+            ? rawObj['pollIntervalSeconds']
+            : current.pollIntervalSeconds,
+        reloadAtLocalTime:
+          typeof rawObj['reloadAtLocalTime'] === 'string'
+            ? rawObj['reloadAtLocalTime']
+            : current.reloadAtLocalTime,
+      };
+      const result = DisplaySettingsSchema.safeParse(normalized);
       if (!result.success) return invalid(result.error.issues);
       column = 'display';
       value = JSON.stringify(result.data);
     } else {
-      const result = ScheduleDocumentSchema.safeParse({ ...state.document, station: raw });
-      if (!result.success) return invalid(result.error.issues);
-      const issues = validateDocument(result.data).issues.flatMap((s) => s.errors);
-      if (issues.length) return invalid(issues);
+      const stationRaw = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+      const nameRaw = typeof stationRaw['name'] === 'object' && stationRaw['name'] !== null ? (stationRaw['name'] as Record<string, unknown>) : {};
+      const mergedStation = {
+        name: {
+          si: typeof nameRaw['si'] === 'string' && nameRaw['si'].trim() ? nameRaw['si'].trim() : (state.document.station?.name?.si ?? defaultStation.name.si),
+          en: typeof nameRaw['en'] === 'string' && nameRaw['en'].trim() ? nameRaw['en'].trim() : (state.document.station?.name?.en ?? defaultStation.name.en),
+        },
+        mobileUrl: typeof stationRaw['mobileUrl'] === 'string' && stationRaw['mobileUrl'].trim() ? stationRaw['mobileUrl'].trim() : (state.document.station?.mobileUrl || defaultStation.mobileUrl),
+      };
+      if (!mergedStation.name.si || !mergedStation.name.en || !mergedStation.mobileUrl.startsWith('https://')) {
+        return invalid([
+          {
+            field: 'station',
+            code: 'INVALID_STATION',
+            message_en: 'Valid station name (Sinhala/English) and HTTPS mobile URL are required.',
+            message_si: 'වලංගු බස් නැවතුම්පොළ නම සහ HTTPS ජංගම යෙදුම් ලිපිනය අවශ්‍ය වේ.',
+          },
+        ]);
+      }
       column = 'station';
-      value = JSON.stringify(result.data.station);
+      value = JSON.stringify(mergedStation);
     }
     return ok({
       draftRevision: await store.edit(
@@ -761,7 +1069,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     try {
       const data = (await assetResponse.json()) as { buildId?: string };
       buildId = data?.buildId || '';
-    } catch {}
+    } catch { }
 
     let reloadNonce = '0';
     try {
@@ -771,12 +1079,13 @@ async function route(request: Request, env: Env): Promise<Response> {
       if (audit?.detail) {
         reloadNonce = audit.detail;
       }
-    } catch {}
+    } catch { }
 
+    const tvHold = await getTvHoldSetting(env.DB);
     const serverNow = Date.now();
     const headers = new Headers();
     headers.set('Content-Type', 'application/json; charset=utf-8');
-    headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     headers.set('Pragma', 'no-cache');
     headers.set('Expires', '0');
     headers.set('Access-Control-Allow-Origin', '*');
@@ -790,6 +1099,7 @@ async function route(request: Request, env: Env): Promise<Response> {
         reloadNonce,
         forceReloadToken: reloadNonce,
         serverTimeMs: serverNow,
+        tvHold,
       }),
       { status: 200, headers },
     );
@@ -817,6 +1127,9 @@ async function route(request: Request, env: Env): Promise<Response> {
     });
   }
   if (path === '/api' || path.startsWith('/api/')) return staff(request, env, path);
+  if (path === '/admin*' || path === '/admin' || path === '/admin/*') {
+    return Response.redirect(new URL('/admin/', request.url).toString(), 302);
+  }
   return env.ASSETS.fetch(request);
 }
 export default {
@@ -830,15 +1143,18 @@ export default {
         ? security(response, api)
         : response;
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
       return security(
         fail(
           error instanceof ApiError
             ? error
             : new ApiError(
-                500,
-                'INTERNAL_ERROR',
-                'The request could not be completed. Please try again.',
-              ),
+              500,
+              'INTERNAL_ERROR',
+              `The request could not be completed: ${msg}`,
+              stack,
+            ),
         ),
         api,
       );

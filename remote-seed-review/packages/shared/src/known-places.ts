@@ -38,10 +38,19 @@ export function editDistance(a: string, b: string): number {
   return row[b.length]!;
 }
 
+const closestCache = new Map<string, (typeof KNOWN_PLACES)[number]>();
 export function findClosestKnownPlace(input: string, language: 'si' | 'en' = 'en') {
-  return [...KNOWN_PLACES].sort(
-    (a, b) =>
-      editDistance(input.toLowerCase(), a[language].toLowerCase()) -
-      editDistance(input.toLowerCase(), b[language].toLowerCase()),
-  )[0]!;
+  const normalized = input.toLowerCase();
+  const key = `${language}:${normalized}`;
+  const cached = closestCache.get(key);
+  if (cached) return cached;
+  let closest: (typeof KNOWN_PLACES)[number] = KNOWN_PLACES[0];
+  let distance = Infinity;
+  for (const place of KNOWN_PLACES) {
+    const candidate = editDistance(normalized, place[language].toLowerCase());
+    if (candidate < distance) { closest = place; distance = candidate; }
+  }
+  if (closestCache.size >= 256) closestCache.clear();
+  closestCache.set(key, closest);
+  return closest;
 }

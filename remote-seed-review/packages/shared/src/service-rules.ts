@@ -41,7 +41,25 @@ export function normalizeServiceInput(raw: unknown): unknown {
     if (match && Number(match[1]) <= 23 && Number(match[2]) <= 59)
       value[field] = `${match[1]!.padStart(2, '0')}:${match[2]}`;
   }
+  if (value['active'] !== undefined && value['active'] !== null && value['active'] !== '') {
+    if (typeof value['active'] === 'string') {
+      const a = (value['active'] as string).trim().toLowerCase();
+      value['active'] = !['false', '0', 'no', 'inactive', 'අක්‍රිය', 'n', 'off'].includes(a);
+    } else if (typeof value['active'] === 'number') {
+      value['active'] = value['active'] !== 0;
+    } else {
+      value['active'] = Boolean(value['active']);
+    }
+  }
   return value;
+}
+
+const weekdayNumbers: Record<string, number> = { MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6, SUN: 7 };
+const StrictBusServiceSchema = BusServiceSchema.strict();
+
+export function toWeekdayNumber(d: unknown): number {
+  if (typeof d === 'number') return d;
+  return weekdayNumbers[String(d).toUpperCase()] ?? 0;
 }
 
 export function validateServiceStrict(
@@ -69,7 +87,7 @@ export function validateServiceStrict(
       warnings,
     };
   }
-  const parsed = BusServiceSchema.strict().safeParse(raw);
+  const parsed = StrictBusServiceSchema.safeParse(raw);
   if (!parsed.success) {
     return {
       errors: parsed.error.issues.map((e) =>
@@ -153,7 +171,7 @@ export function validateServiceStrict(
         ),
       );
   }
-  if (new Set(s.days).size !== s.days.length)
+  if (new Set(s.days.map(toWeekdayNumber)).size !== s.days.length)
     errors.push(
       issue(
         'days',
@@ -215,7 +233,7 @@ export function validateServiceStrict(
     const route =
       other.destination.en.toLowerCase() === s.destination.en.toLowerCase() &&
       other.origin.en.toLowerCase() === s.origin.en.toLowerCase();
-    const overlaps = s.days.some((d) => other.days.includes(d));
+    const overlaps = route && s.days.some((d) => other.days.some((e) => toWeekdayNumber(d) === toWeekdayNumber(e)));
     if (route && other.departure === s.departure && overlaps)
       errors.push(
         issue(
@@ -229,7 +247,7 @@ export function validateServiceStrict(
       route &&
       timeDistance(other.departure, s.departure) <= 30 &&
       s.days.length < 7 &&
-      other.days.some((d) => !s.days.includes(d))
+      other.days.some((d) => !s.days.some((e) => toWeekdayNumber(d) === toWeekdayNumber(e)))
     )
       warnings.push(
         issue(
@@ -240,13 +258,14 @@ export function validateServiceStrict(
         ),
       );
     // Check actual departure weekdays, including collisions across midnight.
-    const bayOverlap = s.days.some((d) =>
+    const sameBay = s.bay && s.bay.toLowerCase() === other.bay?.toLowerCase();
+    const bayOverlap = sameBay && s.days.some((d) =>
       other.days.some((e) => {
-        const gap = Math.abs((d - e) * 1440 + minutes(s.departure) - minutes(other.departure));
+        const gap = Math.abs((toWeekdayNumber(d) - toWeekdayNumber(e)) * 1440 + minutes(s.departure) - minutes(other.departure));
         return Math.min(gap, 10080 - gap) <= 5;
       }),
     );
-    if (s.bay && s.bay.toLowerCase() === other.bay?.toLowerCase() && bayOverlap)
+    if (bayOverlap)
       warnings.push(
         issue(
           'bay',

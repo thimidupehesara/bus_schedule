@@ -1,4 +1,10 @@
-import type { BusService, ScheduleDocument, Weekday } from './schema.js';
+import { ALL_WEEKDAY_CODES, type BusService, type ScheduleDocument, type Weekday } from './schema.js';
+
+export function runsOnWeekday(days: unknown[], weekdayNum: number): boolean {
+  if (!Array.isArray(days)) return false;
+  const code = ALL_WEEKDAY_CODES[weekdayNum - 1];
+  return days.some((d) => d === weekdayNum || d === code || (typeof d === 'string' && d.toUpperCase() === code));
+}
 
 export type BoardStatus = 'DEPARTED' | 'SOON' | 'UPCOMING';
 export interface BoardRow {
@@ -26,7 +32,7 @@ const MINUTE = 60_000;
 const DAY = 1440 * MINUTE;
 const COLOMBO_OFFSET = 330 * MINUTE;
 const DAY_OFFSETS = [-1, 0, 1, 2, 3, 4, 5, 6, 7] as const;
-const isoWeekday = (date: Date): Weekday => (date.getUTCDay() || 7) as Weekday;
+const isoWeekday = (date: Date): number => date.getUTCDay() || 7;
 const compare = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 const compareServices = (a: BusService, b: BusService): number =>
   compare(a.destination.en, b.destination.en) || compare(a.id, b.id);
@@ -35,7 +41,7 @@ export function colomboParts(epochMs: number): { date: string; weekday: Weekday;
   const shifted = new Date(epochMs + COLOMBO_OFFSET);
   return {
     date: shifted.toISOString().slice(0, 10),
-    weekday: isoWeekday(shifted),
+    weekday: isoWeekday(shifted) as Weekday,
     minutes: shifted.getUTCHours() * 60 + shifted.getUTCMinutes(),
   };
 }
@@ -93,7 +99,7 @@ export function buildBoard(
       Number(service.departure.slice(0, 2)) * 60 + Number(service.departure.slice(3));
     let foundNormal = false;
     for (const { dayOffset, weekday, start } of dates) {
-      if (!service.days.includes(weekday)) continue;
+      if (!runsOnWeekday(service.days, weekday)) continue;
       const departureAt = start + departureMinutes * MINUTE;
       if (departureAt < first) continue;
       if (departureAt > nowMs + 7 * DAY) break;

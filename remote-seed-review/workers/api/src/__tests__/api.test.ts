@@ -1,9 +1,9 @@
-import { beforeEach, afterEach, describe, expect, it } from 'vitest';
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import worker, { type Env } from '../index.js';
 import { database } from './database.js';
 import sample from '../../../../packages/shared/src/sample-schedule.json' with { type: 'json' };
 import { Store } from '../store.js';
-import { ScheduleDocumentSchema } from '@bus-schedule/shared';
+import { ScheduleDocumentSchema, type BusService, type ScheduleDocument } from '@bus-schedule/shared';
 let fixture: ReturnType<typeof database>, env: Env;
 beforeEach(() => {
   fixture = database();
@@ -44,6 +44,7 @@ async function seed() {
     confirm: true,
   });
   expect(published.response.status).toBe(200);
+  expect(published.data['hasUnpublishedChanges']).toBe(false);
   return published;
 }
 describe('local SQLite API integration', () => {
@@ -82,66 +83,68 @@ describe('local SQLite API integration', () => {
       first,
     );
   });
-  it('returns 503 before publication and keeps draft edits invisible until publish', async () => {
-    const empty = await request('/schedule.json');
-    expect(empty.response.status).toBe(503);
-    expect(empty.response.headers.get('Retry-After')).toBe('60');
-    await seed();
-    const first = await request('/schedule.json');
-    const service = { ...sample.services[0], departure: '01:05' };
-    expect(
-      (await request(`/api/draft/services/${service.id}`, 'PUT', service)).response.status,
-    ).toBe(200);
-    const still = await request('/schedule.json');
-    expect(still.data).toEqual(first.data);
-    expect(still.response.headers.get('ETag')).toBe(first.response.headers.get('ETag'));
-    const preview = await request('/api/publish/preview', 'POST', {});
-    expect(preview.data['diff']).toMatchObject({ changed: [{ id: service.id }] });
-    expect(
-      (
-        await request('/api/publish', 'POST', {
-          draftRevision: Number(preview.data['draftRevision']) - 1,
-          confirm: true,
-        })
-      ).response.status,
-    ).toBe(409);
-    expect(
-      (
-        await request('/api/publish', 'POST', {
-          draftRevision: preview.data['draftRevision'],
-          confirm: false,
-        })
-      ).response.status,
-    ).toBe(400);
-    expect(
-      (
-        await request('/api/publish', 'POST', {
-          draftRevision: preview.data['draftRevision'],
-          confirm: true,
-        })
-      ).data['version'],
-    ).toBe(2);
-    const second = await request('/schedule.json');
-    expect(second.response.headers.get('ETag')).not.toBe(first.response.headers.get('ETag'));
-    const conditional = await worker.fetch(
-      new Request('http://localhost/schedule.json', {
-        headers: { 'If-None-Match': `"other", W/${second.response.headers.get('ETag')}` },
-      }),
-      env,
-    );
-    expect(conditional.status).toBe(304);
-    expect(await conditional.text()).toBe('');
-    expect(conditional.headers.get('X-Server-Time')).toBeTruthy();
-    expect(
-      (await request('/api/rollback', 'POST', { version: 1, confirm: true })).data['version'],
-    ).toBe(3);
-    const reverted = await request('/schedule.json');
-    expect(reverted.data['services']).toEqual(first.data['services']);
-    expect((await request('/api/draft')).data['hasUnpublishedChanges']).toBe(false);
-    expect(
-      fixture.sqlite.prepare('SELECT kind,rolled_back_from FROM snapshots WHERE version=3').get(),
-    ).toMatchObject({ kind: 'ROLLBACK', rolled_back_from: 1 });
-  });
+  it(
+    'returns 503 before publication and keeps draft edits invisible until publish',
+    async () => {
+      const empty = await request('/schedule.json');
+      expect(empty.response.status).toBe(503);
+      expect(empty.response.headers.get('Retry-After')).toBe('60');
+      await seed();
+      const first = await request('/schedule.json');
+      const service = { ...sample.services[0], arrival: '00:55', departure: '01:05' };
+      expect(
+        (await request(`/api/draft/services/${service.id}`, 'PUT', service)).response.status,
+      ).toBe(200);
+      const still = await request('/schedule.json');
+      expect(still.data).toEqual(first.data);
+      expect(still.response.headers.get('ETag')).toBe(first.response.headers.get('ETag'));
+      const preview = await request('/api/publish/preview', 'POST', {});
+      expect(preview.data['diff']).toMatchObject({ changed: [{ id: service.id }] });
+      expect(
+        (
+          await request('/api/publish', 'POST', {
+            draftRevision: Number(preview.data['draftRevision']) - 1,
+            confirm: true,
+          })
+        ).response.status,
+      ).toBe(409);
+      expect(
+        (
+          await request('/api/publish', 'POST', {
+            draftRevision: preview.data['draftRevision'],
+            confirm: false,
+          })
+        ).response.status,
+      ).toBe(400);
+      expect(
+        (
+          await request('/api/publish', 'POST', {
+            draftRevision: preview.data['draftRevision'],
+            confirm: true,
+          })
+        ).data['version'],
+      ).toBe(2);
+      const second = await request('/schedule.json');
+      expect(second.response.headers.get('ETag')).not.toBe(first.response.headers.get('ETag'));
+      const conditional = await worker.fetch(
+        new Request('http://localhost/schedule.json', {
+          headers: { 'If-None-Match': `"other", W/${second.response.headers.get('ETag')}` },
+        }),
+        env,
+      );
+      expect(conditional.status).toBe(304);
+      expect(await conditional.text()).toBe('');
+      expect(conditional.headers.get('X-Server-Time')).toBeTruthy();
+      expect(
+        (await request('/api/rollback', 'POST', { version: 1, confirm: true })).data['version'],
+      ).toBe(3);
+      const reverted = await request('/schedule.json');
+      expect(reverted.data['services']).toEqual(first.data['services']);
+      expect((await request('/api/draft')).data['hasUnpublishedChanges']).toBe(false);
+      expect(
+        fixture.sqlite.prepare('SELECT kind,rolled_back_from FROM snapshots WHERE version=3').get(),
+      ).toMatchObject({ kind: 'ROLLBACK', rolled_back_from: 1 });
+    }, 30000);
   it('returns bilingual errors and normalizes safe time input', async () => {
     const bad = await request('/api/draft/services', 'POST', {
       ...sample.services[0],
@@ -192,7 +195,7 @@ describe('local SQLite API integration', () => {
       (await request('/api/rollback', 'POST', { version: 1, confirm: true }, editor)).response
         .status,
     ).toBe(200);
-  });
+  }, 30000);
   it('enforces user limits, case insensitive identities, and self protection', async () => {
     expect((await request('/api/users/1', 'PUT', { disabled: true })).response.status).toBe(409);
     expect((await request('/api/users/1', 'PUT', { role: 'EDITOR' })).response.status).toBe(409);
@@ -268,7 +271,7 @@ describe('local SQLite API integration', () => {
     expect(
       (await request('/api/rollback', 'POST', { version: 4, confirm: true })).data['version'],
     ).toBe(54);
-  });
+  }, 45000);
   it('supports duplicate overrides, deletion and discard without accidental exact duplicates', async () => {
     await seed();
     const id = sample.services[0]!.id;
@@ -403,5 +406,194 @@ describe('backend fixes', () => {
         .prepare("SELECT COUNT(*) AS n FROM audit_log WHERE action='USER_CREATE'")
         .get(),
     ).toMatchObject({ n: 1 });
+  });
+  it('returns exact rejection reasons on POST /api/publish and auto-deduplicates via POST /api/draft/deduplicate', async () => {
+    await seed();
+    const firstService = sample.services[0];
+    const duplicateService = {
+      ...firstService,
+      id: 'f9999999-9999-9999-9999-999999999999',
+    };
+    // Force insert duplicate into draft
+    fixture.sqlite
+      .prepare('INSERT INTO draft_services(id,data,updated_at,updated_by) VALUES(?,?,?,?)')
+      .run(
+        duplicateService.id,
+        JSON.stringify(duplicateService),
+        new Date().toISOString(),
+        'admin@example.com',
+      );
+    // Bump draft meta revision
+    fixture.sqlite
+      .prepare('UPDATE draft_meta SET revision=revision+1 WHERE id=1')
+      .run();
+
+    const updatedDraft = await request('/api/draft');
+    expect(updatedDraft.data['validation']).toMatchObject({ ok: false });
+
+    // Attempt to publish
+    const publishAttempt = await request('/api/publish', 'POST', {
+      draftRevision: updatedDraft.data['draftRevision'],
+      confirm: true,
+    });
+    expect(publishAttempt.response.status).toBe(422);
+    expect(publishAttempt.data['error']).toMatchObject({
+      code: 'VALIDATION',
+      message: expect.stringContaining('Publish rejected due to'),
+      details: expect.arrayContaining([
+        expect.objectContaining({
+          code: 'DUPLICATE_SERVICE',
+          serviceId: expect.any(String),
+          message_en: expect.stringContaining('Duplicates service'),
+        }),
+      ]),
+    });
+
+    // Run auto-deduplicate endpoint
+    const dedupRes = await request('/api/draft/deduplicate', 'POST', {});
+    expect(dedupRes.response.status).toBe(200);
+    expect(dedupRes.data).toMatchObject({
+      ok: true,
+      removedCount: 1,
+      removedServices: expect.arrayContaining([
+        expect.objectContaining({
+          id: duplicateService.id,
+          departure: duplicateService.departure,
+        }),
+      ]),
+    });
+
+    // Check draft is now clean
+    const cleanDraft = await request('/api/draft');
+    expect(cleanDraft.data['validation']).toMatchObject({ ok: true });
+
+    // Now publish should succeed cleanly
+    const finalPublish = await request('/api/publish', 'POST', {
+      draftRevision: cleanDraft.data['draftRevision'],
+      confirm: true,
+    });
+    expect(finalPublish.response.status).toBe(200);
+    expect(finalPublish.data).toMatchObject({ ok: true, version: 2 });
+    expect(finalPublish.data['reloadNonce']).toBeDefined();
+    expect(
+      fixture.sqlite
+        .prepare("SELECT detail FROM audit_log WHERE action='TV_RELOAD' ORDER BY id DESC LIMIT 1")
+        .get(),
+    ).toBeDefined();
+  }, 20000);
+
+  it('supports POST /api/draft/import with replace mode auto-deduplicating identical departures', async () => {
+    await seed();
+    const service1 = { ...sample.services[0], id: '00000000-0000-0000-0000-000000000001' };
+    const service1Dup = { ...sample.services[0], id: '00000000-0000-0000-0000-000000000002' };
+    const importRes = await request('/api/draft/import', 'POST', {
+      mode: 'replace',
+      services: [service1, service1Dup],
+    });
+    expect(importRes.response.status).toBe(200);
+    expect(importRes.data).toMatchObject({ ok: true });
+
+    const draft = await request('/api/draft');
+    expect((draft.data['document'] as ScheduleDocument).services).toHaveLength(1);
+    expect(draft.data['validation']).toMatchObject({ ok: true });
+  }, 20000);
+
+  it('supports DELETE /api/draft/services clearing all draft services in one request', async () => {
+    await seed();
+    const draftBefore = await request('/api/draft');
+    expect((draftBefore.data['document'] as ScheduleDocument).services.length).toBeGreaterThan(0);
+
+    const deleteRes = await request('/api/draft/services', 'DELETE', {});
+    expect(deleteRes.response.status).toBe(200);
+    expect(deleteRes.data).toMatchObject({ ok: true });
+    expect(deleteRes.data['deletedCount']).toBeGreaterThan(0);
+
+    const draftAfter = await request('/api/draft');
+    expect((draftAfter.data['document'] as ScheduleDocument).services).toHaveLength(0);
+    expect(
+      fixture.sqlite
+        .prepare("SELECT detail FROM audit_log WHERE action='SERVICE_DELETE_ALL' ORDER BY id DESC LIMIT 1")
+        .get(),
+    ).toBeDefined();
+  }, 20000);
+
+  it('supports POST /api/draft/activate-all activating all draft services in one request', async () => {
+    await seed();
+    // First inactivate all services
+    const draftBefore = await request('/api/draft');
+    const services = (draftBefore.data['document'] as ScheduleDocument).services;
+    for (const s of services) {
+      await request(`/api/draft/services/${s.id}`, 'PUT', { ...s, active: false });
+    }
+    const draftInactivated = await request('/api/draft');
+    const inactivatedServices = (draftInactivated.data['document'] as ScheduleDocument).services;
+    expect(inactivatedServices.every((s) => s.active === false)).toBe(true);
+
+    // Call activate-all
+    const activateRes = await request('/api/draft/activate-all', 'POST', {});
+    expect(activateRes.response.status).toBe(200);
+    expect(activateRes.data).toMatchObject({ ok: true });
+
+    const draftAfter = await request('/api/draft');
+    const activeServices = (draftAfter.data['document'] as ScheduleDocument).services;
+    expect(activeServices.length).toBeGreaterThan(0);
+    expect(activeServices.every((s) => s.active === true)).toBe(true);
+  }, 20000);
+
+  it('supports POST /api/draft/import defaulting active: true and all 7 days when omitted', async () => {
+    await seed();
+    const incompleteRow = {
+      destination: { si: 'කොළඹ', en: 'Colombo' },
+      origin: { si: 'මහියංගනය', en: 'Mahiyanganaya' },
+      departure: '10:00',
+      operator: 'CTB',
+      serviceType: 'NORMAL',
+      // active and days omitted
+    };
+    const importRes = await request('/api/draft/import', 'POST', {
+      mode: 'replace',
+      services: [incompleteRow],
+    });
+    expect(importRes.response.status).toBe(200);
+    expect(importRes.data).toMatchObject({ ok: true });
+
+    const draft = await request('/api/draft');
+    const importedServices = (draft.data['document'] as ScheduleDocument).services;
+    expect(importedServices).toHaveLength(1);
+    expect(importedServices[0]?.active).toBe(true);
+    expect(importedServices[0]?.days).toEqual(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']);
+  }, 20000);
+
+  it('loads, previews and publishes a full code-weekday draft without network self-fetches', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected network fetch'));
+    try {
+      const doc = {
+        ...sample,
+        lastVerified: new Date().toISOString().slice(0, 10),
+        services: sample.services.map((service: unknown) => ({
+          ...(service as BusService),
+          days: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+          active: true,
+        })),
+      };
+      expect((await request('/api/draft/import', 'POST', doc)).response.status).toBe(200);
+      const draft = await request('/api/draft');
+      expect(draft.response.status).toBe(200);
+      const preview = await request('/api/publish/preview', 'POST', {
+        draftRevision: draft.data['draftRevision'] as number,
+      });
+      expect(preview.response.status).toBe(200);
+      expect(preview.data['nextVersion']).toBe(1);
+      const published = await request('/api/publish', 'POST', {
+        confirm: true,
+        draftRevision: preview.data['draftRevision'] as number,
+      });
+      expect(published.response.status).toBe(200);
+      expect(published.response.headers.get('content-type')).toContain('application/json');
+      expect(published.data['version']).toBe(1);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 });

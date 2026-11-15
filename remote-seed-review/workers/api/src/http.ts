@@ -84,6 +84,11 @@ export function security(response: Response, api = false): Response {
     "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
   );
   result.headers.set('Strict-Transport-Security', 'max-age=31536000');
-  if (api) result.headers.set('Cache-Control', 'no-store');
+  if (api) {
+    result.headers.set('Cache-Control', 'no-store');
+    if (!result.headers.has('Content-Type')) {
+      result.headers.set('Content-Type', 'application/json; charset=utf-8');
+    }
+  }
   return result;
 }

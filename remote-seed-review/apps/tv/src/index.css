@@ -11,6 +11,7 @@
   font-weight: 500;
   line-height: 1.45;
   font-synthesis: none;
+  --safe: 1.5;
 }
 
 html,
@@ -313,6 +314,7 @@ tbody {
   height: calc(100% - var(--head-row));
   transition-property: opacity;
   transition-timing-function: ease-in-out;
+  --row-h: calc((var(--table-h) - var(--head-row)) / var(--page-rows, var(--rows)));
 }
 
 tbody tr:nth-child(odd) {
@@ -356,7 +358,7 @@ tbody tr.departed .departure .digits {
 }
 
 tbody tr {
-  height: calc(100% / var(--rows));
+  height: calc(100% / var(--page-rows, var(--rows)));
   overflow: hidden;
 }
 
@@ -385,7 +387,9 @@ td {
 .service,
 .bay {
   align-items: center;
+  justify-content: center;
   text-align: center;
+  white-space: nowrap;
 }
 
 .fitted {
@@ -405,8 +409,10 @@ td {
 
 .departure .digits,
 .arrival .digits {
-  font-size: min(var(--time-width-cap),
-      max(var(--type-floor), calc(var(--row-h) * var(--time-scale))));
+  font-size: clamp(2.4rem, min(calc(var(--row-h) * 0.42), 5.6vw), 6.5rem);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  line-height: 1.02;
   flex-shrink: 0;
 }
 
@@ -424,17 +430,26 @@ td {
   align-items: center;
   justify-content: center;
   width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  white-space: nowrap;
 }
 
 .time-block .digits {
-  font-size: min(var(--time-width-cap),
-      max(var(--type-floor), calc(var(--row-h) * var(--time-scale))));
-  line-height: 1;
+  font-size: clamp(2.4rem, min(calc(var(--row-h) * 0.42), 5.6vw), 6.5rem);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  line-height: 1.02;
   flex-shrink: 0;
 }
 
+.time-block.with-badge .digits {
+  font-size: clamp(2.2rem, min(calc(var(--row-h) * 0.38), 5.2vw), 5.8rem);
+}
+
 .time-block .meridiem {
-  font-size: max(var(--type-floor), calc(var(--row-h) * var(--support-scale)));
+  font-size: clamp(0.75rem, calc(var(--row-h) * 0.16), 1.35vw);
+  font-variant-numeric: tabular-nums;
   color: #c4d4e4;
   line-height: 1.15;
   text-align: center;
@@ -444,18 +459,26 @@ td {
 .time-block .badge-line {
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
   margin-top: 0.2vh;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 .time-block .pill {
-  font-size: calc(var(--row-h) * 0.16);
-  padding: 0.1vh 0.6vw;
+  box-sizing: border-box;
+  display: block;
+  font-size: clamp(0.62rem, calc(var(--row-h) * 0.13), 1.1vw);
+  padding: 0.15vh 0.6vw;
   border-radius: 0.4vh;
   background: #26313e;
   color: #f5f7fa;
   white-space: nowrap;
-  max-width: 95%;
+  width: auto;
+  max-width: 100%;
+  overflow: visible;
+  line-height: 1.2;
 }
 
 .time-meta {
@@ -466,7 +489,7 @@ td {
   gap: 0.3vw;
 }
 
-.cell :is(.meridiem, .pill, .via),
+.cell :is(.meridiem, .via),
 .service :is(.si, .en),
 .cell .operator {
   font-size: max(var(--type-floor), calc(var(--row-h) * var(--support-scale)));
@@ -804,14 +827,18 @@ td {
     padding: 0.15vh 0.6vw;
   }
   .time-block .digits {
-    font-size: min(var(--time-width-cap), 4.6vh);
+    font-size: clamp(2.2rem, min(calc(var(--row-h) * 0.42), 5.6vw), 5.8rem);
+    line-height: 1.02;
   }
   .time-block .meridiem {
-    font-size: 1.8vh;
+    font-size: clamp(0.68rem, 1.8vh, 1.3vw);
   }
   .time-block .pill {
-    font-size: 1.5vh;
+    font-size: clamp(0.6rem, 1.5vh, 1.1vw);
     padding: 0.1vh 0.5vw;
+    overflow: visible;
+    white-space: nowrap;
+    max-width: 100%;
   }
   .destination .place-si,
   .from .place-si {
