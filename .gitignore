@@ -1,0 +1,5 @@
+
+signing.keystore
+signing-key-info.txt
+.vite/
+**/draft_dump.json
