@@ -17,6 +17,17 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | First deploy                                                                    | Done    |
 
 ## Done
+- [DONE] Git Comparison, Verification, and Local Commit Preparation:
+  - 1. Compared Local Working Tree vs. GitHub (`origin/main`):
+    - Fetched latest remote changes via `git fetch origin`.
+    - Confirmed current local branch is `main` (commit `46451b8`).
+    - Verified `origin/main` commit matches `46451b8`.
+    - Found uncommitted changes in working tree (`store.ts`, `sample-schedule.json`, `.gitignore`, `Mahiyanganaya_Bus_Timetable.xlsx`, etc.).
+  - 2. Safely Updated `.gitignore` & Staged Changes:
+    - Verified `signing.keystore`, `signing-key-info.txt`, `.vite/`, `**/draft_dump.json`, and accidental CLI file `h origin main --force-with-lease` are excluded in `.gitignore`.
+    - Passed all 16 test suites (226/226 tests green) via `npm test`.
+    - Passed TypeScript checks with 0 errors via `npm run typecheck` and `npx tsc --noEmit`.
+  - 3. Ready for Safe Local Commit without Pushing.
 - [DONE] Fix Sticky "Unpublished draft changes detected" Banner, Enlarge TV Time Digits, and Clean Up Diff Text:
   - 1. Fixed Sticky "Unpublished draft changes detected" Banner After Publish (`workers/api` & `apps/admin`):
     - In `workers/api/src/schedule.ts`, introduced `normalizeDisplaySettings` comparing only active editable display fields (`departedGraceMinutes`, `soonThresholdMinutes`, `lookaheadHours`) in `scheduleDiff` and `hasChanges`, eliminating false-positive `displayChanged: true` from locked display defaults.

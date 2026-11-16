@@ -1,31 +1,139 @@
 {
-  "schemaVersion": 1,
   "version": 1,
-  "publishedAt": "2026-11-13T16:58:06.062Z",
-  "lastVerified": "2026-11-13",
-  "timezone": "Asia/Colombo",
+  "generatedAt": "2026-11-14T22:05:00+05:30",
+  "lastVerified": "2026-11-14",
   "station": {
     "name": {
-      "si": "මහියංගනය බස් නිලයම",
+      "si": "මහියංගණය බස් නැවතුම්පොළ",
       "en": "Mahiyanganaya Bus Stand"
-    },
-    "mobileUrl": "https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/qr"
+    }
   },
-  "alert": null,
   "display": {
     "rowsPerPage": 4,
-    "dwellSeconds": 10,
-    "fadeMs": 300,
-    "departedGraceMinutes": 15,
-    "soonThresholdMinutes": 15,
-    "lookaheadHours": 8,
-    "safeAreaPercent": 1.5,
-    "pollIntervalSeconds": 180,
-    "reloadAtLocalTime": "02:30"
+    "secondsPerPage": 10,
+    "departedRetentionMinutes": 15,
+    "lookaheadHours": 12
+  },
+  "alert": {
+    "active": false,
+    "severity": "INFO",
+    "text": {
+      "si": "",
+      "en": ""
+    },
+    "expiresAt": null
   },
   "services": [
     {
-      "id": "3bf7ba85-ebb1-4cbc-996e-8a71d629b7f8",
+      "id": "0dc19e75-544b-5a86-9353-4dfe6877c1a6",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "00:00",
+      "arrivalTime": "23:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "0f96b5f7-5239-5308-b3ac-dc38c4fe2f61",
+      "destination": {
+        "si": "අක්කරේපත්තු",
+        "en": "Akkaraipattu"
+      },
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departureTime": "00:40",
+      "arrivalTime": "00:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "LUXURY",
+      "active": true
+    },
+    {
+      "id": "ffc783b6-6d6d-50af-b1f3-a52e4ffedba4",
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna (Via Kaduruwela)"
+      },
+      "origin": {
+        "si": "කතරගම",
+        "en": "Kataragama"
+      },
+      "departureTime": "01:00",
+      "arrivalTime": "00:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "f83fcf67-5113-5bab-bf6b-9a61abf7d3e3",
+      "destination": {
+        "si": "ත්‍රීකුණාමලය",
+        "en": "Trincomalee"
+      },
+      "origin": {
+        "si": "දියතලාව",
+        "en": "Diyatalawa"
+      },
+      "departureTime": "01:00",
+      "arrivalTime": "00:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "aa0e3675-22b3-5e52-aac4-88406dafda13",
       "destination": {
         "si": "කොළඹ",
         "en": "Colombo"
@@ -34,27 +142,25 @@
         "si": "අම්පාර",
         "en": "Ampara"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "01:15",
-      "departure": "01:30",
+      "departureTime": "01:30",
+      "arrivalTime": "01:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "60d8aa5c-bfa4-43b0-bb50-a6ceb21040bf",
+      "id": "1ac3faa3-f01a-536d-980d-1d36fecac6ab",
       "destination": {
         "si": "කොළඹ",
         "en": "Colombo"
@@ -63,27 +169,25 @@
         "si": "අම්පාර",
         "en": "Ampara"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "01:30",
-      "departure": "01:45",
+      "departureTime": "01:45",
+      "arrivalTime": "01:30",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "f06e2734-0971-4f40-abae-cb042706c91b",
+      "id": "69d2d79f-9b56-54bb-b624-1dac088b99b9",
       "destination": {
         "si": "කොළඹ",
         "en": "Colombo"
@@ -92,27 +196,25 @@
         "si": "මීගහකිවුල",
         "en": "Meegahakivula"
       },
-      "via": null,
-      "operator": "PVT",
+      "departureTime": "02:10",
+      "arrivalTime": "02:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
       "serviceType": "LUXURY",
-      "arrival": "02:00",
-      "departure": "02:10",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
       "active": true
     },
     {
-      "id": "d797ee77-4569-41fb-8641-c3ed57d36960",
+      "id": "4d735bd5-4bfc-580a-994a-0a01407a81ad",
       "destination": {
         "si": "කොළඹ",
         "en": "Colombo"
@@ -121,990 +223,52 @@
         "si": "අම්පාර",
         "en": "Ampara"
       },
-      "via": null,
-      "operator": "CTB",
+      "departureTime": "02:30",
+      "arrivalTime": "02:20",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
       "serviceType": "NORMAL",
-      "arrival": "02:20",
-      "departure": "02:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
       "active": true
     },
     {
-      "id": "44e2dc05-7161-4879-98c2-6ee5ea05f656",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "දෙහිඅත්තකණ්ඩිය",
-        "en": "Dehiattakandiya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "02:45",
-      "departure": "03:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "3d2d859e-cc8f-4285-9fa0-a48d7d3cd6ad",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "දෙහිඅත්තකණ්ඩිය",
-        "en": "Dehiattakandiya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "03:20",
-      "departure": "03:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "023950ae-ec14-440a-a97a-62a8d3740b5a",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "03:45",
-      "departure": "04:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "85005e79-e495-4709-a33a-2f9de34d6dba",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "05:00",
-      "departure": "05:10",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "553cf27e-f2c3-419d-bfb1-0c677fd944ed",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "05:30",
-      "departure": "05:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "9c20f906-657b-4abe-95ab-62ec15c82930",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:00",
-      "departure": "07:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "44305669-8e19-427f-8557-5ae798cc3daa",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "07:30",
-      "departure": "08:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "64bd0054-a2d8-4118-ab39-f3b52c7ebedb",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:45",
-      "departure": "08:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "57ebf7fe-58c3-4f27-ac8d-77a4b4d5b0f1",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:10",
-      "departure": "08:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "1e370066-9f75-49b9-bfa9-f72123bb10bc",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:45",
-      "departure": "09:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "4e66c321-9088-499c-83bb-3d5703ade15f",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "දෙහිඅත්තකණ්ඩිය",
-        "en": "Dehiattakandiya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:40",
-      "departure": "09:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "8f7af776-5590-427f-beb2-334e43c950e7",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "LUXURY",
-      "arrival": "09:30",
-      "departure": "09:50",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "64934cfb-5f37-4b00-abfd-2bc2729113af",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "LUXURY",
-      "arrival": "09:20",
-      "departure": "10:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "e5bfdf6f-af54-4ff6-91a8-5352ba920aca",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:00",
-      "departure": "10:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "2d2d6b8c-e9b0-4859-b355-1e7f1953fe9e",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:30",
-      "departure": "10:40",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "a6cfeb70-3361-40bd-a430-4171890b4d06",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "11:00",
-      "departure": "11:10",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "17a4e9f4-05b2-46f3-b7a2-80530ce0c883",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "11:00",
-      "departure": "11:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "4ae9fee6-e9cb-49c3-b5fa-40002959eced",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "11:00",
-      "departure": "11:50",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "a86df598-8935-446c-a065-cc4f9898459c",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "කල්මුනේ",
-        "en": "Kalmunai"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "11:50",
-      "departure": "12:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "981c52cb-f63b-4276-9479-21512570b001",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "12:50",
-      "departure": "13:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "f9d7434d-973d-4536-a431-0295ad8024ef",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "16:50",
-      "departure": "17:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "84867704-dc03-4dc1-8f92-20665ddbbb6f",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "17:00",
-      "departure": "17:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "6ec30199-2d9f-4613-8ee4-14b4e9cc23a6",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:45",
-      "departure": "08:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "d4e6edaf-7ba8-43eb-8ee6-b4a20c31881b",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අක්කරේපත්තු",
-        "en": "Akkaraipattu"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "LUXURY",
-      "arrival": "08:10",
-      "departure": "08:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "3f1c1037-8f3d-4601-bfaa-8f325699a4bd",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:45",
-      "departure": "09:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "c008384f-2d7f-45ef-8898-a415ea821cb2",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:40",
-      "departure": "09:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "727cba3a-f16c-49f0-9097-47d2253be6ce",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:30",
-      "departure": "10:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "dc7bad3c-ea11-4e9e-8545-a2dc7289ccae",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "11:50",
-      "departure": "12:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "381e0373-405d-4c5a-8265-bd9f3b15c41b",
-      "destination": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": {
-        "si": "පොළොන්නරුව හරහා",
-        "en": "Via Polonnaruwa"
-      },
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:45",
-      "departure": "10:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "9d925db8-94bc-4d63-9e6e-1b6c1c122d74",
-      "destination": {
-        "si": "කටුනායක",
-        "en": "Katunayake"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:50",
-      "departure": "11:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "0e73c21c-0cf3-4f3a-92fe-8a4b53248d29",
-      "destination": {
-        "si": "මහරගම",
-        "en": "Maharagama"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "05:45",
-      "departure": "06:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "a7e87909-3edb-4bbd-8db2-52a94b5db162",
+      "id": "5d1a8ab1-e1ba-5326-93d6-b4ad39ef5d68",
       "destination": {
         "si": "යාපනය",
-        "en": "Jaffna"
-      },
-      "origin": {
-        "si": "කතරගම",
-        "en": "Kataragama"
-      },
-      "via": {
-        "si": "කදුරුවෙල හරහා",
-        "en": "Via Kaduruwela"
-      },
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "12:45",
-      "departure": "12:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "a8335fd5-1447-4d60-adad-0a5cc4967e78",
-      "destination": {
-        "si": "යාපනය",
-        "en": "Jaffna"
+        "en": "Jaffna (Via Dambulla)"
       },
       "origin": {
         "si": "මිද්දෙනිය",
         "en": "Middeniya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "02:15",
-      "departure": "02:30",
+      "departureTime": "02:30",
+      "arrivalTime": "02:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "c79649b7-ef4f-4979-8984-b43f3df1cfa0",
+      "id": "11a0f0db-370f-51e5-b6cd-c19e402df047",
       "destination": {
         "si": "යාපනය",
         "en": "Jaffna"
@@ -1113,843 +277,106 @@
         "si": "කතරගම",
         "en": "Kataragama"
       },
-      "via": {
-        "si": "දඹුල්ල හරහා",
-        "en": "Via Dambulla"
-      },
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "02:15",
-      "departure": "02:30",
+      "departureTime": "02:30",
+      "arrivalTime": "02:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "f2651d0c-d60d-4a19-8d7f-3c5c2fc986c1",
+      "id": "8cde1067-4eca-5522-a133-a3f6aab93494",
       "destination": {
-        "si": "යාපනය",
-        "en": "Jaffna"
+        "si": "කොළඹ",
+        "en": "Colombo"
       },
       "origin": {
-        "si": "බදුල්ල",
-        "en": "Badulla"
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:00",
-      "departure": "08:20",
+      "departureTime": "03:00",
+      "arrivalTime": "02:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "a0065153-062b-4926-aeb8-b8f31b5cd5e1",
+      "id": "8d185bf0-9797-5957-ba21-953ee3fb9233",
       "destination": {
-        "si": "යාපනය",
-        "en": "Jaffna"
+        "si": "කොළඹ",
+        "en": "Colombo"
       },
       "origin": {
-        "si": "මොණරාගල",
-        "en": "Monaragala"
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
       },
-      "via": null,
-      "operator": "CTB",
+      "departureTime": "03:30",
+      "arrivalTime": "03:20",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
       "serviceType": "NORMAL",
-      "arrival": "08:15",
-      "departure": "08:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
       "active": true
     },
     {
-      "id": "27e56f8c-3d3b-426a-9f7f-ec5799519bc1",
+      "id": "b273dd82-a30a-5b93-b4e1-09b97c3d37ca",
       "destination": {
-        "si": "යාපනය",
-        "en": "Jaffna"
-      },
-      "origin": {
-        "si": "මොණරාගල",
-        "en": "Monaragala"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:10",
-      "departure": "09:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "e302029f-2c16-4458-9d7d-0e03fbce3456",
-      "destination": {
-        "si": "යාපනය",
-        "en": "Jaffna"
-      },
-      "origin": {
-        "si": "බදුල්ල",
-        "en": "Badulla"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:30",
-      "departure": "09:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "0eb73f9b-8826-49d5-9d04-c552ac11bda9",
-      "destination": {
-        "si": "යාපනය",
-        "en": "Jaffna"
-      },
-      "origin": {
-        "si": "මොණරාගල",
-        "en": "Monaragala"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "21:10",
-      "departure": "21:25",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "00f1d039-7e59-414f-a9c6-35cd33ede0c9",
-      "destination": {
-        "si": "යාපනය",
-        "en": "Jaffna"
-      },
-      "origin": {
-        "si": "බදුල්ල",
-        "en": "Badulla"
-      },
-      "via": {
-        "si": "දඹුල්ල හරහා",
-        "en": "Via Dambulla"
-      },
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "22:30",
-      "departure": "22:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "3bdcce85-d579-4d7a-9b49-7ca1c4243ce8",
-      "destination": {
-        "si": "වව්නියාව",
-        "en": "Vavuniya"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": {
-        "si": "දඹුල්ල හරහා",
-        "en": "Via Dambulla"
-      },
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "06:30",
-      "departure": "07:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "a7635121-bf2c-4e84-8128-6fc040118d71",
-      "destination": {
-        "si": "වව්නියාව",
-        "en": "Vavuniya"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": {
-        "si": "කදුරුවෙල හරහා",
-        "en": "Via Kaduruwela"
-      },
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:30",
-      "departure": "09:10",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "ddcfe3d7-db9e-4d9f-92ee-ac257738d72d",
-      "destination": {
-        "si": "වව්නියාව",
-        "en": "Vavuniya"
-      },
-      "origin": {
-        "si": "බණ්ඩාරවෙල",
-        "en": "Bandarawela"
-      },
-      "via": {
-        "si": "දඹුල්ල හරහා",
-        "en": "Via Dambulla"
-      },
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:50",
-      "departure": "09:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "74aae861-9d01-4f06-aee6-88b9f231f962",
-      "destination": {
-        "si": "වව්නියාව",
-        "en": "Vavuniya"
-      },
-      "origin": {
-        "si": "මොණරාගල",
-        "en": "Monaragala"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "LUXURY",
-      "arrival": "10:25",
-      "departure": "10:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "a57b73db-22d8-4cdb-9b8c-a6af9db70175",
-      "destination": {
-        "si": "වව්නියාව",
-        "en": "Vavuniya"
+        "si": "කොළඹ",
+        "en": "Colombo"
       },
       "origin": {
         "si": "බිබිල",
         "en": "Bibile"
       },
-      "via": {
-        "si": "කදුරුවෙල හරහා",
-        "en": "Via Kaduruwela"
-      },
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:30",
-      "departure": "11:10",
+      "departureTime": "04:00",
+      "arrivalTime": "03:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "3082016b-58d3-4ef3-ba97-676a44788250",
-      "destination": {
-        "si": "ත්‍රිකුණාමලය",
-        "en": "ත්‍රිකුණාමලය"
-      },
-      "origin": {
-        "si": "දියතලාව",
-        "en": "Diyatalawa"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "12:30",
-      "departure": "01:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "1f1f2b46-6541-4c16-b81e-e1b4f4092e5e",
-      "destination": {
-        "si": "ත්‍රිකුණාමලය",
-        "en": "ත්‍රිකුණාමලය"
-      },
-      "origin": {
-        "si": "දියතලාව",
-        "en": "Diyatalawa"
-      },
-      "via": {
-        "si": "කදුරුවෙල හරහා",
-        "en": "Via Kaduruwela"
-      },
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "13:20",
-      "departure": "13:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "6e66ef82-6acb-47fc-bc03-2622f3ae72ba",
-      "destination": {
-        "si": "කුරුණෑගල",
-        "en": "Kurunegala"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "05:45",
-      "departure": "06:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "eda13347-fb6d-4d8b-9f66-cf5ec5858825",
-      "destination": {
-        "si": "කුරුණෑගල",
-        "en": "Kurunegala"
-      },
-      "origin": {
-        "si": "කතරගම",
-        "en": "Kataragama"
-      },
-      "via": {
-        "si": "දඹුල්ල හරහා",
-        "en": "Via Dambulla"
-      },
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:00",
-      "departure": "10:10",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "3395d512-f78c-477c-ae4e-51fb854d5ed9",
-      "destination": {
-        "si": "අනුරාධපුරය",
-        "en": "Anuradhapura"
-      },
-      "origin": {
-        "si": "බදුල්ල",
-        "en": "Badulla"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:05",
-      "departure": "08:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "2a12879f-9fe1-4ff8-a30c-d78d140d21f8",
-      "destination": {
-        "si": "අනුරාධපුරය",
-        "en": "Anuradhapura"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:30",
-      "departure": "10:40",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "39d0ae9a-b2e3-4257-8831-9f523f24a099",
-      "destination": {
-        "si": "අනුරාධපුරය",
-        "en": "Anuradhapura"
-      },
-      "origin": {
-        "si": "තණමල්විල",
-        "en": "Thanamalwila"
-      },
-      "via": {
-        "si": "අරලගංවිල හරහා",
-        "en": "Via Aralaganwila"
-      },
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:50",
-      "departure": "11:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "168705a8-58b6-416c-9b1b-f5821dce56bd",
-      "destination": {
-        "si": "මන්නාරම",
-        "en": "Mannar"
-      },
-      "origin": {
-        "si": "දියතලාව",
-        "en": "Diyatalawa"
-      },
-      "via": {
-        "si": "දඹුල්ල හරහා",
-        "en": "Via Dambulla"
-      },
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:45",
-      "departure": "11:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "d5d4ba5d-29f0-4ad2-bb80-966736c5c1e7",
-      "destination": {
-        "si": "ගාල්ල",
-        "en": "Galle"
-      },
-      "origin": {
-        "si": "මල්දෙණිය",
-        "en": "Maldeniya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "07:15",
-      "departure": "07:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "ccc68892-7e44-4f5b-bce2-d1e662c3c2cc",
-      "destination": {
-        "si": "ගාල්ල",
-        "en": "Galle"
-      },
-      "origin": {
-        "si": "කුරුලුබැද්ද",
-        "en": "Kurulubedda"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "20:45",
-      "departure": "21:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "51137adf-5ed6-4d06-8546-cc1cb5cd76d9",
-      "destination": {
-        "si": "ඇල්පිටිය",
-        "en": "Elpitiya"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "19:00",
-      "departure": "19:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "0af8e179-aa47-45c8-bf3a-1ed3850444c7",
-      "destination": {
-        "si": "අම්බලන්තොට",
-        "en": "Ambalantota"
-      },
-      "origin": {
-        "si": "පොළොන්නරුව",
-        "en": "Polonnaruwa"
-      },
-      "via": {
-        "si": "කතරගම හරහා",
-        "en": "Via Kataragama"
-      },
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:15",
-      "departure": "10:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "f24b68be-0a14-47ee-b1fc-d139cbbc3cdc",
-      "destination": {
-        "si": "වැල්ලවාය",
-        "en": "Wellawaya"
-      },
-      "origin": {
-        "si": "අනුරාධපුර",
-        "en": "Anuradhapura"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "12:20",
-      "departure": "12:35",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "9dafb66a-cad1-428b-b26e-0f5ac9604887",
-      "destination": {
-        "si": "පානදුර",
-        "en": "Panadura"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "07:15",
-      "departure": "07:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "6c18910f-818f-4669-9398-a75d6ea04805",
-      "destination": {
-        "si": "නුවරඑළිය",
-        "en": "Nuwara Eliya"
-      },
-      "origin": {
-        "si": "කාත්තන්කුඩි",
-        "en": "Kattankudy"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:45",
-      "departure": "11:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "7971fef0-af78-46dc-83f8-bc3c8b3c1931",
-      "destination": {
-        "si": "නුවරඑළිය",
-        "en": "Nuwara Eliya"
-      },
-      "origin": {
-        "si": "පොළොන්නරුව",
-        "en": "Polonnaruwa"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "11:15",
-      "departure": "11:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "aaf21b9e-f725-418f-b80c-0607a8bb0a4e",
+      "id": "95a2b921-e74f-58cb-91cc-d6eb5a33e68a",
       "destination": {
         "si": "අම්පාර",
         "en": "Ampara"
@@ -1958,1100 +385,79 @@
         "si": "කොළඹ",
         "en": "Colombo"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "04:10",
-      "departure": "04:20",
+      "departureTime": "04:20",
+      "arrivalTime": "04:10",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "2edad7a8-b8d4-4854-98b8-b730cec8b492",
+      "id": "8dcaf87c-3ae6-50c2-832b-1408d2a29c5c",
       "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "05:30",
-      "departure": "05:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "d517467c-5722-4e4b-9cc4-7340a42b2fb9",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "06:00",
-      "departure": "06:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "891610ac-4bce-434c-8190-9b30c332be00",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "දෙහිඅත්තකණ්ඩිය",
-        "en": "Dehiattakandiya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "06:15",
-      "departure": "06:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "a49d7e40-2261-4930-a837-bd62aae00782",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "06:30",
-      "departure": "07:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "56a0c044-ce30-4699-9acc-4fae4dbe0690",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "19:00",
-      "departure": "19:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "3a07b53e-ae59-4019-8d9f-a4fd460235bc",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මුවපැටිනිවෙල",
-        "en": "Muwapetinivela"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "07:20",
-      "departure": "07:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "f6946634-61d1-48c1-beca-0bfc0ad3b5a9",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:45",
-      "departure": "08:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "5f891b29-375e-45cf-9290-1acbe1130d68",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "අරලගංවිල",
-        "en": "Aralaganwila"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "08:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "0cbe8cbc-a141-4ae5-bf92-db807fbfd38d",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
         "si": "මහනුවර",
         "en": "Kandy"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:15",
-      "departure": "08:30",
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "departureTime": "04:45",
+      "arrivalTime": "04:30",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "fdaa598d-c17c-4c6a-a154-c39718cfa5b6",
+      "id": "f043396c-ff34-5afb-9158-1070f4800cce",
       "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මල්දෙණිය",
-        "en": "Maldeniya"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:50",
-      "departure": "09:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "650f92b4-1f13-40dd-8da8-fb8b333ad9c4",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "දඹුල්ල",
-        "en": "Dambulla"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:45",
-      "departure": "10:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "6c12d6e2-3a63-4b3f-85b8-97ccb53ec966",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "දෙහිඅත්තකණ්ඩිය",
-        "en": "Dehiattakandiya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "10:10",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "cdd1c689-a988-4686-8e05-8d54899916b7",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:15",
-      "departure": "10:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "7709949d-6969-4919-a384-ec7e6d4ea560",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "කෑගල්ල",
-        "en": "Kegalle"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:50",
-      "departure": "11:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "ed6cf6f7-f0a1-4ad2-9d98-420b48acd45d",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "11:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "868d68d4-55ca-4cd1-ba07-bd8f04a23269",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "11:50",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "908b8387-5d9d-475f-af4d-c9fb6287dba7",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "11:50",
-      "departure": "12:05",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "d1a6411d-4468-4eb1-821b-fce89b253f6b",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "00:50",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "496b4de9-3f9a-49e5-a394-2dc6ed59bbf4",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "12:50",
-      "departure": "13:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "02ff2d14-5c08-4343-9a7d-0c22b78c44e2",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "13:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "d3cacef5-4e75-419c-8019-535f96927a11",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහියංගණ",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "14:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "abe022a6-df5b-463e-88a3-1bbd308d0190",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "15:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "e3742b00-dfe9-4269-b424-db93ab9b918f",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "16:10",
-      "departure": "16:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "dc3745c6-4fa4-4d6a-b5d7-cd2ff0a2dc70",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "16:35",
-      "departure": "16:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "7059edbb-3124-46ad-921f-83d10c80a53a",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
         "si": "කොළඹ",
         "en": "Colombo"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "17:45",
-      "departure": "18:00",
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "05:10",
+      "arrivalTime": "05:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
-      "active": true
-    },
-    {
-      "id": "b46b069a-f631-432c-b492-7f48b30995f0",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "19:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "aa5eea09-7e51-41db-b220-de83ec96ae58",
-      "destination": {
-        "si": "අක්කරේපත්තු",
-        "en": "Akkaraipattu"
-      },
-      "origin": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "00:30",
-      "departure": "00:40",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "f0a3a134-2380-4595-9d0c-aae85b49ac7b",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "20:30",
-      "departure": "20:40",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "5a6b4662-b852-442f-84fb-dbea2af5df14",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "21:00",
-      "departure": "21:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "add8178f-e538-40e8-8458-90fa1c145451",
-      "destination": {
-        "si": "අක්කරේපත්තු",
-        "en": "Akkaraipattu"
-      },
-      "origin": {
-        "si": "කොළඹ",
-        "en": "Colombo"
-      },
-      "via": null,
-      "operator": "PVT",
+      "operator": "PRIVATE",
       "serviceType": "LUXURY",
-      "arrival": "00:30",
-      "departure": "00:40",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
       "active": true
     },
     {
-      "id": "8acc2322-7d55-4653-974f-67f238ee69ef",
-      "destination": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "origin": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "23:30",
-      "departure": "23:40",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "66c86518-032b-4fe2-9bd9-e1aa6eb532e2",
-      "destination": {
-        "si": "අක්කරේපත්තු",
-        "en": "Akkaraipattu"
-      },
-      "origin": {
-        "si": "කටුනායක",
-        "en": "Katunayake"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "12:00",
-      "departure": "12:15",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "79fc79c4-890e-479c-9cc5-0e72007f7571",
-      "destination": {
-        "si": "පන්නල්ගම",
-        "en": "Pannalgama"
-      },
-      "origin": {
-        "si": "දෙහිඅත්තකණ්ඩිය",
-        "en": "Dehiattakandiya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "13:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "cf9a38af-a473-40ad-b722-4c489986daba",
-      "destination": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "origin": {
-        "si": "සිරිපුර",
-        "en": "Siripura"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "04:30",
-      "departure": "04:45",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "34b5d56e-fca1-456d-87fd-e9a3988b6bb3",
-      "destination": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "origin": {
-        "si": "සිරිපුර",
-        "en": "Siripura"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "05:45",
-      "departure": "06:00",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "32524b2c-06d1-4bad-88fb-3f3fc6663294",
-      "destination": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "origin": {
-        "si": "සිරිපුර",
-        "en": "Siripura"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "05:45",
-      "departure": "06:20",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "df5284af-fddf-4ed0-93e9-fa1cd683803b",
-      "destination": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "origin": {
-        "si": "ටැම්පිටිය",
-        "en": "Tampitiya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "06:40",
-      "departure": "06:50",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "ef99fc86-1a82-4e59-80f1-e2332ea2cb89",
+      "id": "962f307a-904a-5cfb-998e-90542f1dd57b",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3060,27 +466,133 @@
         "si": "වෑකන්ද",
         "en": "Wekanda"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "05:15",
-      "departure": "05:30",
+      "departureTime": "05:30",
+      "arrivalTime": "05:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "f6a67594-7ee5-4fe5-b6e9-1a436cdf4271",
+      "id": "1e81f57f-6f0e-57c2-b094-f5df0c1c5015",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "05:45",
+      "arrivalTime": "05:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "86f1ff85-3384-581d-8b35-351a63c8b960",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departureTime": "05:45",
+      "arrivalTime": "05:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "5d37a28e-164c-5b9b-af06-09b502fc5583",
+      "destination": {
+        "si": "මහරගම",
+        "en": "Maharagama"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "06:00",
+      "arrivalTime": "05:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "1f8c39b9-a337-57b3-98d4-17749c698033",
+      "destination": {
+        "si": "කුරුණෑගල",
+        "en": "Kurunegala"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "06:00",
+      "arrivalTime": "05:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "82397679-d55e-55c5-8cc4-be9c1ac804b3",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3089,56 +601,52 @@
         "si": "සිරිපුර",
         "en": "Siripura"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:00",
-      "departure": "07:10",
+      "departureTime": "06:00",
+      "arrivalTime": "05:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "fd5cfcab-47b5-4d59-b54f-9de32095a449",
+      "id": "05ab78bf-8bdd-5737-8717-fc8a557f0350",
       "destination": {
-        "si": "මහනුවර",
-        "en": "Kandy"
+        "si": "අම්පාර",
+        "en": "Ampara"
       },
       "origin": {
-        "si": "ටැම්පිටිය",
-        "en": "Tampitiya"
+        "si": "යක්කුරේ",
+        "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:20",
-      "departure": "07:30",
+      "departureTime": "06:15",
+      "arrivalTime": "06:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "71912ba0-5df6-4de5-83bc-af78d5bf3385",
+      "id": "4acb107b-836d-532c-845e-3f9d00b6c496",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3147,27 +655,52 @@
         "si": "සිරිපුර",
         "en": "Siripura"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:30",
-      "departure": "07:40",
+      "departureTime": "06:20",
+      "arrivalTime": "05:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "1afd5f12-73fe-4d2b-a7f0-290bc900022c",
+      "id": "2026e2a7-4526-57f7-a19d-d56277b75595",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "departureTime": "06:30",
+      "arrivalTime": "06:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "e11fcdd3-5334-58df-a456-a38eb81109cd",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3176,56 +709,106 @@
         "si": "පුස්සලවින්න",
         "en": "Pussellawinna"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "06:30",
-      "departure": "06:45",
+      "departureTime": "06:45",
+      "arrivalTime": "06:30",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "a4f4d280-cd79-4b3a-8591-0084e0b3b0d8",
+      "id": "7ef22c2c-d32b-59ee-bb4d-a88afc5e7d97",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
       },
       "origin": {
-        "si": "බිබිල",
-        "en": "Bibile"
+        "si": "ටැම්පිටිය",
+        "en": "Tempitiya"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "06:45",
-      "departure": "06:50",
+      "departureTime": "06:50",
+      "arrivalTime": "06:40",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "699bbab1-b1be-4d12-b444-e05d55a7edf9",
+      "id": "9552a340-31f5-53ed-979d-0a27e7b8e6aa",
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "departureTime": "07:10",
+      "arrivalTime": "07:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "b3f32877-7db4-5dd7-b576-a535cfe4e8b3",
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "07:15",
+      "arrivalTime": "06:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "6ee6cdee-832f-5d63-a08f-c226f6aba196",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3234,27 +817,241 @@
         "si": "මොණරාගල",
         "en": "Monaragala"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "07:10",
-      "departure": "07:20",
+      "departureTime": "07:20",
+      "arrivalTime": "07:10",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "53ec2a7a-1bfc-423b-b9d7-b14c2ed10fb1",
+      "id": "6cf1aa3a-e117-5c03-b238-3a5cfb73e24f",
+      "destination": {
+        "si": "ගාල්ල",
+        "en": "Galle"
+      },
+      "origin": {
+        "si": "මල්දෙණිය",
+        "en": "Maldeniya"
+      },
+      "departureTime": "07:30",
+      "arrivalTime": "07:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "3eaf3148-c38c-5b11-8932-4d928e17c827",
+      "destination": {
+        "si": "පානදුර",
+        "en": "Panadura"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "07:30",
+      "arrivalTime": "07:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "2fae45c0-25ab-5950-b654-ea007ff32793",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මුවපැටිනිවෙල",
+        "en": "Muwapetinivela"
+      },
+      "departureTime": "07:30",
+      "arrivalTime": "07:20",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "ae618fd1-1d6b-5e51-8ea9-bdb6e266cdab",
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "origin": {
+        "si": "ටැම්පිටිය",
+        "en": "Tampitiya"
+      },
+      "departureTime": "07:30",
+      "arrivalTime": "07:20",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "144e81e8-ac99-5559-a9fe-e097f4498b3a",
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "origin": {
+        "si": "සිරිපුර",
+        "en": "Siripura"
+      },
+      "departureTime": "07:40",
+      "arrivalTime": "07:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "b3c47945-0638-59c9-94c4-befcdea8253e",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "07:45",
+      "arrivalTime": "07:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "8372bb24-cfb5-50cc-bad5-0e197c9dcf59",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "08:00",
+      "arrivalTime": "07:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "baa7f5c2-5294-5606-a1e7-3444bb93ec31",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "08:00",
+      "arrivalTime": "07:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "6740783b-5c3c-543d-80c8-3be4d113a2d2",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3263,27 +1060,25 @@
         "si": "මහියංගණය",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "07:40",
-      "departure": "08:00",
+      "departureTime": "08:00",
+      "arrivalTime": "07:40",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "7a13333f-82e4-4be1-b9c8-230ebc7e200f",
+      "id": "83e8021f-04dd-5775-8a8e-2c46ba2f2050",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3292,27 +1087,187 @@
         "si": "පුස්සලවින්න",
         "en": "Pussellawinna"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:00",
-      "departure": "08:10",
+      "departureTime": "08:10",
+      "arrivalTime": "08:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "b97488c5-77d4-48dc-9478-5c7a0c0c456a",
+      "id": "9d2d1bff-9ccb-5fe5-a232-b7f2271925ba",
+      "destination": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "departureTime": "08:15",
+      "arrivalTime": "08:05",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "9422f3f8-b0dc-5c6b-96b5-4bb8b1424122",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "අරලගංවිල",
+        "en": "Aralaganwila"
+      },
+      "departureTime": "08:15",
+      "arrivalTime": "08:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "b1ae78e2-2fd8-59c4-a494-ed3375976132",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "08:20",
+      "arrivalTime": "08:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "8cc81c90-2102-5b78-aa65-19d7afe56876",
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "departureTime": "08:20",
+      "arrivalTime": "08:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "62202cb0-b853-518b-a885-dbefada8b737",
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "departureTime": "08:30",
+      "arrivalTime": "08:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "eacfa03e-9484-5246-ade6-7b6e04c9b02e",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departureTime": "08:30",
+      "arrivalTime": "08:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "81b2dc08-952e-57b1-b4c5-8246b971f5b6",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3321,27 +1276,25 @@
         "si": "ඇල්ලේවැව",
         "en": "Ellewewa"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:20",
-      "departure": "08:30",
+      "departureTime": "08:30",
+      "arrivalTime": "08:20",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "8b300ee3-7f75-4a38-b929-1032de6989ae",
+      "id": "f9951383-c154-5d48-a224-cfa44c40abd6",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3350,27 +1303,25 @@
         "si": "සිරිපුර",
         "en": "Siripura"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:20",
-      "departure": "08:30",
+      "departureTime": "08:30",
+      "arrivalTime": "08:20",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "d36c688c-7a9d-4f53-a17a-bbfa57b356c2",
+      "id": "768d7693-ceb0-5b65-82ef-aaa43dc178a9",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3379,27 +1330,25 @@
         "si": "සේරුපිටිය",
         "en": "Serupitiya"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:20",
-      "departure": "08:30",
+      "departureTime": "08:30",
+      "arrivalTime": "08:20",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "aae12c94-14f5-45a0-b69a-63541f48ab20",
+      "id": "e1769823-63ae-56f3-9332-c7a9f22417e3",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3408,56 +1357,241 @@
         "si": "මොණරාගල",
         "en": "Monaragala"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:40",
-      "departure": "08:55",
+      "departureTime": "08:50",
+      "arrivalTime": "08:40",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "0d337912-9f09-4f94-b50f-bf52d402c80e",
+      "id": "e508fe39-6559-585a-9a6e-c227f6ed45bc",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "09:00",
+      "arrivalTime": "08:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "9fc7d363-3106-5171-9d03-0915b503f593",
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "origin": {
+        "si": "බණ්ඩාරවෙල",
+        "en": "Bandarawela"
+      },
+      "departureTime": "09:00",
+      "arrivalTime": "08:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "4b4452b0-ad8e-548e-84e7-e35e0a031ca2",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මල්දෙණිය",
+        "en": "Maldeniya"
+      },
+      "departureTime": "09:00",
+      "arrivalTime": "08:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "ff708de4-1ff7-5dca-a2c2-383e51c2510f",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
+      },
+      "origin": {
+        "si": "මහියංගණය",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "09:00",
+      "arrivalTime": "08:40",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "2b9fd090-1aff-5d46-aaf4-37830625f971",
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "09:10",
+      "arrivalTime": "08:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "7a58f781-42bd-51e3-9dc4-0b14e5f42e62",
+      "destination": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "09:15",
+      "arrivalTime": "09:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "f618bd7a-4e9c-5bc6-8364-8aaae7865f72",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "departureTime": "09:20",
+      "arrivalTime": "08:40",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "6637a59d-f58a-56e3-a9b0-caf887911b8d",
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
       },
       "origin": {
         "si": "මොණරාගල",
         "en": "Monaragala"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "08:40",
-      "departure": "08:50",
+      "departureTime": "09:20",
+      "arrivalTime": "09:10",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "6bde7bbd-3549-4acc-a4cf-2b19ccbaece3",
+      "id": "b3973f70-c394-56d3-92a8-ed796b9266f3",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3466,27 +1600,25 @@
         "si": "මහියංගණය",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "08:40",
-      "departure": "09:00",
+      "departureTime": "09:30",
+      "arrivalTime": "09:10",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "a8eea6b9-9d8f-4d7c-9392-a595e3511411",
+      "id": "508c29c7-f4c4-5331-b143-2acdd5130402",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3495,85 +1627,25 @@
         "si": "අම්පාර",
         "en": "Ampara"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:00",
-      "departure": "09:15",
+      "departureTime": "09:35",
+      "arrivalTime": "09:20",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "2f1408e6-2223-44ef-b295-8e80f85f7d24",
-      "destination": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "origin": {
-        "si": "මහියංගණය",
-        "en": "Mahiyanganaya"
-      },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "09:10",
-      "departure": "09:30",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "494b812d-3dca-4a10-9627-8bd3409540e2",
-      "destination": {
-        "si": "මහනුවර",
-        "en": "Kandy"
-      },
-      "origin": {
-        "si": "අම්පාර",
-        "en": "Ampara"
-      },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:20",
-      "departure": "09:35",
-      "tripStart": null,
-      "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
-      ],
-      "active": true
-    },
-    {
-      "id": "e7cf1dfa-e405-4f9c-8ef8-35be2069ea9b",
+      "id": "f026e1e4-4b7f-508d-ad2d-8b098eb51e0e",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3582,27 +1654,25 @@
         "si": "දෙහිඅත්තකණ්ඩිය",
         "en": "Dehiattakandiya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "09:40",
+      "departureTime": "09:40",
+      "arrivalTime": "09:30",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "e0343070-1b5c-460f-a8c6-232819cfdec8",
+      "id": "204f436b-53e4-5e5a-a793-d460d825267e",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3611,27 +1681,79 @@
         "si": "අරලගංවිල",
         "en": "Aralaganwila"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:30",
-      "departure": "09:45",
+      "departureTime": "09:45",
+      "arrivalTime": "09:30",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "9fcf4746-c03f-444a-a0f8-d2f8208e5d04",
+      "id": "d6e22977-dfb2-57c4-8e3a-89642877275f",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "09:50",
+      "arrivalTime": "09:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "LUXURY",
+      "active": true
+    },
+    {
+      "id": "f4147db9-5a81-584e-a2b4-130c8c9940e0",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "දඹුල්ල",
+        "en": "Dambulla"
+      },
+      "departureTime": "10:00",
+      "arrivalTime": "09:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "a6c721bf-206e-514e-97d9-18ca6bdd8f07",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3640,27 +1762,25 @@
         "si": "මොණරාගල",
         "en": "Monaragala"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "09:50",
-      "departure": "10:00",
+      "departureTime": "10:00",
+      "arrivalTime": "09:50",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "504ea5a9-4f00-4578-9819-13dcaa2e933d",
+      "id": "a96bd9e5-4cd2-5013-9f73-ea72482154d4",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3669,56 +1789,241 @@
         "si": "මහියංගණය",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "-",
-      "departure": "10:00",
+      "departureTime": "10:00",
+      "arrivalTime": "09:35",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "ce51d4d0-8129-49a6-9940-340d1c2d7c08",
+      "id": "ded4a041-862a-58c3-8269-1ca304af0ffa",
+      "destination": {
+        "si": "කුරුණෑගල",
+        "en": "Kurunegala"
+      },
+      "origin": {
+        "si": "කතරගම",
+        "en": "Kataragama"
+      },
+      "departureTime": "10:10",
+      "arrivalTime": "10:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "41a6fb61-1eb5-5c96-b3d4-707e69129d97",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "departureTime": "10:10",
+      "arrivalTime": "09:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "585ebcae-d994-51c1-a13b-d942325908eb",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
       },
       "origin": {
         "si": "ටැම්පිටිය",
-        "en": "Tampitiya"
+        "en": "Tempitiya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:00",
-      "departure": "10:10",
+      "departureTime": "10:10",
+      "arrivalTime": "10:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "d57c037f-1ec3-45d5-8f1e-ebf65b20575b",
+      "id": "544b80e2-e43a-5c8a-b7b6-d222bb9e3ffc",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "10:20",
+      "arrivalTime": "09:20",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "LUXURY",
+      "active": true
+    },
+    {
+      "id": "e02e5c91-5904-59b2-9718-c90ae1770eaa",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "10:30",
+      "arrivalTime": "10:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "928e58d9-9675-5517-ae19-2e224471830f",
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "departureTime": "10:30",
+      "arrivalTime": "10:25",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "ec216766-eeb1-558e-b838-34fdaca48d9f",
+      "destination": {
+        "si": "අම්බලන්තොට",
+        "en": "Ambalantota"
+      },
+      "origin": {
+        "si": "පොළොන්නරුව",
+        "en": "Polonnaruwa"
+      },
+      "departureTime": "10:30",
+      "arrivalTime": "10:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "b72f9635-8b85-50c5-b049-909d739bb389",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "10:30",
+      "arrivalTime": "10:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "9440d118-744c-5328-85ca-3f165c43e6fa",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3727,27 +2032,52 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:15",
-      "departure": "10:30",
+      "departureTime": "10:30",
+      "arrivalTime": "10:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "52c02295-1c2e-4cc8-9c55-18c21d6a4542",
+      "id": "71386c96-858a-5ab1-8ee8-3f81e14d880b",
+      "destination": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "10:40",
+      "arrivalTime": "10:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "e6cc8c13-848d-5e24-af5c-2770940619f3",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3756,27 +2086,25 @@
         "si": "මොණරාගල",
         "en": "Monaragala"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:30",
-      "departure": "10:40",
+      "departureTime": "10:40",
+      "arrivalTime": "10:30",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "e0f59003-0a54-4c8d-8844-07f4a4b750b6",
+      "id": "dee4cdc2-0281-50b0-879b-9ecaeade4b1a",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3785,27 +2113,160 @@
         "si": "සිරිපුර",
         "en": "Siripura"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "10:40",
-      "departure": "10:50",
+      "departureTime": "10:50",
+      "arrivalTime": "10:40",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "51546b49-1fa3-4489-bf74-2e4cdaaab527",
+      "id": "8e15b894-4e73-5290-8d7b-19dd3262205c",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "කල්මුනේ",
+        "en": "Kalmunai"
+      },
+      "departureTime": "11:00",
+      "arrivalTime": "10:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "2777bbda-88fc-5aa3-bf45-1da90beae3a1",
+      "destination": {
+        "si": "අනුරාධපුරය",
+        "en": "Anuradhapura"
+      },
+      "origin": {
+        "si": "තණමල්විල",
+        "en": "Thanamalwila"
+      },
+      "departureTime": "11:00",
+      "arrivalTime": "10:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "158abf55-3dba-50c0-88b3-68e04a70e821",
+      "destination": {
+        "si": "මන්නාරම",
+        "en": "Mannar"
+      },
+      "origin": {
+        "si": "දියතලාව",
+        "en": "Diyatalawa"
+      },
+      "departureTime": "11:00",
+      "arrivalTime": "10:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "781fbd1f-9ebb-5262-b7ab-65de7f51d329",
+      "destination": {
+        "si": "නුවරඑළිය",
+        "en": "Nuwara Eliya"
+      },
+      "origin": {
+        "si": "කාත්තන්කුඩි",
+        "en": "Kattankudy"
+      },
+      "departureTime": "11:00",
+      "arrivalTime": "10:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "cd7aca43-4e55-52fc-b93d-ed6a80034ecb",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "කෑගල්ල",
+        "en": "Kegalle"
+      },
+      "departureTime": "11:00",
+      "arrivalTime": "10:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "809b5fd4-c6e2-59cf-8c12-661e13698f2a",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3814,27 +2275,106 @@
         "si": "අම්පාර",
         "en": "Ampara"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "10:50",
-      "departure": "11:00",
+      "departureTime": "11:00",
+      "arrivalTime": "10:50",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "6c2666d3-3fa3-4706-8b7f-04557e54d4e5",
+      "id": "70d5d20a-53b5-5624-8958-8f36910d6bca",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "11:10",
+      "arrivalTime": "11:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "34bb0d2c-b288-56e8-9b04-72077ef1c19a",
+      "destination": {
+        "si": "වව්නියාව",
+        "en": "Vavuniya"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "11:10",
+      "arrivalTime": "10:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "a4418eb2-db27-59ad-be5f-07f5827abf77",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "11:15",
+      "arrivalTime": "10:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "582470e5-6bff-59c7-9947-c0e56c1e8f43",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3843,27 +2383,52 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "11:00",
-      "departure": "11:15",
+      "departureTime": "11:15",
+      "arrivalTime": "11:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "594ab151-f224-491e-9ee9-7627d9646041",
+      "id": "131740dd-0139-51bc-adcf-b91eead1b749",
+      "destination": {
+        "si": "නුවරඑළිය",
+        "en": "Nuwara Eliya"
+      },
+      "origin": {
+        "si": "පොළොන්නරුව",
+        "en": "Polonnaruwa"
+      },
+      "departureTime": "11:30",
+      "arrivalTime": "11:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "ee9a786d-4f19-558b-b1fc-10deed696ba8",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3872,27 +2437,106 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "11:30",
-      "departure": "11:40",
+      "departureTime": "11:40",
+      "arrivalTime": "11:30",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "92158140-69c0-47b5-88e1-7b8db7730386",
+      "id": "beb513ba-e791-558d-a329-4d8811fe92b6",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "11:45",
+      "arrivalTime": "11:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "2d41a263-b1a4-5884-beb7-22babc9705c2",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "11:50",
+      "arrivalTime": "11:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "0c00f67b-1487-5c8d-98ca-f6d33e37d328",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "11:50",
+      "arrivalTime": "11:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "e16dbe86-9731-5f40-a2ed-285aeeb5bfb2",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3901,27 +2545,52 @@
         "si": "බිබිල",
         "en": "Bibile"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "11:50",
-      "departure": "12:00",
+      "departureTime": "12:00",
+      "arrivalTime": "11:50",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "9047c370-80fd-42b1-842d-de6a0909f127",
+      "id": "5e3e8452-4e13-50ac-b78d-d94f740f9864",
+      "destination": {
+        "si": "අක්කරේපත්තු",
+        "en": "Akkaraipattu"
+      },
+      "origin": {
+        "si": "කටුනායක",
+        "en": "Katunayake"
+      },
+      "departureTime": "12:15",
+      "arrivalTime": "12:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "02e6d2fa-93fb-572d-af2b-bf3919be8bc8",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3930,27 +2599,52 @@
         "si": "යක්කුරේ",
         "en": "Yakkure"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "12:15",
-      "departure": "12:30",
+      "departureTime": "12:30",
+      "arrivalTime": "12:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "46a6e56f-87b2-4819-95ba-c8a5f075c5c7",
+      "id": "d48d2800-b5ef-52c9-847c-d9f1378118bb",
+      "destination": {
+        "si": "වැල්ලවාය",
+        "en": "Wellawaya"
+      },
+      "origin": {
+        "si": "අනුරාධපුර",
+        "en": "Anuradhapura"
+      },
+      "departureTime": "12:35",
+      "arrivalTime": "12:20",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "030926a3-6f32-594c-abf7-3b332036f6f8",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3959,27 +2653,79 @@
         "si": "අම්පාර",
         "en": "Ampara"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "12:35",
-      "departure": "12:45",
+      "departureTime": "12:45",
+      "arrivalTime": "12:35",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "2dfe15ee-a1d1-49f0-bc49-3b81c5e286be",
+      "id": "9da00d04-58b4-595b-b731-cbe9554a2638",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "13:00",
+      "arrivalTime": "12:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "SLTB",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "90c04464-e33e-53ac-9b91-ce7c7d6a68c8",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departureTime": "13:00",
+      "arrivalTime": "12:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "d6fd0f19-d767-53f8-ab0d-859b83615f70",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -3988,27 +2734,25 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "12:45",
-      "departure": "13:00",
+      "departureTime": "13:00",
+      "arrivalTime": "12:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "0c708fd9-c2a9-43bc-a4c4-b8898f616c70",
+      "id": "b9b33b35-2ebd-542d-aecf-e4a0c08f9af5",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4017,27 +2761,106 @@
         "si": "අරලගංවිල",
         "en": "Aralaganwila"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "13:00",
-      "departure": "13:15",
+      "departureTime": "13:15",
+      "arrivalTime": "13:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "c7f41055-f873-4158-956c-5adfdf27c257",
+      "id": "7bc804da-380b-5e31-95d3-c4aad608b0c9",
+      "destination": {
+        "si": "ත්‍රීකුණාමලය",
+        "en": "Trincomalee"
+      },
+      "origin": {
+        "si": "දියතලාව",
+        "en": "Diyatalawa"
+      },
+      "departureTime": "13:30",
+      "arrivalTime": "13:20",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "469e1c27-1b3b-5ef8-824a-c15adef0a3ef",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "13:30",
+      "arrivalTime": "13:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "5ef7d3b5-7fe9-508f-b894-fe2f9d29c1cc",
+      "destination": {
+        "si": "පන්නල්ගම",
+        "en": "Pannalgama"
+      },
+      "origin": {
+        "si": "දෙහිඅත්තකණ්ඩිය",
+        "en": "Dehiattakandiya"
+      },
+      "departureTime": "13:30",
+      "arrivalTime": "13:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "972bbd7a-ee26-5c26-bd32-2186f3629b97",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4046,27 +2869,25 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "13:15",
-      "departure": "13:30",
+      "departureTime": "13:30",
+      "arrivalTime": "13:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "c1b9f2f3-16c3-47cf-bdee-8bdf4d944940",
+      "id": "c08cd079-9d7b-51e7-9140-90d8e4723bef",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4075,27 +2896,25 @@
         "si": "දෙහිඅත්තකණ්ඩිය",
         "en": "Dehiattakandiya"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "13:45",
-      "departure": "14:00",
+      "departureTime": "14:00",
+      "arrivalTime": "13:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "52cb1aac-4f2b-4085-a3d1-6866ecf638a3",
+      "id": "0edfe83b-3603-5b5b-9e66-7576a2bdbc9b",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4104,27 +2923,25 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "13:45",
-      "departure": "14:00",
+      "departureTime": "14:00",
+      "arrivalTime": "13:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "b937e1cb-5a5a-482c-b1d9-2b14a1c0e56d",
+      "id": "36473582-e3c2-52a5-b244-1a6bb700d12f",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4133,27 +2950,52 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "14:15",
-      "departure": "14:30",
+      "departureTime": "14:30",
+      "arrivalTime": "14:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "83bf9f00-dbde-4287-980d-e487b36c6ba7",
+      "id": "a5e111fc-ac99-52ac-8070-5be711c20bf7",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "14:45",
+      "arrivalTime": "14:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "a5610446-592c-5214-bd63-d215ebadd528",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4162,27 +3004,25 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "14:45",
-      "departure": "15:00",
+      "departureTime": "15:00",
+      "arrivalTime": "14:45",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "db41a58c-3a06-4a5d-9beb-d747021a8f50",
+      "id": "d447417f-c432-50c3-a71b-ca447c740b0c",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4191,27 +3031,52 @@
         "si": "මොණරාගල",
         "en": "Monaragala"
       },
-      "via": null,
-      "operator": "CTB",
-      "serviceType": "NORMAL",
-      "arrival": "15:00",
-      "departure": "15:15",
+      "departureTime": "15:15",
+      "arrivalTime": "15:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "02fd9cf6-150f-45bf-be45-3ba332965e08",
+      "id": "25e50c67-8653-5782-84e3-6e12324fccca",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departureTime": "15:30",
+      "arrivalTime": "15:15",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "7acdbc41-1b65-517f-bd62-30fe2c5eada7",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4220,27 +3085,25 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "15:15",
-      "departure": "15:30",
+      "departureTime": "15:30",
+      "arrivalTime": "15:15",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "a30c300d-286e-4542-9cec-9aa767b10f54",
+      "id": "c3f85099-70ee-5595-9b6d-0bc22367ac86",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4249,27 +3112,133 @@
         "si": "මොණරාගල",
         "en": "Monaragala"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "16:00",
-      "departure": "16:15",
+      "departureTime": "16:15",
+      "arrivalTime": "16:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     },
     {
-      "id": "6907f2fe-da09-4362-b327-a056a2543169",
+      "id": "3b75a99e-55a5-5bfb-9633-8ba31c350059",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departureTime": "16:20",
+      "arrivalTime": "16:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "fa8b93ce-5c13-5c09-901e-bff3f3fbc361",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departureTime": "16:45",
+      "arrivalTime": "16:35",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "1a8182c2-6bf6-5922-9f58-ab503886f152",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "17:00",
+      "arrivalTime": "16:50",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "2a222432-e851-5b21-b26e-995e78ff7088",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "17:20",
+      "arrivalTime": "17:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "8a7aefb6-95c2-5f53-af94-839b711dd576",
       "destination": {
         "si": "මහනුවර",
         "en": "Kandy"
@@ -4278,23 +3247,453 @@
         "si": "මහියංගණ",
         "en": "Mahiyanganaya"
       },
-      "via": null,
-      "operator": "PVT",
-      "serviceType": "NORMAL",
-      "arrival": "17:00",
-      "departure": "17:20",
+      "departureTime": "17:20",
+      "arrivalTime": "17:00",
       "tripStart": null,
       "destinationArrival": null,
-      "bay": null,
-      "days": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
       ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "3b30d59d-bb09-5e33-a440-a47bacfe6807",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departureTime": "18:00",
+      "arrivalTime": "17:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "4150342e-2060-58d5-a7a9-49a61b33146a",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departureTime": "19:15",
+      "arrivalTime": "19:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "0b1cd353-578c-5fd5-b51e-59c843bf5ea4",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departureTime": "19:20",
+      "arrivalTime": "19:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "e59bd5f1-3c6b-5259-abf3-dd8e1fa3d50b",
+      "destination": {
+        "si": "ඇල්පිටිය",
+        "en": "Elpitiya (Via Polonnaruwa)"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "19:30",
+      "arrivalTime": "19:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "5c8188a9-dfb8-51da-aefa-1e8337f0a12d",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "20:00",
+      "arrivalTime": "19:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "07caaf83-834f-57eb-813b-73f04a36e300",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "මහියංගණ",
+        "en": "Mahiyanganaya"
+      },
+      "departureTime": "20:00",
+      "arrivalTime": "19:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "3cddb7fb-fa3c-529a-bb96-0549b21d22e2",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අක්කරේපත්තු",
+        "en": "Akkaraipattu"
+      },
+      "departureTime": "20:20",
+      "arrivalTime": "20:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "LUXURY",
+      "active": true
+    },
+    {
+      "id": "cb45b164-970c-5bdd-bbec-6067067c2a9a",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departureTime": "20:40",
+      "arrivalTime": "20:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "3d6ce406-37dd-5681-b414-2ef28f433e05",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "21:00",
+      "arrivalTime": "20:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "67bfe355-9057-5706-8064-f64390e7112f",
+      "destination": {
+        "si": "ගාල්ල",
+        "en": "Galle"
+      },
+      "origin": {
+        "si": "කුරුලුබැද්ද",
+        "en": "Kurulubedda"
+      },
+      "departureTime": "21:00",
+      "arrivalTime": "20:45",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "d457042f-5ad8-5531-b4ae-dc3b9a3e51c9",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "departureTime": "21:15",
+      "arrivalTime": "21:00",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "71a6983f-b71d-587f-896a-5ae9f8b14f5a",
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "origin": {
+        "si": "මොණරාගල",
+        "en": "Monaragala"
+      },
+      "departureTime": "21:25",
+      "arrivalTime": "21:10",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "e732c35a-d0b5-5b55-b697-06de6fd84420",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "departureTime": "21:45",
+      "arrivalTime": "21:40",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "b50d96e6-d8fb-5712-aa7b-77ea8b4e4188",
+      "destination": {
+        "si": "කොළඹ",
+        "en": "Colombo"
+      },
+      "origin": {
+        "si": "බිබිල",
+        "en": "Bibile"
+      },
+      "departureTime": "22:45",
+      "arrivalTime": "22:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "a79a72c8-d128-5034-8956-a9a25f3c1e62",
+      "destination": {
+        "si": "යාපනය",
+        "en": "Jaffna"
+      },
+      "origin": {
+        "si": "බදුල්ල",
+        "en": "Badulla"
+      },
+      "departureTime": "22:45",
+      "arrivalTime": "22:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
+      "active": true
+    },
+    {
+      "id": "02554f06-67c9-5dbe-b971-a5563e61282d",
+      "destination": {
+        "si": "අම්පාර",
+        "en": "Ampara"
+      },
+      "origin": {
+        "si": "මහනුවර",
+        "en": "Kandy"
+      },
+      "departureTime": "23:40",
+      "arrivalTime": "23:30",
+      "tripStart": null,
+      "destinationArrival": null,
+      "daysOfWeek": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+        "SUN"
+      ],
+      "operator": "PRIVATE",
+      "serviceType": "NORMAL",
       "active": true
     }
   ]

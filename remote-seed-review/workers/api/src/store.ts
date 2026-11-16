@@ -42,7 +42,7 @@ export const defaultStation: ScheduleDocument['station'] = {
   mobileUrl: 'https://example.invalid',
 };
 export class Store {
-  constructor(public db: D1Database) {}
+  constructor(public db: D1Database) { }
   sql(query: string, ...args: (string | number | null)[]) {
     return this.db.prepare(query).bind(...args);
   }
@@ -251,11 +251,11 @@ export class Store {
       const errorSummaries = validation.errors.map((e) => {
         const target = e.serviceId
           ? (() => {
-              const svc = document.services.find((s) => s.id === e.serviceId);
-              return svc
-                ? `[Bus ${svc.departure} to ${svc?.destination?.en ?? 'Unknown'}]: `
-                : `[Service ${e.serviceId}]: `;
-            })()
+            const svc = document.services.find((s) => s.id === e.serviceId);
+            return svc
+              ? `[Bus ${svc.departure} to ${svc?.destination?.en ?? 'Unknown'}]: `
+              : `[Service ${e.serviceId}]: `;
+          })()
           : '';
         return `${target}${e.message_en}`;
       });
@@ -271,13 +271,13 @@ export class Store {
     const warnings =
       kind === 'ROLLBACK'
         ? [
-            ...publishWarnings(
-              document,
-              state.live ? (JSON.parse(state.live.body) as ScheduleDocument) : null,
-              new Date(now),
-            ),
-            ...validation.errors.map((error) => ({ ...error, severity: 'warning' as const })),
-          ]
+          ...publishWarnings(
+            document,
+            state.live ? (JSON.parse(state.live.body) as ScheduleDocument) : null,
+            new Date(now),
+          ),
+          ...validation.errors.map((error) => ({ ...error, severity: 'warning' as const })),
+        ]
         : [];
     const body = JSON.stringify(document); // The exact persisted bytes are served unchanged.
     const etag = await makeEtag(version, body);
@@ -326,16 +326,16 @@ export class Store {
       hasUnpublishedChanges: false,
       ...(kind === 'ROLLBACK'
         ? {
-            alertDisabled,
-            ...(alertDisabled
-              ? {
-                  message_en: 'Rollback completed. The expired alert was automatically disabled.',
-                  message_si:
-                    'පෙර කාලසටහන ප්‍රතිස්ථාපනය කරන ලදී. කල් ඉකුත් වූ නිවේදනය ස්වයංක්‍රීයව අක්‍රිය කරන ලදී.',
-                }
-              : {}),
-            warnings,
-          }
+          alertDisabled,
+          ...(alertDisabled
+            ? {
+              message_en: 'Rollback completed. The expired alert was automatically disabled.',
+              message_si:
+                'පෙර කාලසටහන ප්‍රතිස්ථාපනය කරන ලදී. කල් ඉකුත් වූ නිවේදනය ස්වයංක්‍රීයව අක්‍රිය කරන ලදී.',
+            }
+            : {}),
+          warnings,
+        }
         : {}),
     };
   }
