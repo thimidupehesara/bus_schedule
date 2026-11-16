@@ -17,6 +17,45 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | First deploy                                                                    | Done    |
 
 ## Done
+- [DONE] Fix Clock Jumping Back After Credits Slide / Offline Mode (`apps/tv`):
+  - 1. Persisted `clockOffsetMs` in `localStorage` under `mahiyanganaya_clock_offset_ms` (`apps/tv/src/data/clockSync.ts`):
+    - When a live network response succeeds, computes `clockOffsetMs = serverNowMs - Date.now()` and saves it to `localStorage`.
+    - On startup, immediately hydrates `clockOffsetMs` from `localStorage` (defaulting to 0), ensuring offline reloads preserve the synchronized time offset.
+    - If network requests fail or time out (offline), keeps the existing in-memory/`localStorage` `clockOffsetMs` without modification.
+    - Computes live time on 1-second ticks strictly as `new Date(Date.now() + clockOffsetMs)` formatted in Asia/Colombo.
+  - 2. Made `/schedule.json` and `/tv/version.json` strictly Network-Only in Service Worker (`apps/tv/public/sw.js`):
+    - Removed SW cache fallback for `/schedule.json` and `/version.json`. They are never cached in Cache Storage or served with stale HTTP `Date` / `X-Server-Time` headers that reset the clock backwards.
+    - Bumped SW cache name to `mahiyanganaya-tv-v4`, automatically purging `mahiyanganaya-tv-v3` and old cached `/schedule.json` responses on activation.
+    - Updated `useSchedule.ts` to fetch `/schedule.json` with `cache: 'no-store'`. Offline schedule is hydrated strictly from `localStorage` (`mahiyanganaya_tv_schedule_cache`).
+  - 3. Verified Smooth React State Transition After Credits Slide (`apps/tv/src/App.tsx`):
+    - Confirmed that completing the credits slide transitions back to Page 1 (`index = 0`) smoothly in React state without page reloads.
+  - 4. Test, Assemble & Deploy:
+    - Updated unit test suite in `apps/tv/src/__tests__/offlineProgression.test.ts` verifying that:
+      - Online responses save `clockOffsetMs` to `localStorage`.
+      - When offline and running across multiple pagination and credits slide cycles, the clock never jumps backward and advances monotonically every second (`Date.now() + clockOffsetMs`).
+    - Passed all 17 test suites and 232/232 unit tests with `npm test`.
+    - Passed TypeScript compiler checks with 0 errors via `npm run typecheck`.
+    - Assembled TV, admin, and mobile bundles via `npm run assemble`.
+    - Deployed live to Cloudflare Workers via `npm run deploy` (Version ID `e478be05-ff54-4da7-a903-e19a9b47cecc`).
+- [DONE] Implement True Offline Clock & Schedule Progression on TV Display (`apps/tv`):
+  - 1. Never freeze `now` on network failure (`apps/tv/src/data/clockSync.ts` & `apps/tv/src/data/useNow.ts`):
+    - Replaced drift-prone performance anchor with numeric `clockOffsetMs` (`Math.round(serverMs - Date.now())`, defaulting to `0`).
+    - Monotonically compute live time as `Date.now() + clockOffsetMs` in Asia/Colombo timezone.
+    - Updated `useNow()` to tick on a 1-second interval (`setInterval(tick, 1000)`), continuously advancing the live clock and notifying subscribers even when Wi-Fi drops.
+  - 2. Recalculate board continuously offline (`apps/tv/src/App.tsx`):
+    - `buildBoard` re-evaluates automatically as `now` ticks, re-filtering departed, leaving-soon, next-bus, and lookahead rows completely independent of Wi-Fi.
+  - 3. Persist and hydrate `/schedule.json` in `localStorage` (`apps/tv/src/data/useSchedule.ts`):
+    - Full schedule payload is persisted to `localStorage` under `mahiyanganaya_tv_schedule_cache` (with fallback to `mahiyanganaya_tv_schedule_cached`).
+    - On startup and on fetch failure/timeout, immediately hydrates from `localStorage` (falling back to bundled `sample-schedule.json` if cache is empty), preventing "Timetable Unavailable" screens during offline reboots.
+  - 4. Isolate background polling with timeouts (`apps/tv/src/data/useSchedule.ts`, `apps/tv/src/data/clockSync.ts`, `apps/tv/src/hooks/useAutoReloadOnDeploy.ts`):
+    - Wrapped all `/schedule.json` and `/tv/version.json` fetches in `try/catch` with 5000ms `AbortController` timeouts.
+    - Prevented automatic `window.location.reload()` calls when offline (`navigator.onLine === false`) or on failed/hung version checks.
+  - 5. Test, Assemble & Deploy:
+    - Added unit test suite in `apps/tv/src/__tests__/offlineProgression.test.ts` verifying that when `fetch` fails (offline), advancing fake timers by 60 minutes advances the displayed TV clock by 60 minutes and updates the visible bus rows accordingly.
+    - Passed all 17 test suites and 230/230 unit tests with `npm test`.
+    - Passed TypeScript compiler checks with 0 errors via `npm run typecheck`.
+    - Assembled TV, admin, and mobile bundles via `npm run assemble`.
+    - Deployed live to Cloudflare Workers via `npm run deploy` (Version ID `77dc7aa0-1a17-44d6-a242-44e309bf6568`).
 - [DONE] Embed Screenshots in README & README.md for GitHub Visibility:
   - 1. Embedded Screenshots in `README.txt`:
     - Added dedicated `VISUAL PREVIEWS & APPLICATION SCREENSHOTS` section embedding all 4 images with clean Markdown syntax:

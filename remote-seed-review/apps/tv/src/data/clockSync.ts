@@ -4,16 +4,48 @@
  * After power outages, TV boxes without real-time clock (RTC) batteries reset their
  * hardware clocks to default dates (e.g. 2015-01-01).
  *
- * This helper tracks true Sri Lanka time (Asia/Colombo) by anchoring verified server
- * timestamps against monotonic performance.now() across the session.
+ * This helper tracks true Sri Lanka time (Asia/Colombo) by maintaining a numeric
+ * clockOffsetMs (serverTimestampMs - Date.now()) in memory and localStorage
+ * ('mahiyanganaya_clock_offset_ms') whenever a live server response succeeds.
+ * Live time is computed as Date.now() + clockOffsetMs, advancing monotonically
+ * with the device clock even when offline.
  */
 
-type ClockAnchor = {
-  serverMs: number;
-  perfMs: number;
-};
+export const CLOCK_OFFSET_STORAGE_KEY = 'mahiyanganaya_clock_offset_ms';
 
-let anchor: ClockAnchor | null = null;
+function getStorage(): Storage | null {
+  if (typeof window !== 'undefined' && window.localStorage) return window.localStorage;
+  if (typeof localStorage !== 'undefined') return localStorage;
+  return null;
+}
+
+function loadStoredClockOffset(): number {
+  const storage = getStorage();
+  if (storage) {
+    try {
+      const stored = storage.getItem(CLOCK_OFFSET_STORAGE_KEY);
+      if (stored !== null) {
+        const parsed = Number(stored);
+        if (Number.isFinite(parsed)) {
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return 0;
+}
+
+function saveStoredClockOffset(offset: number): void {
+  const storage = getStorage();
+  if (storage) {
+    try {
+      storage.setItem(CLOCK_OFFSET_STORAGE_KEY, String(offset));
+    } catch {}
+  }
+}
+
+let clockOffsetMs = loadStoredClockOffset();
+let hasSyncedWithServer = clockOffsetMs !== 0;
 const listeners = new Set<() => void>();
 
 function notify(): void {
@@ -29,10 +61,11 @@ function notify(): void {
 /**
  * Checks if the current clock is valid and synchronized.
  * If no server time has been received in the current boot session AND
- * the system clock is before 2026 (e.g. 2015-01-01), returns false.
+ * no stored offset exists AND the system clock is before 2026 (e.g. 2015-01-01), returns false.
  */
 export function isClockSynced(): boolean {
-  if (anchor !== null) return true;
+  if (hasSyncedWithServer) return true;
+  if (clockOffsetMs !== 0) return true;
   if (typeof window !== 'undefined' && new Date().getFullYear() < 2026) {
     return false;
   }
@@ -40,30 +73,48 @@ export function isClockSynced(): boolean {
 }
 
 /**
- * Returns the current time in milliseconds, corrected with server time if available.
+ * Returns current clock offset in milliseconds (serverTimeMs - localTimeMs).
+ */
+export function getClockOffsetMs(): number {
+  return clockOffsetMs;
+}
+
+/**
+ * Returns the current time in milliseconds, corrected with server offset if available.
+ * Live time = Date.now() + clockOffsetMs
  */
 export function getTrueNow(): number {
-  if (anchor !== null) {
-    const elapsed = performance.now() - anchor.perfMs;
-    return Math.round(anchor.serverMs + elapsed);
-  }
-  return Date.now();
+  return Date.now() + clockOffsetMs;
 }
 
 /**
  * Record a verified server timestamp in milliseconds.
+ * Calculates clockOffsetMs = serverMs - Date.now() and saves to localStorage.
  */
 export function recordServerTime(serverMs: number): void {
   if (!Number.isFinite(serverMs) || serverMs < 1_700_000_000_000) return;
-  anchor = {
-    serverMs,
-    perfMs: performance.now(),
-  };
+  clockOffsetMs = Math.round(serverMs - Date.now());
+  hasSyncedWithServer = true;
+  saveStoredClockOffset(clockOffsetMs);
   notify();
 }
 
 /**
- * Inspects a fetch Response and its parsed JSON body to extract server time
+ * Reset clock sync state and stored offset (used in testing).
+ */
+export function resetClockSyncForTest(): void {
+  clockOffsetMs = 0;
+  hasSyncedWithServer = false;
+  const storage = getStorage();
+  if (storage) {
+    try {
+      storage.removeItem(CLOCK_OFFSET_STORAGE_KEY);
+    } catch {}
+  }
+}
+
+/**
+ * Inspects a live fetch Response and its parsed JSON body to extract server time
  * via serverTimeMs, X-Server-Time, or Date headers.
  */
 export function syncClockWithResponse(response: Response, payload?: unknown): boolean {
@@ -118,15 +169,18 @@ export function subscribeClockSync(callback: () => void): () => void {
 }
 
 /**
- * Actively probe the server for time.
+ * Actively probe the server for time with a 5000ms timeout.
  */
 export async function probeServerTime(): Promise<boolean> {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     return false;
   }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
     const res = await fetch(`./version.json?t=${Date.now()}`, {
       cache: 'no-store',
+      signal: controller.signal,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         Pragma: 'no-cache',
@@ -137,6 +191,8 @@ export async function probeServerTime(): Promise<boolean> {
     return syncClockWithResponse(res, data);
   } catch {
     return false;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -179,4 +235,3 @@ export function initClockSync(): () => void {
     }
   };
 }
-

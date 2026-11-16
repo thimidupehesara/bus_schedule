@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mahiyanganaya-tv-v3';
+const CACHE_NAME = 'mahiyanganaya-tv-v4';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -50,32 +50,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // version.json must never be cached by service worker
-  if (url.pathname.endsWith('/version.json')) {
+  // /schedule.json and /version.json must be Network-Only.
+  // Never cache or serve from Service Worker cache because HTTP Date/X-Server-Time headers
+  // must only reflect live network responses. Offline schedule is hydrated from localStorage.
+  if (
+    url.pathname.endsWith('/schedule.json') ||
+    url.pathname.endsWith('/version.json') ||
+    url.pathname.includes('/version.json')
+  ) {
     event.respondWith(fetch(event.request));
-    return;
-  }
-
-  // /schedule.json: Network-First with instant Cache Fallback
-  if (url.pathname.endsWith('/schedule.json')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(async () => {
-          const cached = await caches.match(event.request);
-          if (cached) return cached;
-          return new Response(JSON.stringify({ error: 'offline' }), {
-            status: 503,
-            headers: { 'Content-Type': 'application/json; charset=utf-8' },
-          });
-        }),
-    );
     return;
   }
 
