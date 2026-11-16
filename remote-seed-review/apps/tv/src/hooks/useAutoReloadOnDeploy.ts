@@ -39,6 +39,7 @@ function readPersistedTvHold(): TvHoldState {
 
 const CURRENT_BUILD_ID = (import.meta.env.VITE_BUILD_ID || '').trim();
 const POLL_INTERVAL_MS = 2500;
+const FETCH_TIMEOUT_MS = 5000;
 
 export function useAutoReloadOnDeploy() {
   const isReloading = useRef(false);
@@ -51,9 +52,13 @@ export function useAutoReloadOnDeploy() {
       // Never attempt checks or reloads while offline
       if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
       try {
         const response = await fetch(`./version.json?t=${Date.now()}`, {
           cache: 'no-store',
+          signal: controller.signal,
           headers: {
             'Cache-Control': 'no-store, no-cache, must-revalidate',
             Pragma: 'no-cache',
@@ -157,12 +162,16 @@ export function useAutoReloadOnDeploy() {
             }
           }
 
-          // Reload display cleanly
-          window.location.reload();
+          // Reload display cleanly only if online
+          if (typeof navigator === 'undefined' || navigator.onLine !== false) {
+            window.location.reload();
+          }
         }
       } catch (err) {
-        // Wi-Fi disconnect or transient network failure: silently ignore to prevent reload loops
+        // Wi-Fi disconnect, timeout or transient network failure: silently ignore to prevent reload loops
         console.warn('[AutoReload] Version check skipped (offline or network error):', err);
+      } finally {
+        clearTimeout(timeoutId);
       }
     };
 
@@ -178,5 +187,3 @@ export function useAutoReloadOnDeploy() {
 
   return { tvHold };
 }
-
-

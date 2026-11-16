@@ -4,16 +4,14 @@
  * After power outages, TV boxes without real-time clock (RTC) batteries reset their
  * hardware clocks to default dates (e.g. 2015-01-01).
  *
- * This helper tracks true Sri Lanka time (Asia/Colombo) by anchoring verified server
- * timestamps against monotonic performance.now() across the session.
+ * This helper tracks true Sri Lanka time (Asia/Colombo) by maintaining a numeric
+ * clockOffsetMs (serverTimestampMs - Date.now()) whenever a server response succeeds.
+ * Live time is computed as Date.now() + clockOffsetMs, advancing monotonically
+ * with the device clock even when offline.
  */
 
-type ClockAnchor = {
-  serverMs: number;
-  perfMs: number;
-};
-
-let anchor: ClockAnchor | null = null;
+let clockOffsetMs = 0;
+let hasSyncedWithServer = false;
 const listeners = new Set<() => void>();
 
 function notify(): void {
@@ -32,7 +30,7 @@ function notify(): void {
  * the system clock is before 2026 (e.g. 2015-01-01), returns false.
  */
 export function isClockSynced(): boolean {
-  if (anchor !== null) return true;
+  if (hasSyncedWithServer) return true;
   if (typeof window !== 'undefined' && new Date().getFullYear() < 2026) {
     return false;
   }
@@ -40,26 +38,37 @@ export function isClockSynced(): boolean {
 }
 
 /**
- * Returns the current time in milliseconds, corrected with server time if available.
+ * Returns current clock offset in milliseconds (serverTimeMs - localTimeMs).
+ */
+export function getClockOffsetMs(): number {
+  return clockOffsetMs;
+}
+
+/**
+ * Returns the current time in milliseconds, corrected with server offset if available.
+ * Live time = Date.now() + clockOffsetMs
  */
 export function getTrueNow(): number {
-  if (anchor !== null) {
-    const elapsed = performance.now() - anchor.perfMs;
-    return Math.round(anchor.serverMs + elapsed);
-  }
-  return Date.now();
+  return Date.now() + clockOffsetMs;
 }
 
 /**
  * Record a verified server timestamp in milliseconds.
+ * Calculates clockOffsetMs = serverMs - Date.now().
  */
 export function recordServerTime(serverMs: number): void {
   if (!Number.isFinite(serverMs) || serverMs < 1_700_000_000_000) return;
-  anchor = {
-    serverMs,
-    perfMs: performance.now(),
-  };
+  clockOffsetMs = Math.round(serverMs - Date.now());
+  hasSyncedWithServer = true;
   notify();
+}
+
+/**
+ * Reset clock sync state (used in testing).
+ */
+export function resetClockSyncForTest(): void {
+  clockOffsetMs = 0;
+  hasSyncedWithServer = false;
 }
 
 /**
@@ -118,15 +127,18 @@ export function subscribeClockSync(callback: () => void): () => void {
 }
 
 /**
- * Actively probe the server for time.
+ * Actively probe the server for time with a 5000ms timeout.
  */
 export async function probeServerTime(): Promise<boolean> {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     return false;
   }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
     const res = await fetch(`./version.json?t=${Date.now()}`, {
       cache: 'no-store',
+      signal: controller.signal,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         Pragma: 'no-cache',
@@ -137,6 +149,8 @@ export async function probeServerTime(): Promise<boolean> {
     return syncClockWithResponse(res, data);
   } catch {
     return false;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -179,4 +193,3 @@ export function initClockSync(): () => void {
     }
   };
 }
-

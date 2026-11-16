@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getTrueNow, isClockSynced, subscribeClockSync } from './clockSync.js';
 
-const MINUTE = 60_000;
-
 export type NowState = {
   now: number;
   isClockSynced: boolean;
@@ -16,35 +14,35 @@ export function useNow(): NowState {
 
   useEffect(() => {
     let stopped = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const tick = () => {
       if (stopped) return;
-      const current = getTrueNow();
       setState({
-        now: current,
+        now: getTrueNow(),
         isClockSynced: isClockSynced(),
       });
-      timer = setTimeout(tick, Math.max(1000, MINUTE - (current % MINUTE)));
     };
 
+    // 1-second interval ensures live time continuously advances offline and in tests
+    const intervalId = setInterval(tick, 1000);
+
     const unsubscribe = subscribeClockSync(() => {
-      if (!stopped) {
-        setState({
-          now: getTrueNow(),
-          isClockSynced: isClockSynced(),
-        });
-      }
+      if (!stopped) tick();
     });
 
     const start = async () => {
       if (import.meta.env.DEV) {
-        const { previewTime } = await import('../mock/index.js');
-        if (stopped) return;
-        const fixed = previewTime();
-        if (fixed !== undefined) {
-          setState({ now: fixed, isClockSynced: true });
-          return;
+        try {
+          const { previewTime } = await import('../mock/index.js');
+          if (stopped) return;
+          const fixed = previewTime();
+          if (fixed !== undefined) {
+            setState({ now: fixed, isClockSynced: true });
+            clearInterval(intervalId);
+            return;
+          }
+        } catch {
+          // Ignore mock loading errors
         }
       }
       if (!stopped) tick();
@@ -56,7 +54,7 @@ export function useNow(): NowState {
 
     return () => {
       stopped = true;
-      clearTimeout(timer);
+      clearInterval(intervalId);
       unsubscribe();
     };
   }, []);
