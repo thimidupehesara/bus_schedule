@@ -92,7 +92,7 @@ export function useSchedule(): ScheduleState {
 
       try {
         const response = await fetch('/schedule.json', {
-          cache: 'no-cache',
+          cache: 'no-store',
           signal: fetchController.signal,
         });
         if (!response.ok) throw new Error(`Schedule request failed: ${response.status}`);

@@ -11,6 +11,9 @@ import {
   resetClockSyncForTest,
   getClockOffsetMs,
   probeServerTime,
+  syncClockWithResponse,
+  isClockSynced,
+  CLOCK_OFFSET_STORAGE_KEY,
 } from '../data/clockSync.js';
 import {
   loadCachedSchedule,
@@ -91,19 +94,39 @@ describe('Offline Clock & Schedule Progression', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    resetClockSyncForTest();
     mockStorage = createMockStorage();
     Object.defineProperty(globalThis, 'localStorage', {
       value: mockStorage,
       writable: true,
       configurable: true,
     });
+    resetClockSyncForTest();
   });
 
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
     globalThis.fetch = originalFetch;
+  });
+
+  it('syncs clockOffsetMs to server time when online and persists to localStorage', () => {
+    // 21:50 Colombo = 16:20 UTC on 2026-11-16
+    const localNow = Date.UTC(2026, 10, 16, 16, 20, 0); // Local box clock
+    vi.setSystemTime(localNow);
+
+    const serverNow = localNow + 1250; // Server is +1250ms ahead
+    const response = new Response('{}', {
+      status: 200,
+      headers: { 'X-Server-Time': new Date(serverNow).toISOString() },
+    });
+
+    const synced = syncClockWithResponse(response, { serverTimeMs: serverNow });
+    expect(synced).toBe(true);
+    expect(isClockSynced()).toBe(true);
+    expect(getClockOffsetMs()).toBe(1250);
+
+    // Verify clockOffsetMs is stored in localStorage
+    expect(mockStorage.getItem(CLOCK_OFFSET_STORAGE_KEY)).toBe('1250');
   });
 
   it('hydrates schedule from localStorage when fetch fails (offline mode)', async () => {
@@ -183,6 +206,34 @@ describe('Offline Clock & Schedule Progression', () => {
     expect(bus1610After).toBeDefined();
     expect(bus1610After?.status).toBe('SOON');
     expect(bus1610After?.minutesUntil).toBe(10);
+  });
+
+  it('never jumps backward when offline after completing credits slide cycles and polling intervals', () => {
+    // Wi-Fi was online at 21:50 Colombo (16:20 UTC)
+    const time2150 = Date.UTC(2026, 10, 16, 16, 20, 0);
+    vi.setSystemTime(time2150);
+    recordServerTime(time2150); // Synchronize to 21:50
+
+    expect(colomboParts(getTrueNow()).minutes).toBe(21 * 60 + 50); // 21:50 Colombo
+
+    // Wi-Fi drops at 21:50 PM. All network fetches fail.
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network offline (Wi-Fi dropped)'));
+
+    // Record time readings through multiple pagination and credits slide cycles (e.g. 5 minutes = 300s)
+    let previousTimestamp = getTrueNow();
+    for (let second = 1; second <= 300; second++) {
+      vi.advanceTimersByTime(1000);
+      const currentTimestamp = getTrueNow();
+
+      // Live clock MUST advance monotonically every single second
+      expect(currentTimestamp).toBeGreaterThan(previousTimestamp);
+      expect(currentTimestamp - previousTimestamp).toBe(1000);
+      previousTimestamp = currentTimestamp;
+    }
+
+    // At the end of 5 minutes offline, time must be 21:55 PM, NEVER resetting to 21:48 PM
+    const colomboAtEnd = colomboParts(getTrueNow());
+    expect(colomboAtEnd.minutes).toBe(21 * 60 + 55); // 21:55 Colombo
   });
 
   it('handles background probe timeout gracefully without unhandled exceptions', async () => {
