@@ -17,6 +17,20 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | First deploy                                                                    | Done    |
 
 ## Done
+- [DONE] Embed Screenshots in README & README.md for GitHub Visibility:
+  - 1. Embedded Screenshots in `README.txt`:
+    - Added dedicated `VISUAL PREVIEWS & APPLICATION SCREENSHOTS` section embedding all 4 images with clean Markdown syntax:
+      - `Screenshot 2026-11-16 111040.png` for Wall TV display (`/tv/`).
+      - `Screenshot 2026-11-16 111125.png` for Staff Admin dashboard (`/admin/`).
+      - `WhatsApp Image 2026-11-16 at 11.03.06 AM (1).jpeg` for Commuter Mobile PWA (`/mobile/`).
+      - `WhatsApp Image 2026-11-16 at 11.03.06 AM.jpeg` for Direct Android APK download prompt.
+    - Also embedded the screenshots directly inside Section 5 under `Wall TV:`, `Commuter mobile:`, and `Staff dashboard:`.
+  - 2. Created Repository Root `README.md` for Native GitHub Rendering:
+    - Authored standard GitHub Flavored Markdown document `T:\New folder\README.md` with rendered HTML/Markdown image elements (`<img src="..." />` and tables), headings, code fences, and architecture diagrams.
+    - Ensures GitHub displays the full technical guide and all interface images visually on the repository home page.
+  - 3. Verification:
+    - Ran `npm run typecheck` across all monorepo packages (0 errors).
+    - Ran `npm test`: all 16 test suites and 226/226 automated tests passed (100% green).
 - [DONE] Git Comparison, Verification, and Local Commit Preparation:
   - 1. Compared Local Working Tree vs. GitHub (`origin/main`):
     - Fetched latest remote changes via `git fetch origin`.

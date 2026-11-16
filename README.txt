@@ -32,6 +32,32 @@ Service categories supported: NORMAL, SEMI_LUXURY, LUXURY and EXPRESS.
 The public snapshot inspected contains NORMAL and LUXURY entries;
 support for a category does not mean that category is currently used.
 
+============================================================
+VISUAL PREVIEWS & APPLICATION SCREENSHOTS
+============================================================
+
+1. Wall TV Departure Timetable (/tv/)
+   Mounted above eye level at Mahiyanganaya Bus Stand. High-contrast,
+   stationary 4-row layout with bilingual Sinhala/English destinations,
+   12-hour departure/arrival times, live next-bus tinting, and QR code:
+
+   ![Wall TV Departure Timetable](<./Screenshot 2026-11-16 111040.png>)
+
+2. Commuter Mobile PWA & Direct Android APK Download (/mobile/)
+   Responsive mobile web application with bilingual search, destination
+   filtering, departure status, and one-click Android APK installer:
+
+   ![Commuter Mobile Web App](<./WhatsApp Image 2026-11-16 at 11.03.06 AM (1).jpeg>)
+   ![Direct APK Download Modal](<./WhatsApp Image 2026-11-16 at 11.03.06 AM.jpeg>)
+
+3. Staff Admin Dashboard (/admin/)
+   Authenticated Cloudflare Access portal for non-technical staff: draft
+   timetable editing, bulk spreadsheet importing, safety validation gates,
+   and 1-click publishing to live TV displays:
+
+   ![Staff Admin Dashboard](<./Screenshot 2026-11-16 111125.png>)
+
+
 2. PRODUCTION URLS AND PUBLIC ENDPOINTS
 ------------------------------------------------------------
 Production origin:
@@ -201,6 +227,8 @@ CPU-limit work:
   benchmark or a promise that every request always finishes under 10 ms.
 
 Wall TV:
+  ![Wall TV Timetable Interface](<./Screenshot 2026-11-16 111040.png>)
+
   Fixed four-row page capacity, 10-second dwell, 300 ms fade, stationary
   pages, Page X / Y and a green countdown bar. The final partial page can
   contain fewer buses. A credits/QR image slide follows timetable pages.
@@ -234,6 +262,9 @@ Offline, updates and clock recovery:
   Do not infer that behavior from the older status table alone.
 
 Commuter mobile:
+  ![Commuter Mobile Web App](<./WhatsApp Image 2026-11-16 at 11.03.06 AM (1).jpeg>)
+  ![Direct APK Download Prompt](<./WhatsApp Image 2026-11-16 at 11.03.06 AM.jpeg>)
+
   Bilingual A-Z destination dropdown, Next 8 Hours/Full Day views, route
   cards, departure/arrival times, operator badges and next-bus emphasis.
   Includes passenger feedback, install prompt/home-screen guidance and
@@ -241,6 +272,8 @@ Commuter mobile:
   icons. Local schedule persistence and a service worker provide caching.
 
 Staff dashboard:
+  ![Staff Admin Dashboard](<./Screenshot 2026-11-16 111125.png>)
+
   Bus List, Publish to TV, Alert Banner, TV Presentation Control, Staff &
   Users, Display Settings, Reports & Passenger Feedback. Supports search,
   day/operator/status filters, create/edit/duplicate/delete, bulk import,
