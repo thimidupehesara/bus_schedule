@@ -2,6 +2,7 @@ import { cpSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { renderPrivacyPolicyHtml } from '../workers/api/src/privacy.js';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.env['npm_execpath'];
 if (!npm) throw new Error('Run through npm run assemble.');
@@ -17,6 +18,10 @@ for (const app of ['tv', 'admin', 'mobile']) {
   mkdirSync(target, { recursive: true });
   cpSync(resolve(root, 'apps', app, 'dist'), target, { recursive: true });
 }
+const privacyTarget = resolve(root, 'workers/api/public/privacy');
+rmSync(privacyTarget, { recursive: true, force: true });
+mkdirSync(privacyTarget, { recursive: true });
+writeFileSync(resolve(privacyTarget, 'index.html'), renderPrivacyPolicyHtml(), 'utf-8');
 writeFileSync(
   resolve(root, 'workers/api/public/_headers'),
   `/*
@@ -26,6 +31,12 @@ writeFileSync(
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+/privacy
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: public, max-age=3600
+/privacy/*
+  Content-Type: text/html; charset=utf-8
+  Cache-Control: public, max-age=3600
 /admin/*
   Cache-Control: no-store
 /tv/*

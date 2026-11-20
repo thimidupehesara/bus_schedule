@@ -25,6 +25,7 @@ import {
 import { ApiError, ok, fail, checkCsrf, readJson, object, security } from './http.js';
 import { Store, defaultStation } from './store.js';
 import { ASSET_LINKS } from './assetlinks.js';
+import { handlePrivacy } from './privacy.js';
 import {
   hasChanges,
   matchesEtag,
@@ -1024,6 +1025,9 @@ async function route(request: Request, env: Env): Promise<Response> {
         'X-Content-Type-Options': 'nosniff',
       },
     });
+  }
+  if ((path === '/privacy' || path === '/privacy/') && request.method === 'GET') {
+    return handlePrivacy();
   }
   if (path === '/health' && request.method === 'GET') {
     const now = Date.now();

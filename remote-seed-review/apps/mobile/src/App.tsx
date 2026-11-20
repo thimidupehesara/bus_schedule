@@ -312,6 +312,23 @@ export default function App() {
         )}
       </main>
 
+      {/* App Footer & Privacy Policy */}
+      <footer className="mobile-footer">
+        <div className="footer-links">
+          <a
+            href="/privacy"
+            className="footer-privacy-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🔒 රහස්‍යතා ප්‍රතිපත්තිය · Privacy Policy
+          </a>
+        </div>
+        <div className="footer-credit">
+          Mahiyanganaya Bus Stand · lk.mahiyanganaya.busmobile
+        </div>
+      </footer>
+
       {/* Suggestion / Report Modal */}
       {modalOpen && (
         <SuggestionModal
