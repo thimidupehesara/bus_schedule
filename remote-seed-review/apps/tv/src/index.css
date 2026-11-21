@@ -253,9 +253,19 @@ body {
   color: #fff2f2;
 }
 
-.table-region {
+.board-middle-region {
   flex: 1 1 0;
   min-height: 0;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.table-region {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -786,10 +796,154 @@ td {
 
 @media (prefers-reduced-motion: reduce) {
   tbody,
-  .credits-slide {
+  .credits-slide,
+  .frequent-slide {
     transition-duration: 0ms !important;
     animation: none !important;
   }
+}
+
+/* Frequent Departures (Every 15 Minutes) Slide */
+.frequent-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: #0B1120;
+}
+
+.frequent-slide.active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.frequent-content-wrapper {
+  width: 100%;
+  max-width: 1550px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.frequent-header-block {
+  text-align: center;
+  margin-bottom: clamp(16px, 2.4vh, 26px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.frequent-title-si {
+  font-size: clamp(1.8rem, 3.2vh, 2.25rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.frequent-subtitle-en {
+  font-size: clamp(0.95rem, 1.8vh, 1.25rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #facc15;
+  margin: 0;
+}
+
+.frequent-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2.2vh, 24px);
+  width: 100%;
+}
+
+.frequent-card {
+  background: #1e293b;
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  border-left: 8px solid #facc15;
+  border-radius: 20px;
+  padding: clamp(18px, 2.6vh, 28px) clamp(24px, 2.5vw, 36px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+.frequent-card-left {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.frequent-card-si {
+  font-size: clamp(1.4rem, 2.5vh, 1.85rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffffff;
+  margin: 0;
+}
+
+.frequent-card-en {
+  font-size: clamp(1.05rem, 1.9vh, 1.35rem);
+  font-weight: 500;
+  line-height: 1.35;
+  color: #e2e8f0;
+  margin: 8px 0 0 0;
+}
+
+.frequent-pill-badge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #facc15;
+  color: #0f172a;
+  padding: clamp(10px, 1.5vh, 14px) clamp(16px, 1.5vw, 22px);
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
+}
+
+.frequent-pill-icon {
+  flex-shrink: 0;
+  color: #0f172a;
+}
+
+.frequent-pill-labels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.frequent-pill-labels .pill-min {
+  font-size: clamp(1.05rem, 1.8vh, 1.25rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #0f172a;
+}
+
+.frequent-pill-labels .pill-si {
+  font-size: clamp(0.72rem, 1.2vh, 0.88rem);
+  font-weight: 700;
+  color: #0f172a;
 }
 
 /* Reserve enough vertical space for type labels when a long alert shares a dense board. */
