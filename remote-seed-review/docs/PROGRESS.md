@@ -18,6 +18,17 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Public Privacy Policy (`/privacy`)                                              | Done    |
 | Frequent Departures Slide (TV)                                                  | Done    |
 | Hold on Frequent Services Slide (Admin TV Control)                              | Done    |
+| Configurable Frequent Services Slide Intervals (TV)                             | Done    |
+
+## Done
+- [DONE] Configurable Frequent Services Slide Intervals (TV):
+  - 1. Added `intervalEn` and `intervalSi` fields to `FrequentServiceItem` interface and `FREQUENT_SERVICES` in `apps/tv/src/FrequentDeparturesSlide.tsx`:
+    - Badulla: `15 MIN` / `විනාඩි 15`
+    - Kandy: `20-30 MIN` / `විනාඩි 20-30`
+    - Sacred City: `15 MIN` / `විනාඩි 15`
+  - 2. Rendered `{item.intervalEn}` and `{item.intervalSi}` dynamically inside `.frequent-pill-badge` so the right-hand yellow icon displays each card's specific interval time.
+  - 3. Added `white-space: nowrap` and adjusted font clamp in `apps/tv/src/index.css` so `20-30 MIN` renders cleanly without wrapping or clipping.
+  - 4. Updated unit tests in `apps/tv/src/__tests__/frequentSlide.test.ts` (all 19 test suites and 239/239 tests passing).
 
 ## Done
 - [DONE] Add "Hold on Frequent Services Slide" Control to Admin TV Presentation Control & Deploy:

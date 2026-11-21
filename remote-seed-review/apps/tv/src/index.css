@@ -931,10 +931,11 @@ td {
   flex-direction: column;
   align-items: center;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .frequent-pill-labels .pill-min {
-  font-size: clamp(1.05rem, 1.8vh, 1.25rem);
+  font-size: clamp(0.95rem, 1.8vh, 1.25rem);
   font-weight: 800;
   letter-spacing: 0.05em;
   color: #0f172a;

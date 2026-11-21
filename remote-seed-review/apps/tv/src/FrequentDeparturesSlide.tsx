@@ -6,6 +6,8 @@ export interface FrequentServiceItem {
   destinationEn: string;
   si: string;
   en: string;
+  intervalEn: string;
+  intervalSi: string;
 }
 
 export const FREQUENT_SERVICES: readonly FrequentServiceItem[] = [
@@ -13,22 +15,28 @@ export const FREQUENT_SERVICES: readonly FrequentServiceItem[] = [
     id: 'badulla',
     destinationSi: 'බදුල්ල',
     destinationEn: 'Badulla',
-    si: 'මහියංගණ සිට බදුල්ල දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.',
+    si: 'බදුල්ල දක්වා ධාවනය වන බස් රථ සෑම විනාඩි 15කට වරක් පිටත්වෙයි.',
     en: 'Mahiyanganaya to Badulla buses depart every 15 minutes.',
+    intervalEn: '15 MIN',
+    intervalSi: 'විනාඩි 15',
   },
   {
     id: 'kandy',
     destinationSi: 'නුවර',
     destinationEn: 'Kandy',
-    si: 'මහියංගණ සිට නුවර දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.',
-    en: 'Mahiyanganaya to Kandy buses depart every 15 minutes.',
+    si: 'මහනුවර දක්වා ධාවනය වන බස් රථ සෑම විනාඩි 20-30කට වරක් පිටත්වෙයි.',
+    en: 'Mahiyanganaya to Kandy buses depart every 20-30 minutes.',
+    intervalEn: '20-30 MIN',
+    intervalSi: 'විනාඩි 20-30',
   },
   {
     id: 'sacred-city',
     destinationSi: 'පූජා නගරය',
     destinationEn: 'Sacred City',
-    si: 'මහියංගණ සිට පූජා නගරය දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.',
+    si: 'මහියංගණ සිට පූජා නගරය දක්වා ධාවනය වන බස් රථ සෑම විනාඩි 15කට වරක් පිටත්වෙයි.',
     en: 'Mahiyanganaya to Sacred City of Mahiyanganaya buses depart every 15 minutes.',
+    intervalEn: '15 MIN',
+    intervalSi: 'විනාඩි 15',
   },
 ];
 
@@ -77,7 +85,7 @@ export const FrequentDeparturesSlide = memo(function FrequentDeparturesSlide({
                 </p>
               </div>
 
-              <div className="frequent-pill-badge" aria-label="Every 15 minutes">
+              <div className="frequent-pill-badge" aria-label={`Every ${item.intervalEn}`}>
                 <svg
                   className="frequent-pill-icon"
                   viewBox="0 0 24 24"
@@ -94,9 +102,9 @@ export const FrequentDeparturesSlide = memo(function FrequentDeparturesSlide({
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
                 <div className="frequent-pill-labels">
-                  <span className="pill-min">15 MIN</span>
+                  <span className="pill-min">{item.intervalEn}</span>
                   <span lang="si" className="pill-si">
-                    විනාඩි 15
+                    {item.intervalSi}
                   </span>
                 </div>
               </div>

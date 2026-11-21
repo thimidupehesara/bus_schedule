@@ -3,35 +3,41 @@ import { FREQUENT_SERVICES } from '../FrequentDeparturesSlide.js';
 import { clampPage } from '../config.js';
 
 describe('Frequent Departures Slide', () => {
-  it('contains the exact 3 routes with correct bilingual text and 15-minute wording', () => {
+  it('contains the exact 3 routes with correct bilingual text and configurable intervals', () => {
     expect(FREQUENT_SERVICES).toHaveLength(3);
 
     // Card 1 — Badulla
     expect(FREQUENT_SERVICES[0]!.id).toBe('badulla');
     expect(FREQUENT_SERVICES[0]!.si).toBe(
-      'මහියංගණ සිට බදුල්ල දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.',
+      'බදුල්ල දක්වා ධාවනය වන බස් රථ සෑම විනාඩි 15කට වරක් පිටත්වෙයි.',
     );
     expect(FREQUENT_SERVICES[0]!.en).toBe(
       'Mahiyanganaya to Badulla buses depart every 15 minutes.',
     );
+    expect(FREQUENT_SERVICES[0]!.intervalEn).toBe('15 MIN');
+    expect(FREQUENT_SERVICES[0]!.intervalSi).toBe('විනාඩි 15');
 
     // Card 2 — Kandy
     expect(FREQUENT_SERVICES[1]!.id).toBe('kandy');
     expect(FREQUENT_SERVICES[1]!.si).toBe(
-      'මහියංගණ සිට නුවර දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.',
+      'මහනුවර දක්වා ධාවනය වන බස් රථ සෑම විනාඩි 20-30කට වරක් පිටත්වෙයි.',
     );
     expect(FREQUENT_SERVICES[1]!.en).toBe(
-      'Mahiyanganaya to Kandy buses depart every 15 minutes.',
+      'Mahiyanganaya to Kandy buses depart every 20-30 minutes.',
     );
+    expect(FREQUENT_SERVICES[1]!.intervalEn).toBe('20-30 MIN');
+    expect(FREQUENT_SERVICES[1]!.intervalSi).toBe('විනාඩි 20-30');
 
     // Card 3 — Sacred City of Mahiyanganaya
     expect(FREQUENT_SERVICES[2]!.id).toBe('sacred-city');
     expect(FREQUENT_SERVICES[2]!.si).toBe(
-      'මහියංගණ සිට පූජා නගරය දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.',
+      'මහියංගණ සිට පූජා නගරය දක්වා ධාවනය වන බස් රථ සෑම විනාඩි 15කට වරක් පිටත්වෙයි.',
     );
     expect(FREQUENT_SERVICES[2]!.en).toBe(
       'Mahiyanganaya to Sacred City of Mahiyanganaya buses depart every 15 minutes.',
     );
+    expect(FREQUENT_SERVICES[2]!.intervalEn).toBe('15 MIN');
+    expect(FREQUENT_SERVICES[2]!.intervalSi).toBe('විනාඩි 15');
   });
 
   it('rotates correctly: [Pages 1..N] -> Frequent Departures -> Credits -> Page 1', () => {
