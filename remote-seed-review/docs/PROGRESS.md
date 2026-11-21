@@ -18,6 +18,50 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Public Privacy Policy (`/privacy`)                                              | Done    |
 | Frequent Departures Slide (TV)                                                  | Done    |
 | Hold on Frequent Services Slide (Admin TV Control)                              | Done    |
+| Configurable Frequent Services Slide Intervals (TV)                             | Done    |
+| Editable Frequent Services TV Slide (Admin & TV Layout)                         | Done    |
+
+## Done
+- [DONE] Editable Frequent Services TV Slide (Admin Editor & Widescreen Layout):
+  - 1. TV Slide Widescreen Layout & Typography (`apps/tv/src/index.css` & `FrequentDeparturesSlide.tsx`):
+    - Widened card layout: expanded `.frequent-content-wrapper` to `width: 95%`, `max-width: 1820px`, and `padding-inline: 32px` to stretch horizontally across the TV screen without dead side borders.
+    - Enlarged card padding to `clamp(20px, 2.8vh, 28px) clamp(28px, 2.5vw, 42px)`.
+    - Increased typography scale: Sinhala text to `clamp(1.5rem, 2.5vh, 2.1rem)` bold white, and English text to `clamp(1.3rem, 2.1vh, 1.7rem)` with `font-weight: 600` and high-contrast pale yellow (`#fef08a`), eliminating cramped text and awkward wrapping.
+    - Enlarged yellow pill frequency badge to `min-width: clamp(160px, 12vw, 195px)` with `padding: clamp(12px, 1.6vh, 16px) clamp(18px, 1.6vw, 26px)` and dynamic interval text.
+    - Updated `FrequentDeparturesSlide.tsx` to accept dynamic `config?: FrequentServicesConfig | undefined` with fallback to `DEFAULT_FREQUENT_SERVICES_CONFIG`.
+  - 2. Backend Persistence & Live Version Sync (`workers/api/src/index.ts` & `packages/shared`):
+    - Added shared `FrequentServicesConfig` type and `DEFAULT_FREQUENT_SERVICES_CONFIG` in `@bus-schedule/shared`.
+    - Added helper functions `getFrequentServicesSetting(db)` and `setFrequentServicesSetting(db, config)` persisting to D1 `settings` table with key `frequentServicesConfig`.
+    - Added public `GET /api/frequent-services` returning current config.
+    - Added admin-protected `POST /api/frequent-services` with validation, D1 persistence, and `audit_log` event `FREQUENT_SERVICES_UPDATE`.
+    - Included `frequentServices` config in `GET /tv/version.json` payload so live TV displays update automatically within ~2.5 seconds without needing a full browser reload.
+    - Added unit test suite in `workers/api/src/__tests__/frequent-services.test.ts`.
+  - 3. Admin Dashboard Editor (`apps/admin/src/App.tsx`):
+    - Added "🚌 Frequent Bus Services Slide Editor" in the TV Presentation Control section.
+    - Provides text inputs for Main Heading (Sinhala) and Subtitle (English).
+    - Provides 3 card configuration blocks with:
+      - Full Sinhala description textarea.
+      - Full English description textarea.
+      - Right Badge English text input (e.g., `15 MIN`, `20-30 MIN`).
+      - Right Badge Sinhala text input (e.g., `විනාඩි 15`, `විනාඩි 20-30`).
+      - Live yellow pill badge mini-preview.
+    - Added "Save & Update Live TV" button with loading feedback and "Reset to Defaults" button.
+  - 4. Verification and Deployment:
+    - Passed all 20 test suites and 243/243 tests (`npm test`).
+    - Passed `npm run typecheck` and `npx tsc --noEmit` across all workspaces with 0 errors.
+    - Assembled TV, admin, and mobile bundles via `npm run assemble`.
+    - Deployed live to Cloudflare Workers via `npm run deploy` (Version ID `fe0d0b86-a996-4939-b4d4-3f398715b692`).
+    - Verified live HTTP endpoints `/tv/version.json`, `/api/frequent-services`, and `/tv/`.
+
+## Done
+- [DONE] Configurable Frequent Services Slide Intervals (TV):
+  - 1. Added `intervalEn` and `intervalSi` fields to `FrequentServiceItem` interface and `FREQUENT_SERVICES` in `apps/tv/src/FrequentDeparturesSlide.tsx`:
+    - Badulla: `15 MIN` / `විනාඩි 15`
+    - Kandy: `20-30 MIN` / `විනාඩි 20-30`
+    - Sacred City: `15 MIN` / `විනාඩි 15`
+  - 2. Rendered `{item.intervalEn}` and `{item.intervalSi}` dynamically inside `.frequent-pill-badge` so the right-hand yellow icon displays each card's specific interval time.
+  - 3. Added `white-space: nowrap` and adjusted font clamp in `apps/tv/src/index.css` so `20-30 MIN` renders cleanly without wrapping or clipping.
+  - 4. Updated unit tests in `apps/tv/src/__tests__/frequentSlide.test.ts` (all 19 test suites and 239/239 tests passing).
 
 ## Done
 - [DONE] Add "Hold on Frequent Services Slide" Control to Admin TV Presentation Control & Deploy:

@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { syncClockWithResponse } from '../data/clockSync.js';
+import {
+  type FrequentServicesConfig,
+  DEFAULT_FREQUENT_SERVICES_CONFIG,
+} from '@bus-schedule/shared';
 
 export type TvHoldMode = 'auto' | 'credits' | 'frequent' | 'page';
 
@@ -43,6 +47,26 @@ function readPersistedTvHold(): TvHoldState {
   return DEFAULT_TV_HOLD;
 }
 
+function readPersistedFrequentServices(): FrequentServicesConfig {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('tv_frequent_services_config');
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<FrequentServicesConfig>;
+        if (parsed && Array.isArray(parsed.cards) && parsed.cards.length > 0) {
+          return {
+            headerSi: String(parsed.headerSi || DEFAULT_FREQUENT_SERVICES_CONFIG.headerSi),
+            headerEn: String(parsed.headerEn || DEFAULT_FREQUENT_SERVICES_CONFIG.headerEn),
+            cards: parsed.cards,
+            updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+          };
+        }
+      }
+    } catch {}
+  }
+  return DEFAULT_FREQUENT_SERVICES_CONFIG;
+}
+
 const CURRENT_BUILD_ID = (import.meta.env.VITE_BUILD_ID || '').trim();
 const POLL_INTERVAL_MS = 2500;
 const FETCH_TIMEOUT_MS = 5000;
@@ -51,6 +75,9 @@ export function useAutoReloadOnDeploy() {
   const isReloading = useRef(false);
   const lastReloadNonce = useRef<string | null>(null);
   const [tvHold, setTvHold] = useState<TvHoldState>(readPersistedTvHold);
+  const [frequentServices, setFrequentServices] = useState<FrequentServicesConfig>(
+    readPersistedFrequentServices,
+  );
 
   useEffect(() => {
     const checkVersion = async () => {
@@ -78,8 +105,23 @@ export function useAutoReloadOnDeploy() {
           forceReloadToken?: string;
           serverTimeMs?: number;
           tvHold?: TvHoldState;
+          frequentServices?: FrequentServicesConfig;
         };
         syncClockWithResponse(response, data);
+
+        // Update frequentServices if present
+        if (data?.frequentServices && Array.isArray(data.frequentServices.cards)) {
+          const fresh = data.frequentServices;
+          setFrequentServices((prev) => {
+            if (prev.updatedAt === fresh.updatedAt && prev.headerSi === fresh.headerSi) {
+              return prev;
+            }
+            try {
+              localStorage.setItem('tv_frequent_services_config', JSON.stringify(fresh));
+            } catch {}
+            return fresh;
+          });
+        }
 
         // Update tvHold state if present
         if (data?.tvHold && typeof (data.tvHold as { mode?: string }).mode === 'string') {
@@ -195,5 +237,5 @@ export function useAutoReloadOnDeploy() {
     };
   }, []);
 
-  return { tvHold };
+  return { tvHold, frequentServices };
 }
