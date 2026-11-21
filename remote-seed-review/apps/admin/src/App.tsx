@@ -1608,9 +1608,9 @@ export function App() {
     setIsDeleteAllLoading(true);
     try {
       const res = await apiFetch('/api/draft/services', { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete all services.');
-      const data = (await res.json().catch(() => null)) as { draftRevision?: number } | null;
-      if (data?.draftRevision) {
+      const data = await safeJson<{ ok?: boolean; draftRevision?: number; error?: { message?: string } }>(res);
+      if (!res.ok) throw new Error(data?.error?.message || 'Failed to delete all services.');
+      if (typeof data?.draftRevision === 'number') {
         setDraftRevision(data.draftRevision);
       }
       setServices([]);
@@ -1926,6 +1926,10 @@ export function App() {
   }
 
   async function handleConfirmImport() {
+    if (!parsedImportRows || parsedImportRows.length === 0) {
+      setImportError('No valid bus records to import.');
+      return;
+    }
     setImportLoading(true);
     setImportError(null);
     try {

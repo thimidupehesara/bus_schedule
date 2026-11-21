@@ -694,14 +694,21 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       duplicate = !!serviceMatch[2];
     if (method === 'DELETE' && !id) {
       await readJson(request).catch(() => ({}));
-      const revision = await store.edit(
-        state,
-        user,
-        [store.sql('DELETE FROM draft_services')],
-        'SERVICE_DELETE_ALL',
-        { count: state.document.services.length },
-      );
-      return ok({ draftRevision: revision, deletedCount: state.document.services.length });
+      try {
+        const deletedCount = state.document.services.length;
+        const revision = await store.edit(
+          state,
+          user,
+          [store.sql('DELETE FROM draft_services')],
+          'SERVICE_DELETE_ALL',
+          { count: deletedCount },
+        );
+        return ok({ ok: true, draftRevision: revision, deletedCount });
+      } catch (error) {
+        if (error instanceof ApiError) throw error;
+        const msg = error instanceof Error ? error.message : String(error);
+        throw new ApiError(500, 'DELETE_ALL_FAILED', `Failed to delete all services: ${msg}`);
+      }
     }
     if (method === 'DELETE' && id && !duplicate) {
       await readJson(request).catch(() => ({}));
@@ -779,57 +786,87 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
     return ok({ draftRevision: revision, deletedCount: ids.length });
   }
   if (path === '/api/draft/import' && method === 'POST') {
-    const raw = object(await readJson(request));
-    const append = raw['mode'] === 'append' || raw['mode'] === 'MERGE';
-    if (!Array.isArray(raw['services']) || raw['services'].length > 300) throw new ApiError(422, 'VALIDATION', 'Supply an array of at most 300 services.');
-    // Replacement must not overwrite changes made after the browser loaded its draft.
-    if (!append && raw['draftRevision'] !== undefined && raw['draftRevision'] !== state.revision)
-      throw new ApiError(409, 'STALE_REVISION', 'The draft changed. Reload it before replacing the timetable.');
-    const incoming: BusService[] = [];
-    const seenIds = new Set(append ? state.document.services.map(s => s.id) : []);
-    const errors: Array<{ serviceId?: string; field: string; code: string; message_en: string; message_si: string }> = [];
-    for (const [index, entry] of raw['services'].entries()) {
-      const normalized = normalizeServiceInput(entry);
-      const candidate: Record<string, unknown> = {
-        via: null,
-        bay: null,
-        tripStart: null,
-        destinationArrival: null,
-        arrival: null,
-        ...(normalized && typeof normalized === 'object' && !Array.isArray(normalized) ? normalized : {}),
-      };
-      if (candidate['active'] === undefined || candidate['active'] === null || candidate['active'] === '') {
-        candidate['active'] = true;
+    try {
+      const raw = object(await readJson(request));
+      const append = raw['mode'] === 'append' || raw['mode'] === 'MERGE';
+      if (!Array.isArray(raw['services']) || raw['services'].length === 0 || raw['services'].length > 300) {
+        throw new ApiError(422, 'VALIDATION', 'Supply a non-empty array of at most 300 services.');
       }
-      if (!Array.isArray(candidate['days']) || candidate['days'].length === 0) {
-        candidate['days'] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+      // Replacement must not overwrite changes made after the browser loaded its draft.
+      if (!append && raw['draftRevision'] !== undefined && raw['draftRevision'] !== state.revision)
+        throw new ApiError(409, 'STALE_REVISION', 'The draft changed. Reload it before replacing the timetable.');
+      const incoming: BusService[] = [];
+      const seenIds = new Set(append ? state.document.services.map(s => s.id) : []);
+      const errors: Array<{ serviceId?: string; field: string; code: string; message_en: string; message_si: string }> = [];
+      for (const [index, entry] of raw['services'].entries()) {
+        const normalized = normalizeServiceInput(entry);
+        const candidate: Record<string, unknown> = {
+          via: null,
+          bay: null,
+          tripStart: null,
+          destinationArrival: null,
+          arrival: null,
+          ...(normalized && typeof normalized === 'object' && !Array.isArray(normalized) ? normalized : {}),
+        };
+        if (candidate['active'] === undefined || candidate['active'] === null || candidate['active'] === '') {
+          candidate['active'] = true;
+        }
+        if (!Array.isArray(candidate['days']) || candidate['days'].length === 0) {
+          candidate['days'] = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+        }
+        if (append || typeof candidate['id'] !== 'string' || seenIds.has(candidate['id'])) candidate['id'] = crypto.randomUUID();
+        const id = String(candidate['id']);
+        seenIds.add(id);
+        const result = validateServiceStrict(candidate, { station: state.document.station, services: [] });
+        errors.push(...result.errors.map(error => ({ ...error, serviceId: id, message_en: `Row ${index + 1} (${String((candidate['destination'] as { en?: unknown })?.en ?? 'Unknown')}, ${String(candidate['departure'] ?? 'missing time')}): ${error.field}: ${error.message_en}` })));
+        if (!result.errors.length) incoming.push(candidate as BusService);
       }
-      if (append || typeof candidate['id'] !== 'string' || seenIds.has(candidate['id'])) candidate['id'] = crypto.randomUUID();
-      const id = String(candidate['id']);
-      seenIds.add(id);
-      const result = validateServiceStrict(candidate, { station: state.document.station, services: [] });
-      errors.push(...result.errors.map(error => ({ ...error, serviceId: id, message_en: `Row ${index + 1} (${String((candidate['destination'] as { en?: unknown })?.en ?? 'Unknown')}, ${String(candidate['departure'] ?? 'missing time')}): ${error.field}: ${error.message_en}` })));
-      if (!result.errors.length) incoming.push(candidate as BusService);
+      if (errors.length) return invalid(errors);
+      // Only discard truly identical records; differing weekdays or bilingual labels must not be lost.
+      const signature = (service: BusService) => JSON.stringify({ ...service, id: '', days: [...service.days].sort() });
+      const kept: BusService[] = [];
+      const signatures = new Set(append ? state.document.services.map(signature) : []);
+      for (const service of incoming) {
+        const key = signature(service);
+        if (!signatures.has(key)) { kept.push(service); signatures.add(key); }
+      }
+      const services = append ? [...state.document.services, ...kept] : kept;
+      const mergedDoc = { ...state.document, ...(!append ? raw : {}), services, schemaVersion: 1, timezone: 'Asia/Colombo' };
+      const shape = validateScheduleDocument(mergedDoc);
+      if (!shape.ok) return invalid(shape.errors);
+      // Use indexed route/bay validation to prevent O(N^2) CPU explosion on 150+ bus schedules
+      const { validation, issues } = validateDocument(shape.data);
+      if (!validation.ok) return invalid(validation.errors);
+
+      // Chunk database inserts into 50-item batches within a single atomic D1 batch transaction
+      const chunkSize = 50;
+      const nowIso = new Date().toISOString();
+      const insertStatements: D1PreparedStatement[] = [];
+      for (let i = 0; i < kept.length; i += chunkSize) {
+        const chunk = kept.slice(i, i + chunkSize);
+        insertStatements.push(
+          store.sql(
+            "INSERT INTO draft_services(id,data,updated_at,updated_by) SELECT json_extract(value,'$.id'),value,?,? FROM json_each(?)",
+            nowIso,
+            user.loginId,
+            JSON.stringify(chunk),
+          ),
+        );
+      }
+      const statements = append ? insertStatements : store.replace(shape.data, user);
+      const revision = await store.edit(state, user, statements, append ? 'SERVICES_APPEND' : 'DRAFT_IMPORT');
+      return ok({
+        draftRevision: revision,
+        servicesCount: services.length,
+        addedCount: kept.length,
+        skippedCount: incoming.length - kept.length,
+        warnings: publishWarnings(shape.data, live, new Date(), { validation, issues }),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      const msg = error instanceof Error ? error.message : String(error);
+      throw new ApiError(422, 'IMPORT_FAILED', `Import failed: ${msg}`);
     }
-    if (errors.length) return invalid(errors);
-    // Only discard truly identical records; differing weekdays or bilingual labels must not be lost.
-    const signature = (service: BusService) => JSON.stringify({ ...service, id: '', days: [...service.days].sort() });
-    const kept: BusService[] = [];
-    const signatures = new Set(append ? state.document.services.map(signature) : []);
-    for (const service of incoming) {
-      const key = signature(service);
-      if (!signatures.has(key)) { kept.push(service); signatures.add(key); }
-    }
-    const services = append ? [...state.document.services, ...kept] : kept;
-    const mergedDoc = { ...state.document, ...(!append ? raw : {}), services, schemaVersion: 1, timezone: 'Asia/Colombo' };
-    const shape = validateScheduleDocument(mergedDoc);
-    if (!shape.ok) return invalid(shape.errors);
-    const strictErrors = kept.flatMap(service => validateServiceStrict(service, shape.data).errors.map(error => ({ ...error, serviceId: service.id, message_en: `${service.destination.en} ${service.departure} — ${error.field}: ${error.message_en}` })));
-    if (strictErrors.length) return invalid(strictErrors);
-    // Append inserts only the new rows. Metadata and existing service bytes stay untouched.
-    const statements = append ? [store.sql("INSERT INTO draft_services(id,data,updated_at,updated_by) SELECT json_extract(value,'$.id'),value,?,? FROM json_each(?)", new Date().toISOString(), user.loginId, JSON.stringify(kept))] : store.replace(shape.data, user);
-    const revision = await store.edit(state, user, statements, append ? 'SERVICES_APPEND' : 'DRAFT_IMPORT');
-    return ok({ draftRevision: revision, servicesCount: services.length, addedCount: kept.length, skippedCount: incoming.length - kept.length, warnings: publishWarnings(shape.data, live) });
   }
   if (path === '/api/draft/activate-all' && method === 'POST') {
     requireAdmin(user);

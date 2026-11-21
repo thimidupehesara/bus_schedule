@@ -172,15 +172,24 @@ export class Store {
   }
   replace(document: ScheduleDocument, user: User): D1PreparedStatement[] {
     const now = new Date().toISOString();
+    const chunkSize = 50;
+    const insertStatements: D1PreparedStatement[] = [];
+    if (document.services.length > 0) {
+      for (let i = 0; i < document.services.length; i += chunkSize) {
+        const chunk = document.services.slice(i, i + chunkSize);
+        insertStatements.push(
+          this.sql(
+            "INSERT INTO draft_services(id,data,updated_at,updated_by) SELECT json_extract(value,'$.id'),value,?,? FROM json_each(?)",
+            now,
+            user.loginId,
+            JSON.stringify(chunk),
+          ),
+        );
+      }
+    }
     return [
       this.sql('DELETE FROM draft_services'),
-      // json_each keeps large imports well below D1's statement/binding limits.
-      this.sql(
-        "INSERT INTO draft_services(id,data,updated_at,updated_by) SELECT json_extract(value,'$.id'),value,?,? FROM json_each(?)",
-        now,
-        user.loginId,
-        JSON.stringify(document.services),
-      ),
+      ...insertStatements,
       this.sql(
         'UPDATE draft_meta SET station=?,alert=?,display=?,last_verified=? WHERE id=1',
         JSON.stringify(document.station),
