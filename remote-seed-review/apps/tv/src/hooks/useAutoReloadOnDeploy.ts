@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { syncClockWithResponse } from '../data/clockSync.js';
 
-export type TvHoldMode = 'auto' | 'credits' | 'page';
+export type TvHoldMode = 'auto' | 'credits' | 'frequent' | 'page';
 
 export interface TvHoldState {
   mode: TvHoldMode;
@@ -20,16 +20,22 @@ function readPersistedTvHold(): TvHoldState {
     try {
       const stored = localStorage.getItem('tv_hold_state');
       if (stored) {
-        const parsed = JSON.parse(stored) as TvHoldState;
-        if (
-          parsed &&
-          (parsed.mode === 'auto' || parsed.mode === 'credits' || parsed.mode === 'page')
-        ) {
-          return {
-            mode: parsed.mode,
-            page: typeof parsed.page === 'number' && parsed.page >= 1 ? Math.floor(parsed.page) : 1,
-            updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
-          };
+        const parsed = JSON.parse(stored) as { mode?: string; page?: unknown; updatedAt?: unknown };
+        if (parsed && typeof parsed.mode === 'string') {
+          const raw = parsed.mode.trim().toLowerCase();
+          const mode = (raw === 'frequent_services' ? 'frequent' : raw) as TvHoldMode;
+          if (
+            mode === 'auto' ||
+            mode === 'credits' ||
+            mode === 'frequent' ||
+            mode === 'page'
+          ) {
+            return {
+              mode,
+              page: typeof parsed.page === 'number' && parsed.page >= 1 ? Math.floor(parsed.page) : 1,
+              updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+            };
+          }
         }
       }
     } catch {}
@@ -76,34 +82,38 @@ export function useAutoReloadOnDeploy() {
         syncClockWithResponse(response, data);
 
         // Update tvHold state if present
-        if (
-          data?.tvHold &&
-          (data.tvHold.mode === 'auto' ||
-            data.tvHold.mode === 'credits' ||
-            data.tvHold.mode === 'page')
-        ) {
-          const freshHold: TvHoldState = {
-            mode: data.tvHold.mode,
-            page:
-              typeof data.tvHold.page === 'number' && data.tvHold.page >= 1
-                ? Math.floor(data.tvHold.page)
-                : 1,
-            updatedAt:
-              typeof data.tvHold.updatedAt === 'number' ? data.tvHold.updatedAt : Date.now(),
-          };
-          setTvHold((prev) => {
-            if (
-              prev.mode === freshHold.mode &&
-              prev.page === freshHold.page &&
-              prev.updatedAt === freshHold.updatedAt
-            ) {
-              return prev;
-            }
-            try {
-              localStorage.setItem('tv_hold_state', JSON.stringify(freshHold));
-            } catch {}
-            return freshHold;
-          });
+        if (data?.tvHold && typeof (data.tvHold as { mode?: string }).mode === 'string') {
+          const rawHoldMode = String((data.tvHold as { mode?: string }).mode).trim().toLowerCase();
+          const mode = (rawHoldMode === 'frequent_services' ? 'frequent' : rawHoldMode) as TvHoldMode;
+          if (
+            mode === 'auto' ||
+            mode === 'credits' ||
+            mode === 'frequent' ||
+            mode === 'page'
+          ) {
+            const freshHold: TvHoldState = {
+              mode,
+              page:
+                typeof data.tvHold.page === 'number' && data.tvHold.page >= 1
+                  ? Math.floor(data.tvHold.page)
+                  : 1,
+              updatedAt:
+                typeof data.tvHold.updatedAt === 'number' ? data.tvHold.updatedAt : Date.now(),
+            };
+            setTvHold((prev) => {
+              if (
+                prev.mode === freshHold.mode &&
+                prev.page === freshHold.page &&
+                prev.updatedAt === freshHold.updatedAt
+              ) {
+                return prev;
+              }
+              try {
+                localStorage.setItem('tv_hold_state', JSON.stringify(freshHold));
+              } catch {}
+              return freshHold;
+            });
+          }
         }
 
         const remoteBuildId = data?.buildId?.trim();

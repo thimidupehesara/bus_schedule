@@ -496,7 +496,7 @@ export function App() {
   const [deduplicating, setDeduplicating] = useState(false);
 
   // TV Presentation Control State
-  const [tvHoldState, setTvHoldState] = useState<{ mode: 'auto' | 'credits' | 'page'; page?: number; updatedAt?: number }>({
+  const [tvHoldState, setTvHoldState] = useState<{ mode: 'auto' | 'credits' | 'frequent' | 'page'; page?: number; updatedAt?: number }>({
     mode: 'auto',
     page: 1,
   });
@@ -720,7 +720,7 @@ export function App() {
     try {
       const res = await apiFetch('/api/admin/tv-hold');
       if (res.ok) {
-        const data = (await res.json()) as { tvHold: { mode: 'auto' | 'credits' | 'page'; page?: number; updatedAt?: number } };
+        const data = (await res.json()) as { tvHold: { mode: 'auto' | 'credits' | 'frequent' | 'page'; page?: number; updatedAt?: number } };
         if (data.tvHold) setTvHoldState(data.tvHold);
       }
     } catch (err) {
@@ -1229,7 +1229,7 @@ export function App() {
   }
 
   // TV Hold Action
-  async function handleSetTvHold(mode: 'auto' | 'credits' | 'page', page?: number) {
+  async function handleSetTvHold(mode: 'auto' | 'credits' | 'frequent' | 'page', page?: number) {
     if (tvHoldSaving) return;
     setTvHoldSaving(true);
     try {
@@ -1244,7 +1244,9 @@ export function App() {
             ? '10s Auto-Scroll resumed'
             : mode === 'credits'
               ? 'TV Display held on Credits / QR slide'
-              : `TV Display held on Page ${page}`;
+              : mode === 'frequent'
+                ? 'TV Display held on Frequent Services slide'
+                : `TV Display held on Page ${page}`;
         showToast(`📺 ${label}`);
       } else {
         alert('Failed to update TV hold state.');
@@ -3649,10 +3651,15 @@ export function App() {
 
             {/* Current State Indicator */}
             <div
-              className={`p-5 rounded-2xl border shadow-xl flex items-center justify-between gap-4 ${tvHoldState.mode === 'auto'
+              className={`p-5 rounded-2xl border shadow-xl flex items-center justify-between gap-4 ${
+                tvHoldState.mode === 'auto'
                   ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
-                  : 'bg-amber-950/40 border-amber-700/60 text-amber-200'
-                }`}
+                  : tvHoldState.mode === 'frequent'
+                    ? 'bg-amber-950/40 border-amber-700/60 text-amber-200'
+                    : tvHoldState.mode === 'credits'
+                      ? 'bg-indigo-950/40 border-indigo-700/60 text-indigo-200'
+                      : 'bg-blue-950/40 border-blue-700/60 text-blue-200'
+              }`}
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{tvHoldState.mode === 'auto' ? '🔄' : '⏸️'}</span>
@@ -3661,9 +3668,11 @@ export function App() {
                   <div className="text-lg font-black text-white mt-0.5">
                     {tvHoldState.mode === 'auto'
                       ? 'Auto-Scrolling (10 Seconds Per Page)'
-                      : tvHoldState.mode === 'credits'
-                        ? 'Holding: Credits / QR Code Slide'
-                        : `Holding: Page ${tvHoldState.page || 1}`}
+                      : tvHoldState.mode === 'frequent'
+                        ? 'Frozen on Frequent Services Slide (Every 15 Mins)'
+                        : tvHoldState.mode === 'credits'
+                          ? 'Holding: Credits / QR Code Slide'
+                          : `Holding: Page ${tvHoldState.page || 1}`}
                   </div>
                 </div>
               </div>
@@ -3671,6 +3680,26 @@ export function App() {
 
             {/* Hold Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Hold Frequent Services */}
+              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-3">
+                <div className="font-bold text-white text-sm">Hold on Frequent Services Slide</div>
+                <p className="text-xs text-slate-400">
+                  Freezes the live TV display on the 15-minute frequent departures slide (Badulla, Kandy, Sacred City).
+                </p>
+                <button
+                  type="button"
+                  disabled={tvHoldSaving || tvHoldState.mode === 'frequent'}
+                  onClick={() => handleSetTvHold('frequent')}
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs shadow transition active:scale-95 disabled:opacity-50 ${
+                    tvHoldState.mode === 'frequent'
+                      ? 'bg-amber-950/60 border border-amber-500/60 text-amber-300 cursor-not-allowed opacity-90'
+                      : 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20'
+                  }`}
+                >
+                  {tvHoldState.mode === 'frequent' ? 'Active: Frozen on Frequent Services' : 'Hold Frequent Services Slide'}
+                </button>
+              </div>
+
               {/* Hold Credits */}
               <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-3">
                 <div className="font-bold text-white text-sm">Hold on Credits / QR Slide</div>
@@ -3679,11 +3708,15 @@ export function App() {
                 </p>
                 <button
                   type="button"
-                  disabled={tvHoldSaving}
+                  disabled={tvHoldSaving || tvHoldState.mode === 'credits'}
                   onClick={() => handleSetTvHold('credits')}
-                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow transition active:scale-95 disabled:opacity-50"
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs shadow transition active:scale-95 disabled:opacity-50 ${
+                    tvHoldState.mode === 'credits'
+                      ? 'bg-indigo-950/60 border border-indigo-500/60 text-indigo-300 cursor-not-allowed opacity-90'
+                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20'
+                  }`}
                 >
-                  Hold Credits / QR Slide
+                  {tvHoldState.mode === 'credits' ? 'Active: Frozen on Credits' : 'Hold Credits / QR Slide'}
                 </button>
               </div>
 
@@ -3695,11 +3728,17 @@ export function App() {
                 </p>
                 <button
                   type="button"
-                  disabled={tvHoldSaving}
+                  disabled={tvHoldSaving || (tvHoldState.mode === 'page' && (tvHoldState.page === 1 || !tvHoldState.page))}
                   onClick={() => handleSetTvHold('page', 1)}
-                  className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow transition active:scale-95 disabled:opacity-50"
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs shadow transition active:scale-95 disabled:opacity-50 ${
+                    tvHoldState.mode === 'page' && (tvHoldState.page === 1 || !tvHoldState.page)
+                      ? 'bg-blue-950/60 border border-blue-500/60 text-blue-300 cursor-not-allowed opacity-90'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20'
+                  }`}
                 >
-                  Hold Page 1
+                  {tvHoldState.mode === 'page' && (tvHoldState.page === 1 || !tvHoldState.page)
+                    ? 'Active: Frozen on Page 1'
+                    : 'Hold Page 1'}
                 </button>
               </div>
 
@@ -3720,28 +3759,38 @@ export function App() {
                   />
                   <button
                     type="button"
-                    disabled={tvHoldSaving}
+                    disabled={tvHoldSaving || (tvHoldState.mode === 'page' && tvHoldState.page === customTvHoldPage)}
                     onClick={() => handleSetTvHold('page', customTvHoldPage)}
-                    className="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs shadow transition active:scale-95 disabled:opacity-50"
+                    className={`flex-1 py-2 rounded-xl font-bold text-xs shadow transition active:scale-95 disabled:opacity-50 ${
+                      tvHoldState.mode === 'page' && tvHoldState.page === customTvHoldPage
+                        ? 'bg-slate-800/80 border border-blue-500/60 text-blue-300 cursor-not-allowed opacity-90'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                    }`}
                   >
-                    Hold Page {customTvHoldPage}
+                    {tvHoldState.mode === 'page' && tvHoldState.page === customTvHoldPage
+                      ? `Active: Page ${customTvHoldPage}`
+                      : `Hold Page ${customTvHoldPage}`}
                   </button>
                 </div>
               </div>
 
               {/* Resume Auto-Scroll */}
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-3">
+              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-3 md:col-span-2">
                 <div className="font-bold text-white text-sm">Resume Normal Auto-Rotation</div>
                 <p className="text-xs text-slate-400">
                   Restores normal 10-second automatic page cycling through all schedule pages.
                 </p>
                 <button
                   type="button"
-                  disabled={tvHoldSaving}
+                  disabled={tvHoldSaving || tvHoldState.mode === 'auto'}
                   onClick={() => handleSetTvHold('auto')}
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition active:scale-95 disabled:opacity-50"
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs shadow-lg transition active:scale-95 disabled:opacity-50 ${
+                    tvHoldState.mode === 'auto'
+                      ? 'bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 cursor-not-allowed opacity-90'
+                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'
+                  }`}
                 >
-                  Resume 10s Auto-Scroll
+                  {tvHoldState.mode === 'auto' ? 'Active: 10s Auto-Scroll Running' : 'Resume 10s Auto-Scroll'}
                 </button>
               </div>
             </div>

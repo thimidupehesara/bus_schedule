@@ -79,6 +79,32 @@ describe('TV Hold & Presentation API', () => {
     });
   });
 
+  it('sets mode to frequent (and accepts frequent_services alias)', async () => {
+    const { res, data } = await request('/api/admin/tv-hold', 'POST', { mode: 'frequent' });
+    expect(res.status).toBe(200);
+    expect(data?.ok).toBe(true);
+    expect(data?.tvHold).toMatchObject({
+      mode: 'frequent',
+      page: 1,
+    });
+    expect(typeof (data?.tvHold as Record<string, unknown>)?.updatedAt).toBe('number');
+
+    // Verify GET retrieves updated state
+    const getRes = await request('/api/admin/tv-hold', 'GET');
+    expect(getRes.data?.tvHold).toMatchObject({
+      mode: 'frequent',
+      page: 1,
+    });
+
+    // Verify frequent_services alias normalizes to frequent
+    const aliasRes = await request('/api/admin/tv-hold', 'POST', { mode: 'frequent_services' });
+    expect(aliasRes.res.status).toBe(200);
+    expect(aliasRes.data?.tvHold).toMatchObject({
+      mode: 'frequent',
+      page: 1,
+    });
+  });
+
   it('sets mode to page with custom page number', async () => {
     const { res, data } = await request('/api/admin/tv-hold', 'POST', { mode: 'page', page: 4 });
     expect(res.status).toBe(200);
