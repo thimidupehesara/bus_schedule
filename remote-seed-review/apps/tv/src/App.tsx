@@ -312,17 +312,20 @@ function PagedBoard({
     setIndex((previous) => clampPage(previous, totalSlides));
   }, [totalSlides]);
 
-  // When tvHold changes to credits or page, switch to that slide immediately
+  // When tvHold changes to credits, frequent, or page, switch to that slide immediately
   useEffect(() => {
     if (tvHold.mode === 'credits') {
       setIndex(creditsSlideIndex);
+      setHidden(false);
+    } else if (tvHold.mode === 'frequent') {
+      setIndex(frequentSlideIndex);
       setHidden(false);
     } else if (tvHold.mode === 'page') {
       const targetPage = Math.min(Math.max(1, tvHold.page ?? 1), scheduleCount);
       setIndex(targetPage - 1);
       setHidden(false);
     }
-  }, [tvHold.mode, tvHold.page, tvHold.updatedAt, scheduleCount, creditsSlideIndex]);
+  }, [tvHold.mode, tvHold.page, tvHold.updatedAt, scheduleCount, creditsSlideIndex, frequentSlideIndex]);
 
   // Handle slide rotation timer (only when tvHold.mode is 'auto')
   useLayoutEffect(() => {

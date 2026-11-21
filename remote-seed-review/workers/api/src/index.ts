@@ -40,7 +40,7 @@ export interface Env extends AuthConfig {
   ASSETS: Fetcher;
 }
 
-export type TvHoldMode = 'auto' | 'credits' | 'page';
+export type TvHoldMode = 'auto' | 'credits' | 'frequent' | 'page';
 
 export interface TvHoldState {
   mode: TvHoldMode;
@@ -60,13 +60,17 @@ export async function getTvHoldSetting(db: D1Database): Promise<TvHoldState> {
       .prepare("SELECT value FROM settings WHERE key = 'tvHoldState'")
       .first<{ value: string }>();
     if (row?.value) {
-      const parsed = JSON.parse(row.value) as TvHoldState;
-      if (parsed && (parsed.mode === 'auto' || parsed.mode === 'credits' || parsed.mode === 'page')) {
-        return {
-          mode: parsed.mode,
-          page: typeof parsed.page === 'number' && parsed.page >= 1 ? Math.floor(parsed.page) : 1,
-          updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
-        };
+      const parsed = JSON.parse(row.value) as { mode?: string; page?: unknown; updatedAt?: unknown };
+      if (parsed && typeof parsed.mode === 'string') {
+        const rawMode = parsed.mode.trim().toLowerCase();
+        const mode = rawMode === 'frequent_services' ? 'frequent' : rawMode;
+        if (mode === 'auto' || mode === 'credits' || mode === 'frequent' || mode === 'page') {
+          return {
+            mode,
+            page: typeof parsed.page === 'number' && parsed.page >= 1 ? Math.floor(parsed.page) : 1,
+            updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+          };
+        }
       }
     }
   } catch {
@@ -337,9 +341,10 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
   if (path === '/api/admin/tv-hold' && method === 'POST') {
     requireAdmin(user);
     const body = object(await readJson(request));
-    const mode = String(body['mode'] ?? '').trim().toLowerCase();
-    if (!['auto', 'credits', 'page'].includes(mode)) {
-      throw new ApiError(422, 'INVALID_MODE', 'Mode must be "auto", "credits", or "page".');
+    const rawMode = String(body['mode'] ?? '').trim().toLowerCase();
+    const mode = rawMode === 'frequent_services' ? 'frequent' : rawMode;
+    if (!['auto', 'credits', 'frequent', 'page'].includes(mode)) {
+      throw new ApiError(422, 'INVALID_MODE', 'Mode must be "auto", "credits", "frequent", or "page".');
     }
     let page = 1;
     if (body['page'] !== undefined && body['page'] !== null) {

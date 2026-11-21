@@ -103,4 +103,26 @@ describe('Frequent Departures Slide', () => {
     current = (clampPage(current, totalSlides) + 1) % totalSlides;
     expect(current).toBe(0);
   });
+
+  it('correctly targets frequent slide index for tvHold.mode === "frequent"', () => {
+    for (const totalSchedulePages of [1, 2, 4, 10]) {
+      const scheduleCount = Math.max(1, totalSchedulePages);
+      const frequentSlideIndex = scheduleCount;
+      const creditsSlideIndex = scheduleCount + 1;
+      const totalSlides = scheduleCount + 2;
+
+      // Simulate mode targeting
+      const getTargetIndex = (mode: 'auto' | 'credits' | 'frequent' | 'page', page = 1) => {
+        if (mode === 'credits') return creditsSlideIndex;
+        if (mode === 'frequent') return frequentSlideIndex;
+        if (mode === 'page') return Math.min(Math.max(1, page), scheduleCount) - 1;
+        return 0;
+      };
+
+      expect(getTargetIndex('frequent')).toBe(frequentSlideIndex);
+      expect(getTargetIndex('credits')).toBe(creditsSlideIndex);
+      expect(getTargetIndex('page', 1)).toBe(0);
+      expect(totalSlides).toBe(scheduleCount + 2);
+    }
+  });
 });

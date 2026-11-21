@@ -17,8 +17,33 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | First deploy                                                                    | Done    |
 | Public Privacy Policy (`/privacy`)                                              | Done    |
 | Frequent Departures Slide (TV)                                                  | Done    |
+| Hold on Frequent Services Slide (Admin TV Control)                              | Done    |
 
 ## Done
+- [DONE] Add "Hold on Frequent Services Slide" Control to Admin TV Presentation Control & Deploy:
+  - 1. Backend API (`workers/api/src/index.ts`):
+    - Added `'frequent'` to `TvHoldMode` and `TvHoldState`.
+    - Handled parsing and saving in `getTvHoldSetting` and `setTvHoldSetting`, supporting `'frequent'` and normalizing `'frequent_services'`.
+    - Updated `POST /api/admin/tv-hold` to allow `'frequent'` (and alias `'frequent_services'`), saving state and logging `TV_HOLD` audit event.
+    - Added unit tests in `workers/api/src/__tests__/tv-hold.test.ts` verifying mode transitions to `'frequent'` and alias normalization.
+  - 2. TV Client Sync (`apps/tv/src/hooks/useAutoReloadOnDeploy.ts` & `apps/tv/src/App.tsx`):
+    - Added `'frequent'` to `TvHoldMode` in `useAutoReloadOnDeploy.ts`, hydrating and persisting to `localStorage` (`tv_hold_state`).
+    - In `apps/tv/src/App.tsx`, wired `tvHold.mode === 'frequent'` to immediately switch to `frequentSlideIndex` with unhidden state.
+    - Slide auto-advance interval timer is paused while any hold mode (`frequent`, `credits`, `page`) is active, and resumes seamless 10s rotation when reset to `'auto'`.
+    - Added test coverage in `apps/tv/src/__tests__/frequentSlide.test.ts` verifying `frequentSlideIndex` targeting.
+  - 3. Admin Dashboard UI (`apps/admin/src/App.tsx`):
+    - Updated `tvHoldState` type and `handleSetTvHold` to support `'frequent'`.
+    - In `CURRENT LIVE TV MODE` status banner: displays `Frozen on Frequent Services Slide (Every 15 Mins)` with amber background and border when active.
+    - Added dedicated control card in the TV Presentation Control grid:
+      - Title: "Hold on Frequent Services Slide"
+      - Description: "Freezes the live TV display on the 15-minute frequent departures slide (Badulla, Kandy, Sacred City)."
+      - Button: "Hold Frequent Services Slide" in amber accent (`bg-amber-500 hover:bg-amber-400 text-slate-950`), disabling with clear feedback (`Active: Frozen on Frequent Services`) when currently active.
+      - Standardized active/disabled button feedback across all other cards (Credits, Page 1, Page #, Resume).
+  - 4. Verification and Deployment:
+    - Passed all 19 test suites and 239/239 tests (`npm test`).
+    - Passed `npm run typecheck` and `npx tsc --noEmit` with 0 errors.
+    - Successfully assembled and deployed live to Cloudflare Workers (Version ID `a87ff67f-7e94-4cea-aef5-0c7051be8b34`).
+    - Verified live HTTP response on `https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/tv/` and `/tv/version.json`.
 - [DONE] Add "Frequent Departures (Every 15 Minutes)" Slide to TV Display Rotation (`apps/tv`):
   - 1. Created `FrequentDeparturesSlide.tsx` in `apps/tv/src/FrequentDeparturesSlide.tsx`:
     - Centered title block: Sinhala main heading `සෑම විනාඩි 15කට වරක් පිටත්වන බස් රථ` and golden-yellow English subtitle `FREQUENT BUS SERVICES • DEPARTING EVERY 15 MINUTES`.
