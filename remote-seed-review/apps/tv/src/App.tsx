@@ -32,6 +32,7 @@ import { PageCountdown } from './PageCountdown.js';
 import { FittedText, FitLayout } from './FittedText.js';
 import { useAutoReloadOnDeploy, type TvHoldState } from './hooks/useAutoReloadOnDeploy.js';
 import { initClockSync } from './data/clockSync.js';
+import { FrequentDeparturesSlide } from './FrequentDeparturesSlide.js';
 
 type Text = { si: string; en: string };
 const columns = getColumns();
@@ -285,7 +286,9 @@ function PagedBoard({
   const pages = useMemo(() => paginateRows(board.pages.flatMap(page => page.rows)), [board.pages]);
   const totalSchedulePages = pages.length;
   const scheduleCount = Math.max(1, totalSchedulePages);
-  const totalSlides = scheduleCount + 1;
+  const frequentSlideIndex = scheduleCount;
+  const creditsSlideIndex = scheduleCount + 1;
+  const totalSlides = scheduleCount + 2;
   const [index, setIndex] = useState(0);
   const [hidden, setHidden] = useState(false);
   const [deadline, setDeadline] = useState<number | null>(null);
@@ -293,8 +296,9 @@ function PagedBoard({
     () => matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
   const slideIndex = clampPage(index, totalSlides);
-  const isCreditsSlide = slideIndex === scheduleCount;
-  const page = isCreditsSlide ? 0 : clampPage(slideIndex, scheduleCount);
+  const isFrequentSlide = slideIndex === frequentSlideIndex;
+  const isCreditsSlide = slideIndex === creditsSlideIndex;
+  const page = (isFrequentSlide || isCreditsSlide) ? 0 : clampPage(slideIndex, scheduleCount);
   const currentRows = pages[page] ?? [];
   const targetSlots = TV_ROWS_PER_PAGE;
   const fade = reduced ? 0 : display.fadeMs;
@@ -311,14 +315,14 @@ function PagedBoard({
   // When tvHold changes to credits or page, switch to that slide immediately
   useEffect(() => {
     if (tvHold.mode === 'credits') {
-      setIndex(scheduleCount);
+      setIndex(creditsSlideIndex);
       setHidden(false);
     } else if (tvHold.mode === 'page') {
       const targetPage = Math.min(Math.max(1, tvHold.page ?? 1), scheduleCount);
       setIndex(targetPage - 1);
       setHidden(false);
     }
-  }, [tvHold.mode, tvHold.page, tvHold.updatedAt, scheduleCount]);
+  }, [tvHold.mode, tvHold.page, tvHold.updatedAt, scheduleCount, creditsSlideIndex]);
 
   // Handle slide rotation timer (only when tvHold.mode is 'auto')
   useLayoutEffect(() => {
@@ -387,57 +391,75 @@ function PagedBoard({
         </div>,
         document.body,
       )}
-      <div
-        ref={tableRegionRef}
-        className="table-region"
-        style={{
-          visibility: isCreditsSlide ? 'hidden' : 'visible',
-          opacity: isCreditsSlide ? 0 : hidden ? 0 : 1,
-          transition: `opacity ${fade / 2}ms`,
-        }}
-      >
-        {board.usedFallbackWindow && board.totalRows > 0 && (
-          <div className="fallback">
-            <Pair text={COPY.fallback} />
-          </div>
-        )}
-        {board.mode === 'NO_SERVICES' ? (
-          <div className="empty">
-            <Pair text={COPY.empty} />
-          </div>
-        ) : (
-          <table aria-label={`${LABELS.title.si} / ${LABELS.title.en}`}>
-            <colgroup>
-              {columns.map(({ key, width }) => (
-                <col key={key} style={{ width: `${width}%` }} />
-              ))}
-            </colgroup>
-            <thead>
-              <tr>
-                {columns.map(({ key }) => (
-                  <th
-                    scope="col"
-                    className={key === 'destination' || key === 'from' ? undefined : 'align-center'}
-                    key={key}
-                  >
-                    <HeaderCell text={LABELS[key]} />
-                  </th>
+      <div className="board-middle-region">
+        <div
+          ref={tableRegionRef}
+          className="table-region"
+          style={{
+            visibility: (!isCreditsSlide && !isFrequentSlide) ? 'visible' : 'hidden',
+            opacity: (!isCreditsSlide && !isFrequentSlide) ? (hidden ? 0 : 1) : 0,
+            transition: `opacity ${fade / 2}ms ease-in-out, visibility ${fade / 2}ms ease-in-out`,
+            pointerEvents: (!isCreditsSlide && !isFrequentSlide) ? 'auto' : 'none',
+          }}
+        >
+          {board.usedFallbackWindow && board.totalRows > 0 && (
+            <div className="fallback">
+              <Pair text={COPY.fallback} />
+            </div>
+          )}
+          {board.mode === 'NO_SERVICES' ? (
+            <div className="empty">
+              <Pair text={COPY.empty} />
+            </div>
+          ) : (
+            <table aria-label={`${LABELS.title.si} / ${LABELS.title.en}`}>
+              <colgroup>
+                {columns.map(({ key, width }) => (
+                  <col key={key} style={{ width: `${width}%` }} />
                 ))}
-              </tr>
-            </thead>
-            <tbody style={{ '--page-rows': targetSlots } as CSSProperties}>
-              {Array.from({ length: targetSlots }, (_, slot) => (
-                <Row key={slot} weekday={weekday} row={currentRows[slot]} />
-              ))}
-            </tbody>
-          </table>
-        )}
+              </colgroup>
+              <thead>
+                <tr>
+                  {columns.map(({ key }) => (
+                    <th
+                      scope="col"
+                      className={key === 'destination' || key === 'from' ? undefined : 'align-center'}
+                      key={key}
+                    >
+                      <HeaderCell text={LABELS[key]} />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody style={{ '--page-rows': targetSlots } as CSSProperties}>
+                {Array.from({ length: targetSlots }, (_, slot) => (
+                  <Row key={slot} weekday={weekday} row={currentRows[slot]} />
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <FrequentDeparturesSlide
+          active={isFrequentSlide}
+          hidden={hidden}
+          fadeMs={fade}
+        />
       </div>
       {indicator &&
         !isCreditsSlide &&
-        totalSchedulePages > 0 &&
         createPortal(
-          <PageIndicator page={page} count={totalSchedulePages} />,
+          isFrequentSlide ? (
+            <div className="page-progress">
+              <div>
+                <div>
+                  <span lang="si">නිතර පිටත්වන බස්</span> / Frequent Services
+                </div>
+              </div>
+            </div>
+          ) : (
+            totalSchedulePages > 0 && <PageIndicator page={page} count={totalSchedulePages} />
+          ),
           indicator,
         )}
     </>

@@ -16,8 +16,38 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Kotlin launcher                                                                 | Pending |
 | First deploy                                                                    | Done    |
 | Public Privacy Policy (`/privacy`)                                              | Done    |
+| Frequent Departures Slide (TV)                                                  | Done    |
 
 ## Done
+- [DONE] Add "Frequent Departures (Every 15 Minutes)" Slide to TV Display Rotation (`apps/tv`):
+  - 1. Created `FrequentDeparturesSlide.tsx` in `apps/tv/src/FrequentDeparturesSlide.tsx`:
+    - Centered title block: Sinhala main heading `සෑම විනාඩි 15කට වරක් පිටත්වන බස් රථ` and golden-yellow English subtitle `FREQUENT BUS SERVICES • DEPARTING EVERY 15 MINUTES`.
+    - Rendered 3 stacked cards with exact text in order:
+      - Card 1 (Badulla): `මහියංගණ සිට බදුල්ල දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.` / `Mahiyanganaya to Badulla buses depart every 15 minutes.`
+      - Card 2 (Kandy): `මහියංගණ සිට නුවර දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.` / `Mahiyanganaya to Kandy buses depart every 15 minutes.`
+      - Card 3 (Sacred City): `මහියංගණ සිට පූජා නගරය දක්වා ගමන් ගන්නා බස් රථ සෑම විනාඩි 15කට සැරයක් පිටත්වෙයි.` / `Mahiyanganaya to Sacred City of Mahiyanganaya buses depart every 15 minutes.`
+    - High-contrast visual anchor on each card: right-side golden-yellow (`#FACC15`) pill badge with SVG clock icon, `15 MIN`, and `විනාඩි 15` in bold dark navy text (`#0F172A`).
+    - Card surfaces: deep slate (`#1E293B`), `8px solid #FACC15` left accent bar, and subtle border `1px solid rgba(250, 204, 21, 0.25)`.
+  - 2. Styled slide in `apps/tv/src/index.css`:
+    - Wrapped `.table-region` and `.frequent-slide` inside `.board-middle-region` (`flex: 1 1 0; min-height: 0; position: relative; overflow: hidden;`).
+    - Positioned both with `position: absolute; inset: 0; width: 100%; height: 100%;` for seamless, overlap-free, zero-shift cross-fading.
+    - Added responsive font scaling (`clamp`), letter-spacing, and spacing rules ensuring zero clipping/scrolling on 1920x1080 viewports.
+  - 3. Updated TV slide rotation sequence in `apps/tv/src/App.tsx`:
+    - Updated rotation sequence: `[Timetable Page 1..N, FrequentDeparturesSlide, Credits Slide]`.
+    - Total slides: `totalSlides = scheduleCount + 2`.
+    - Slide indices: Timetable: `0..scheduleCount - 1`, Frequent Departures: `scheduleCount`, Credits: `scheduleCount + 1`.
+    - Auto-advance timer dwell (10s) and progress countdown bar smoothly advance across all slides and loop cleanly back to Page 1.
+    - Updated `tvHold.mode === 'credits'` to target `scheduleCount + 1`.
+    - Footer page indicator displays `නිතර පිටත්වන බස් / Frequent Services` during the frequent slide.
+  - 4. Testing & Verification:
+    - Added unit test suite in `apps/tv/src/__tests__/frequentSlide.test.ts` verifying exact bilingual texts, 15-minute badge wording, rotation math, and loop reset to Page 1.
+    - Passed all 19 test suites and 237/237 tests via `npm test`.
+    - Passed TypeScript checks with 0 errors via `npm run typecheck` and `npx tsc --noEmit`.
+    - Assembled bundles successfully via `npm run assemble`.
+  - 5. Build & Deploy to Cloudflare Workers:
+    - Executed `npm run deploy` (`npm run assemble && wrangler deploy`).
+    - Successfully uploaded updated assets and deployed Cloudflare Worker (Version ID `e1383a10-389d-4dff-acf4-5d4ed034338f`).
+    - Verified live HTTP response: `https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/tv/` returns 200 OK serving the new TV bundle (`index-BL1ufOZ9.js` and `index-CdkhNcT3.css`).
 - [DONE] Add Public Privacy Policy Route (`/privacy`) and Mobile App Link:
   - 1. Added static Privacy Policy HTML generator and handler in `workers/api/src/privacy.ts`:
     - Renders responsive, dark-mode-styled privacy policy at `/privacy` and `/privacy/`.
