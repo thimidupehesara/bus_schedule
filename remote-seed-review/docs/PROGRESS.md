@@ -15,8 +15,25 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Passenger mobile page for QR code                                               | Done    |
 | Kotlin launcher                                                                 | Pending |
 | First deploy                                                                    | Done    |
+| Public Privacy Policy (`/privacy`)                                              | Done    |
 
 ## Done
+- [DONE] Add Public Privacy Policy Route (`/privacy`) and Mobile App Link:
+  - 1. Added static Privacy Policy HTML generator and handler in `workers/api/src/privacy.ts`:
+    - Renders responsive, dark-mode-styled privacy policy at `/privacy` and `/privacy/`.
+    - Includes App Name (Mahiyanganaya Bus Timetable, `lk.mahiyanganaya.busmobile`), Developer (Thimidu Pehesara, `pehesarathimidu130@gmail.com`), and all Google Play required disclosures.
+    - Explicitly declares: zero personal data collection, no account required, no ads/SDKs/trackers, strictly on-device timetable caching in local storage for offline use.
+  - 2. Routed `/privacy` in `workers/api/src/index.ts` and `workers/api/wrangler.toml`:
+    - Added `run_worker_first = [..., "/privacy*"]` so requests are directly served with 200 OK without 404 static asset intercept.
+    - Updated `scripts/assemble-assets.ts` to output static `workers/api/public/privacy/index.html` with security headers (`Content-Type: text/html; charset=utf-8`, `Cache-Control: public, max-age=3600`).
+  - 3. Added visible Privacy Policy link in `apps/mobile/src/App.tsx`:
+    - Added `<footer className="mobile-footer">` with a prominent link to `/privacy` and styled in `apps/mobile/src/index.css`.
+  - 4. Automated Tests & Verification:
+    - Added unit test suite in `workers/api/src/__tests__/privacy.test.ts` verifying `/privacy` and `/privacy/` return 200 OK with proper headers and required disclosures.
+    - Passed all 18 test suites and 234/234 automated tests via `npm test`.
+    - Passed TypeScript checks with 0 errors via `npm run typecheck` and `npx tsc --noEmit`.
+    - Successfully assembled and deployed live to Cloudflare Workers (Version ID `d8c08975-d66c-470f-9c8b-996cccd5338f`).
+    - Verified live HTTP response: `https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/privacy` returns 200 OK.
 - [DONE] Fix Clock Jumping Back After Credits Slide / Offline Mode (`apps/tv`):
   - 1. Persisted `clockOffsetMs` in `localStorage` under `mahiyanganaya_clock_offset_ms` (`apps/tv/src/data/clockSync.ts`):
     - When a live network response succeeds, computes `clockOffsetMs = serverNowMs - Date.now()` and saves it to `localStorage`.
