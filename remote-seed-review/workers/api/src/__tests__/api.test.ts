@@ -564,6 +564,79 @@ describe('backend fixes', () => {
     expect(importedServices[0]?.days).toEqual(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']);
   }, 20000);
 
+  it('rejects POST /api/draft/import with empty services array to prevent wiping timetable', async () => {
+    await seed();
+    const draftBefore = await request('/api/draft');
+    const countBefore = (draftBefore.data['document'] as ScheduleDocument).services.length;
+    expect(countBefore).toBeGreaterThan(0);
+
+    const emptyRes = await request('/api/draft/import', 'POST', {
+      mode: 'replace',
+      services: [],
+    });
+    expect(emptyRes.response.status).toBe(422);
+    expect(emptyRes.data).toMatchObject({
+      ok: false,
+      error: { code: 'VALIDATION' },
+    });
+
+    const draftAfter = await request('/api/draft');
+    expect((draftAfter.data['document'] as ScheduleDocument).services).toHaveLength(countBefore);
+  }, 20000);
+
+  it('rejects POST /api/draft/import if any row is invalid and preserves existing draft intact', async () => {
+    await seed();
+    const draftBefore = await request('/api/draft');
+    const countBefore = (draftBefore.data['document'] as ScheduleDocument).services.length;
+
+    const invalidImportRes = await request('/api/draft/import', 'POST', {
+      mode: 'replace',
+      services: [
+        {
+          destination: { si: 'කොළඹ', en: 'Colombo' },
+          origin: { si: 'මහියංගනය', en: 'Mahiyanganaya' },
+          departure: '99:99',
+          operator: 'CTB',
+          serviceType: 'NORMAL',
+        },
+      ],
+    });
+    expect(invalidImportRes.response.status).toBe(422);
+
+    const draftAfter = await request('/api/draft');
+    expect((draftAfter.data['document'] as ScheduleDocument).services).toHaveLength(countBefore);
+  }, 20000);
+
+  it('supports importing 150+ bus services in batched chunks without exceeding limits', async () => {
+    await seed();
+    const largeServiceList = Array.from({ length: 150 }, (_, i) => {
+      const hour = String(Math.floor(i / 60)).padStart(2, '0');
+      const min = String(i % 60).padStart(2, '0');
+      return {
+        id: `00000000-0000-0000-0000-${String(i + 1).padStart(12, '0')}`,
+        destination: { si: 'කොළඹ', en: 'Colombo' },
+        origin: { si: 'මහියංගනය', en: 'Mahiyanganaya' },
+        departure: `${hour}:${min}`,
+        arrival: null,
+        operator: i % 2 === 0 ? 'CTB' : 'PVT',
+        serviceType: 'NORMAL',
+        days: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+        active: true,
+      };
+    });
+
+    const importRes = await request('/api/draft/import', 'POST', {
+      mode: 'replace',
+      services: largeServiceList,
+    });
+    expect(importRes.response.status).toBe(200);
+    expect(importRes.data).toMatchObject({ ok: true });
+    expect(importRes.data['addedCount']).toBe(150);
+
+    const draft = await request('/api/draft');
+    expect((draft.data['document'] as ScheduleDocument).services).toHaveLength(150);
+  }, 20000);
+
   it('loads, previews and publishes a full code-weekday draft without network self-fetches', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Unexpected network fetch'));
     try {

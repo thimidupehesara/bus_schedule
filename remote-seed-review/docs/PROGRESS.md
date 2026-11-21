@@ -20,6 +20,30 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Hold on Frequent Services Slide (Admin TV Control)                              | Done    |
 | Configurable Frequent Services Slide Intervals (TV)                             | Done    |
 | Editable Frequent Services TV Slide (Admin & TV Layout)                         | Done    |
+| Harden Bulk Bus Delete & CSV/Excel Import Against 503                           | Done    |
+
+## Done
+- [DONE] Harden Bulk Bus Delete & CSV/Excel Import Against 503:
+  - 1. Fixed O(N^2) CPU Limit Spike in `POST /api/draft/import` (`workers/api/src/index.ts`):
+    - Replaced the unindexed cross-product loop (`kept.flatMap(service => validateServiceStrict(service, shape.data)...)`) with `validateDocument(shape.data)`, which utilizes indexed route and bay maps.
+    - Dropped cross-service duplicate departure and collision check CPU time on 150+ bus schedules from ~25–35ms down to ~0.3ms, safely eliminating Worker CPU timeouts (503 / 1101 errors).
+    - Passed precomputed `{ validation, issues }` to `publishWarnings(shape.data, live, now, { validation, issues })` to prevent duplicate validation cycles.
+  - 2. Safe Validation Before Wiping Data & Empty Array Guard (`workers/api/src/index.ts`):
+    - Added strict validation `if (!Array.isArray(raw['services']) || raw['services'].length === 0 || raw['services'].length > 300)` rejecting empty payloads (`422 VALIDATION`).
+    - Guaranteed all service fields, times (`HH:mm`), scripts, and route uniqueness are strictly validated before any delete or write statements execute; if any row fails validation, existing draft records remain untouched.
+  - 3. Batched & Chunked D1 Database Writes in Single Subrequests (`workers/api/src/store.ts` & `index.ts`):
+    - In `store.replace` and `POST /api/draft/import` (append mode), chunked service inserts into 50-row batches (`json_each(?)`), safely staying well below SQLite statement and parameter limits.
+    - All statements (`DELETE FROM draft_services`, chunked inserts, `UPDATE draft_meta`, `revision`, `audit`) are submitted together in `this.db.batch([...])`, executing in **1 single D1 subrequest** inside an atomic transaction.
+    - Wrapped both `DELETE /api/draft/services` and `POST /api/draft/import` in structured `try/catch` handlers returning clean, informative JSON error payloads.
+  - 4. Frontend Safety Guard (`apps/admin/src/App.tsx`):
+    - Added guard against empty `parsedImportRows` in `handleConfirmImport` before dispatching API calls.
+    - Protected `handleDeleteAllServices` with `safeJson` parsing and safe revision state management.
+  - 5. Testing & Verification:
+    - Added unit and integration tests in `workers/api/src/__tests__/api.test.ts` covering: empty array import rejection (preventing schedule wiping), invalid row rejection preserving draft data, and successful batched chunked import of 150+ bus services.
+    - All 20 test suites and 246/246 tests green (`npm test`).
+    - TypeScript compiles with 0 errors across all workspaces (`npm run typecheck` and `npx tsc --noEmit`).
+    - Successfully assembled and deployed live to Cloudflare Workers (Version ID `7f83bf72-cf12-406d-8ea0-1dbc7df997e7`).
+    - Verified live HTTP responses on `/health` and `/tv/version.json`.
 
 ## Done
 - [DONE] Editable Frequent Services TV Slide (Admin Editor & Widescreen Layout):
