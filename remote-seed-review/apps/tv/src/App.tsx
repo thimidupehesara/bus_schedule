@@ -11,6 +11,7 @@ import {
   type BoardRow,
   type ScheduleDocument,
   type Weekday,
+  type FrequentServicesConfig,
 } from '@bus-schedule/shared';
 import {
   clampPage,
@@ -275,12 +276,14 @@ function PagedBoard({
   weekday,
   indicator,
   tvHold,
+  frequentServices,
 }: {
   board: ReturnType<typeof buildBoard>;
   display: ScheduleDocument['display'];
   weekday: Weekday;
   indicator: HTMLDivElement | null;
   tvHold: TvHoldState;
+  frequentServices?: FrequentServicesConfig | undefined;
 }) {
   const tableRegionRef = useRef<HTMLDivElement>(null);
   const pages = useMemo(() => paginateRows(board.pages.flatMap(page => page.rows)), [board.pages]);
@@ -447,6 +450,7 @@ function PagedBoard({
           active={isFrequentSlide}
           hidden={hidden}
           fadeMs={fade}
+          config={frequentServices}
         />
       </div>
       {indicator &&
@@ -493,11 +497,13 @@ function Board({
   now,
   isClockSynced,
   tvHold,
+  frequentServices,
 }: {
   doc: ScheduleDocument;
   now: number;
   isClockSynced: boolean;
   tvHold: TvHoldState;
+  frequentServices?: FrequentServicesConfig | undefined;
 }) {
   const [indicator, setIndicator] = useState<HTMLDivElement | null>(null);
   const effectiveDisplay = useMemo(
@@ -549,6 +555,7 @@ function Board({
           weekday={colomboParts(now).weekday}
           indicator={indicator}
           tvHold={tvHold}
+          frequentServices={frequentServices}
         />
         <Footer doc={doc} setIndicator={setIndicator} />
       </FitLayout>
@@ -557,7 +564,7 @@ function Board({
 }
 
 export default function App() {
-  const { tvHold } = useAutoReloadOnDeploy();
+  const { tvHold, frequentServices } = useAutoReloadOnDeploy();
   useEffect(() => {
     return initClockSync();
   }, []);
@@ -575,7 +582,13 @@ export default function App() {
   }, []);
 
   return doc ? (
-    <Board doc={doc} now={now} isClockSynced={isClockSynced} tvHold={tvHold} />
+    <Board
+      doc={doc}
+      now={now}
+      isClockSynced={isClockSynced}
+      tvHold={tvHold}
+      frequentServices={frequentServices}
+    />
   ) : (
     <main className="empty fullscreen" role="status">
       <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />

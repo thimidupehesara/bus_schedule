@@ -10,3 +10,4 @@ export * from './service-rules.js';
 export * from './board.js';
 export * from './time-format.js';
 export * from './labels.js';
+export * from './frequent-services.js';

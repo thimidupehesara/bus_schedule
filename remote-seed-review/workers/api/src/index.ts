@@ -11,6 +11,8 @@ import {
   toWeekdayNumber,
   type ScheduleDocument,
   type BusService,
+  type FrequentServicesConfig,
+  DEFAULT_FREQUENT_SERVICES_CONFIG,
 } from '@bus-schedule/shared';
 import {
   AccessAuthProvider,
@@ -99,6 +101,69 @@ export async function setTvHoldSetting(db: D1Database, state: TvHoldState): Prom
     await db
       .prepare(
         "INSERT INTO settings (key, value) VALUES ('tvHoldState', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+      )
+      .bind(serialized)
+      .run();
+  }
+}
+
+export async function getFrequentServicesSetting(db: D1Database): Promise<FrequentServicesConfig> {
+  try {
+    const row = await db
+      .prepare("SELECT value FROM settings WHERE key = 'frequentServicesConfig'")
+      .first<{ value: string }>();
+    if (row?.value) {
+      const parsed = JSON.parse(row.value) as Partial<FrequentServicesConfig>;
+      if (parsed && Array.isArray(parsed.cards) && parsed.cards.length > 0) {
+        return {
+          headerSi: String(parsed.headerSi || DEFAULT_FREQUENT_SERVICES_CONFIG.headerSi),
+          headerEn: String(parsed.headerEn || DEFAULT_FREQUENT_SERVICES_CONFIG.headerEn),
+          cards: parsed.cards.map((c, i) => {
+            const def =
+              DEFAULT_FREQUENT_SERVICES_CONFIG.cards[i] ??
+              DEFAULT_FREQUENT_SERVICES_CONFIG.cards[0]!;
+            return {
+              id: typeof c.id === 'number' ? c.id : i + 1,
+              routeLabel: String(c.routeLabel || def.routeLabel),
+              textSi: String(c.textSi || def.textSi),
+              textEn: String(c.textEn || def.textEn),
+              badgeEn: String(c.badgeEn || def.badgeEn),
+              badgeSi: String(c.badgeSi || def.badgeSi),
+            };
+          }),
+          updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+        };
+      }
+    }
+  } catch {
+    try {
+      await db
+        .prepare('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
+        .run();
+    } catch { }
+  }
+  return { ...DEFAULT_FREQUENT_SERVICES_CONFIG };
+}
+
+export async function setFrequentServicesSetting(
+  db: D1Database,
+  config: FrequentServicesConfig,
+): Promise<void> {
+  const serialized = JSON.stringify(config);
+  try {
+    await db
+      .prepare(
+        "INSERT INTO settings (key, value) VALUES ('frequentServicesConfig', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+      )
+      .bind(serialized)
+      .run();
+  } catch {
+    await db
+      .prepare('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)')
+      .run();
+    await db
+      .prepare(
+        "INSERT INTO settings (key, value) VALUES ('frequentServicesConfig', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
       )
       .bind(serialized)
       .run();
@@ -370,6 +435,51 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       )
       .run();
     return ok({ ok: true, tvHold });
+  }
+  if (path === '/api/frequent-services' && method === 'GET') {
+    const config = await getFrequentServicesSetting(env.DB);
+    return ok({ ok: true, config });
+  }
+  if (path === '/api/frequent-services' && method === 'POST') {
+    requireAdmin(user);
+    const body = object(await readJson(request));
+    const headerSi = String(body['headerSi'] ?? DEFAULT_FREQUENT_SERVICES_CONFIG.headerSi).trim();
+    const headerEn = String(body['headerEn'] ?? DEFAULT_FREQUENT_SERVICES_CONFIG.headerEn).trim();
+    const rawCards = body['cards'];
+    if (!Array.isArray(rawCards) || rawCards.length === 0) {
+      throw new ApiError(422, 'INVALID_CARDS', 'Cards must be a non-empty array.');
+    }
+    const cards = rawCards.map((c, idx) => {
+      const cardObj = object(c);
+      const def =
+        DEFAULT_FREQUENT_SERVICES_CONFIG.cards[idx] ??
+        DEFAULT_FREQUENT_SERVICES_CONFIG.cards[0]!;
+      return {
+        id: typeof cardObj['id'] === 'number' ? cardObj['id'] : idx + 1,
+        routeLabel: String(cardObj['routeLabel'] ?? def.routeLabel).trim(),
+        textSi: String(cardObj['textSi'] ?? def.textSi).trim(),
+        textEn: String(cardObj['textEn'] ?? def.textEn).trim(),
+        badgeEn: String(cardObj['badgeEn'] ?? def.badgeEn).trim(),
+        badgeSi: String(cardObj['badgeSi'] ?? def.badgeSi).trim(),
+      };
+    });
+    const config: FrequentServicesConfig = {
+      headerSi,
+      headerEn,
+      cards,
+      updatedAt: Date.now(),
+    };
+    await setFrequentServicesSetting(env.DB, config);
+    await store
+      .sql(
+        'INSERT INTO audit_log (at, login_id, action, detail) VALUES (?, ?, ?, ?)',
+        new Date().toISOString(),
+        user.loginId,
+        'FREQUENT_SERVICES_UPDATE',
+        JSON.stringify(config),
+      )
+      .run();
+    return ok({ ok: true, config });
   }
   if (path === '/api/admin/users' && method === 'GET') {
     requireAdmin(user);
@@ -1038,6 +1148,10 @@ async function route(request: Request, env: Env): Promise<Response> {
     const now = Date.now();
     return ok({ time: new Date(now).toISOString(), serverTimeMs: now });
   }
+  if (path === '/api/frequent-services' && request.method === 'GET') {
+    const config = await getFrequentServicesSetting(env.DB);
+    return ok({ ok: true, config });
+  }
   if (path === '/qr' && request.method === 'GET') {
     return handleQr(request, env);
   }
@@ -1090,7 +1204,10 @@ async function route(request: Request, env: Env): Promise<Response> {
       }
     } catch { }
 
-    const tvHold = await getTvHoldSetting(env.DB);
+    const [tvHold, frequentServices] = await Promise.all([
+      getTvHoldSetting(env.DB),
+      getFrequentServicesSetting(env.DB),
+    ]);
     const serverNow = Date.now();
     const headers = new Headers();
     headers.set('Content-Type', 'application/json; charset=utf-8');
@@ -1109,6 +1226,7 @@ async function route(request: Request, env: Env): Promise<Response> {
         forceReloadToken: reloadNonce,
         serverTimeMs: serverNow,
         tvHold,
+        frequentServices,
       }),
       { status: 200, headers },
     );

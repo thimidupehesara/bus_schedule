@@ -16,6 +16,8 @@ import {
   validateLastVerified,
   KNOWN_PLACES,
   LABELS,
+  type FrequentServicesConfig,
+  DEFAULT_FREQUENT_SERVICES_CONFIG,
 } from '@bus-schedule/shared';
 
 // ---------------------------------------------------------------------------
@@ -503,6 +505,8 @@ export function App() {
   const [customTvHoldPage, setCustomTvHoldPage] = useState<number>(1);
   const [tvHoldSaving, setTvHoldSaving] = useState(false);
   const [reloadingTv, setReloadingTv] = useState(false);
+  const [frequentConfig, setFrequentConfig] = useState<FrequentServicesConfig>(DEFAULT_FREQUENT_SERVICES_CONFIG);
+  const [frequentConfigSaving, setFrequentConfigSaving] = useState(false);
 
   // Staff & Users State (ADMIN only)
   const [staffUsers, setStaffUsers] = useState<StaffUser[]>([]);
@@ -728,6 +732,18 @@ export function App() {
     }
   }, []);
 
+  const loadFrequentServices = useCallback(async () => {
+    try {
+      const res = await apiFetch('/api/frequent-services');
+      if (res.ok) {
+        const data = (await res.json()) as { ok: boolean; config?: FrequentServicesConfig };
+        if (data?.config) setFrequentConfig(data.config);
+      }
+    } catch (err) {
+      console.warn('Failed to load frequent services config:', err);
+    }
+  }, []);
+
   const loadStaffUsers = useCallback(async () => {
     try {
       const res = await apiFetch('/api/admin/users');
@@ -777,8 +793,9 @@ export function App() {
     void loadCurrentUser();
     void loadSchedule();
     void loadTvHold();
+    void loadFrequentServices();
     void loadSnapshots();
-  }, [loadCurrentUser, loadSchedule, loadTvHold, loadSnapshots]);
+  }, [loadCurrentUser, loadSchedule, loadTvHold, loadFrequentServices, loadSnapshots]);
 
   // View-Specific Data Fetching
   useEffect(() => {
@@ -788,8 +805,11 @@ export function App() {
       void loadStaffUsers();
     } else if (activeView === 'reports') {
       void loadReportsData();
+    } else if (activeView === 'tv-control') {
+      void loadTvHold();
+      void loadFrequentServices();
     }
-  }, [activeView, currentUser, loadSchedule, loadPublishPreview, loadStaffUsers, loadReportsData]);
+  }, [activeView, currentUser, loadSchedule, loadPublishPreview, loadStaffUsers, loadReportsData, loadTvHold, loadFrequentServices]);
 
   // ---------------------------------------------------------------------------
   // Action Handlers
@@ -1276,6 +1296,50 @@ export function App() {
       alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setReloadingTv(false);
+    }
+  }
+
+  // Frequent Services Slide Handlers
+  async function handleSaveFrequentServices(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    if (frequentConfigSaving) return;
+    setFrequentConfigSaving(true);
+    try {
+      const res = await apiFetch('/api/frequent-services', {
+        method: 'POST',
+        body: JSON.stringify(frequentConfig),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { ok: boolean; config: FrequentServicesConfig };
+        if (data.config) setFrequentConfig(data.config);
+        showToast('📺 Frequent Services Slide updated on live TV');
+      } else {
+        const err = (await res.json().catch(() => null)) as { error?: { message?: string } };
+        alert(`Failed to save: ${err?.error?.message || 'Server error'}`);
+      }
+    } catch (err) {
+      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setFrequentConfigSaving(false);
+    }
+  }
+
+  async function handleResetFrequentServices() {
+    if (!confirm('Reset Frequent Bus Services slide back to default text and intervals?')) return;
+    setFrequentConfig(DEFAULT_FREQUENT_SERVICES_CONFIG);
+    setFrequentConfigSaving(true);
+    try {
+      const res = await apiFetch('/api/frequent-services', {
+        method: 'POST',
+        body: JSON.stringify(DEFAULT_FREQUENT_SERVICES_CONFIG),
+      });
+      if (res.ok) {
+        showToast('📺 Frequent Services Slide reset to defaults');
+      }
+    } catch (err) {
+      alert(`Failed to reset: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setFrequentConfigSaving(false);
     }
   }
 
@@ -3791,6 +3855,200 @@ export function App() {
                   }`}
                 >
                   {tvHoldState.mode === 'auto' ? 'Active: 10s Auto-Scroll Running' : 'Resume 10s Auto-Scroll'}
+                </button>
+              </div>
+            </div>
+
+            {/* Frequent Services Slide Live Editor */}
+            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>🚌</span>
+                    <span>Frequent Bus Services Slide Content</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Edit the header, route descriptions, and right-side yellow frequency badges displayed on the TV slide. Changes update live on the TV without redeploying.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleResetFrequentServices}
+                    disabled={frequentConfigSaving}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition disabled:opacity-50"
+                  >
+                    Reset Defaults
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveFrequentServices}
+                    disabled={frequentConfigSaving}
+                    className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <span>💾</span>
+                    <span>{frequentConfigSaving ? 'Saving...' : 'Save & Update Live TV'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Slide Header Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                    Sinhala Slide Header:
+                  </label>
+                  <input
+                    type="text"
+                    value={frequentConfig.headerSi}
+                    onChange={(e) =>
+                      setFrequentConfig((prev) => ({ ...prev, headerSi: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-medium focus:border-amber-500 focus:outline-none"
+                    placeholder="නිතර පිටත්වන ගමනාන්ත"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                    English Slide Header / Subtitle:
+                  </label>
+                  <input
+                    type="text"
+                    value={frequentConfig.headerEn}
+                    onChange={(e) =>
+                      setFrequentConfig((prev) => ({ ...prev, headerEn: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-medium focus:border-amber-500 focus:outline-none"
+                    placeholder="FREQUENT BUS SERVICES"
+                  />
+                </div>
+              </div>
+
+              {/* 3 Card Editors */}
+              <div className="space-y-4">
+                {frequentConfig.cards.map((card, idx) => (
+                  <div
+                    key={card.id || idx}
+                    className="p-5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <span className="font-bold text-sm text-white">{card.routeLabel || `Route ${idx + 1}`}</span>
+                      </div>
+                      {/* Live Mini Preview of Yellow Badge */}
+                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 text-slate-950 shadow-sm border border-amber-300">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <div className="text-[10px] font-black leading-tight text-center">
+                          <div>{card.badgeEn || '15 MIN'}</div>
+                          <div className="text-[8px] font-bold">{card.badgeSi || 'විනාඩි 15'}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      {/* Left: Sinhala & English Description */}
+                      <div className="lg:col-span-2 space-y-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                            Sinhala Description (සිංහල විස්තරය):
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={card.textSi}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFrequentConfig((prev) => ({
+                                ...prev,
+                                cards: prev.cards.map((c, i) => (i === idx ? { ...c, textSi: val } : c)),
+                              }));
+                            }}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-medium focus:border-amber-500 focus:outline-none resize-none"
+                            placeholder="මහියංගණ සිට..."
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                            English Description:
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={card.textEn}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFrequentConfig((prev) => ({
+                                ...prev,
+                                cards: prev.cards.map((c, i) => (i === idx ? { ...c, textEn: val } : c)),
+                              }));
+                            }}
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs font-medium focus:border-amber-500 focus:outline-none resize-none"
+                            placeholder="Mahiyanganaya to..."
+                          />
+                        </div>
+                      </div>
+
+                      {/* Right: Yellow Badge Inputs */}
+                      <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                        <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+                          Yellow Badge Time:
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-slate-400 mb-1">
+                            Badge English (top):
+                          </label>
+                          <input
+                            type="text"
+                            value={card.badgeEn}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFrequentConfig((prev) => ({
+                                ...prev,
+                                cards: prev.cards.map((c, i) => (i === idx ? { ...c, badgeEn: val } : c)),
+                              }));
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs font-bold focus:border-amber-500 focus:outline-none"
+                            placeholder="15 MIN"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-slate-400 mb-1">
+                            Badge Sinhala (bottom):
+                          </label>
+                          <input
+                            type="text"
+                            value={card.badgeSi}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFrequentConfig((prev) => ({
+                                ...prev,
+                                cards: prev.cards.map((c, i) => (i === idx ? { ...c, badgeSi: val } : c)),
+                              }));
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-white text-xs font-bold focus:border-amber-500 focus:outline-none"
+                            placeholder="විනාඩි 15"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom Action Bar */}
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleSaveFrequentServices}
+                  disabled={frequentConfigSaving}
+                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                >
+                  <span>💾</span>
+                  <span>{frequentConfigSaving ? 'Saving Changes...' : 'Save & Update Live TV'}</span>
                 </button>
               </div>
             </div>
