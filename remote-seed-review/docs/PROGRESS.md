@@ -44,6 +44,10 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
     - Passed all 19 test suites and 237/237 tests via `npm test`.
     - Passed TypeScript checks with 0 errors via `npm run typecheck` and `npx tsc --noEmit`.
     - Assembled bundles successfully via `npm run assemble`.
+  - 5. Build & Deploy to Cloudflare Workers:
+    - Executed `npm run deploy` (`npm run assemble && wrangler deploy`).
+    - Successfully uploaded updated assets and deployed Cloudflare Worker (Version ID `e1383a10-389d-4dff-acf4-5d4ed034338f`).
+    - Verified live HTTP response: `https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/tv/` returns 200 OK serving the new TV bundle (`index-BL1ufOZ9.js` and `index-CdkhNcT3.css`).
 - [DONE] Add Public Privacy Policy Route (`/privacy`) and Mobile App Link:
   - 1. Added static Privacy Policy HTML generator and handler in `workers/api/src/privacy.ts`:
     - Renders responsive, dark-mode-styled privacy policy at `/privacy` and `/privacy/`.
