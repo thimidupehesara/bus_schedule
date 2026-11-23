@@ -169,6 +169,31 @@ describe('local SQLite API integration', () => {
     });
     expect(good.response.status).toBe(201);
     expect(good.data['service']).toMatchObject({ departure: '05:30' });
+
+    // Verify arrival time handling on POST and PUT
+    const withArrival = await request('/api/draft/services', 'POST', {
+      ...sample.services[0],
+      id: crypto.randomUUID(),
+      departure: '08:30',
+      arrival: '08:15',
+    });
+    expect(withArrival.response.status).toBe(201);
+    expect(withArrival.data['service']).toMatchObject({ departure: '08:30', arrival: '08:15' });
+
+    const updatedId = (withArrival.data['service'] as { id: string }).id;
+    const updateClear = await request(`/api/draft/services/${updatedId}`, 'PUT', {
+      ...(withArrival.data['service'] as object),
+      arrival: null,
+    });
+    expect(updateClear.response.status).toBe(200);
+    expect(updateClear.data['service']).toMatchObject({ arrival: null });
+
+    const tooLongWait = await request(`/api/draft/services/${updatedId}`, 'PUT', {
+      ...(withArrival.data['service'] as object),
+      departure: '08:30',
+      arrival: '04:00', // 270 minutes wait > 180 min limit
+    });
+    expect(tooLongWait.response.status).toBe(422);
   });
   it('enforces editor roles and CSRF for every mutation', async () => {
     const editor = { ...env, DEV_BYPASS_AUTH_EMAIL: 'editor@example.com' };

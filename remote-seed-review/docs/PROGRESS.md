@@ -21,6 +21,25 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Configurable Frequent Services Slide Intervals (TV)                             | Done    |
 | Editable Frequent Services TV Slide (Admin & TV Layout)                         | Done    |
 | Harden Bulk Bus Delete & CSV/Excel Import Against 503                           | Done    |
+| Add Arrival Time 12-Hour Selector to Admin Modal                                | Done    |
+
+## Done
+- [DONE] Add Arrival Time 12-Hour Selector to Admin Add/Edit Bus Modal:
+  - 1. Admin Modal UI & 12-Hour Selector (`apps/admin/src/App.tsx`):
+    - Added the **Arrival Time (12-Hour)** selector directly beneath the Departure Time selector in the Add / Edit Bus Schedule modal.
+    - Rendered exact 3-part 12-hour picker matching Departure Time: Hour (`1–12`), `:` separator, Minute (`00–59`), and Period (`AM/PM`).
+    - Handled optional status gracefully: Hour dropdown includes `-- (No Arrival Time)` default option; selecting any hour `1..12` automatically activates `hasArrival: true` and enables the Minute and AM/PM dropdowns. Selecting `--` or clicking the inline red `✕ Clear / No Arrival` button sets `hasArrival: false` and disables minutes/meridiem.
+    - Pre-fills exact 12-hour values on edit/duplicate for buses that have an arrival time, and defaults cleanly to `--` for originating buses.
+    - Added client-side validation checking `(minutes(departure) - minutes(arrival) + 1440) % 1440 <= 180` before form submit, preventing invalid arrivals and highlighting fields with `formInvalidFields`.
+  - 2. Backend & Schema Persistence (`workers/api/src/index.ts`):
+    - Defaulted `arrival: null` in `normalizeServiceInput` payload construction so omitted or cleared arrival times are cleanly persisted as `null` in SQLite/D1.
+    - Verified `BusServiceSchema` and `validateServiceStrict` persist and validate `arrival` without stripping.
+    - Added unit test in `workers/api/src/__tests__/api.test.ts` verifying service creation with arrival time, updating to `null`, and rejecting wait times > 180m.
+  - 3. Verification & Deployment:
+    - All 20 test suites and 246/246 tests green (`npm test`).
+    - TypeScript compiles with 0 errors across all workspaces (`npm run typecheck` and `npx tsc --noEmit`).
+    - Successfully assembled and deployed live to Cloudflare Workers (Version ID `f3260175-3af0-49c7-94b5-9a4dd159db71`).
+    - Verified live HTTP endpoints `/health` and `/tv/version.json`.
 
 ## Done
 - [DONE] Harden Bulk Bus Delete & CSV/Excel Import Against 503:

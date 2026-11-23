@@ -10,6 +10,7 @@ import {
   to12h,
   to24h,
   formatTime12,
+  minutes,
   colomboDate,
   validateServiceStrict,
   validateAlertStrict,
@@ -998,6 +999,16 @@ export function App() {
       const arrival = formData.hasArrival
         ? to24h(formData.arrHour, formData.arrMinute, formData.arrMeridiem)
         : null;
+
+      if (formData.hasArrival && arrival) {
+        const gap = (minutes(departure) - minutes(arrival) + 1440) % 1440;
+        if (gap > 180) {
+          setFormError('Arrival to departure wait time exceeds 180 minutes (3 hours). / පැමිණීම සහ පිටත්වීම අතර කාලය විනාඩි 180 ඉක්මවයි.');
+          setFormInvalidFields(new Set(['arrival']));
+          setFormSaving(false);
+          return;
+        }
+      }
 
       // Construct strict payload with all required nullable fields
       const payload = {
@@ -4613,6 +4624,77 @@ export function App() {
                     value={formData.depMeridiem}
                     onChange={(e) => setFormData((prev) => ({ ...prev, depMeridiem: e.target.value as 'AM' | 'PM' }))}
                     className="w-20 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs font-bold focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Arrival Time */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-300">
+                    පැමිණීම · Arrival Time (12-Hour){' '}
+                    <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                  </label>
+                  {formData.hasArrival ? (
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, hasArrival: false }))}
+                      className="text-[11px] font-semibold text-rose-400 hover:text-rose-300 transition-colors flex items-center gap-1"
+                      title="Clear arrival time (for originating buses)"
+                    >
+                      ✕ Clear / No Arrival
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-slate-500 italic">None (Originating bus)</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={formData.hasArrival ? formData.arrHour : ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) {
+                        setFormData((prev) => ({ ...prev, hasArrival: false }));
+                      } else {
+                        setFormData((prev) => ({ ...prev, hasArrival: true, arrHour: parseInt(val, 10) }));
+                      }
+                    }}
+                    className={`flex-1 px-3 py-2 rounded-xl bg-slate-950 border text-xs font-bold focus:outline-none focus:border-blue-500 ${
+                      formInvalidFields.has('arrival')
+                        ? 'border-red-500 ring-1 ring-red-500 text-white'
+                        : formData.hasArrival
+                          ? 'border-slate-800 text-white'
+                          : 'border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <option value="">-- (No Arrival Time)</option>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                  <span className={`font-bold ${formData.hasArrival ? 'text-slate-500' : 'text-slate-700'}`}>:</span>
+                  <select
+                    value={formData.arrMinute}
+                    disabled={!formData.hasArrival}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, arrMinute: parseInt(e.target.value, 10) }))}
+                    className={`flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold focus:outline-none focus:border-blue-500 ${
+                      !formData.hasArrival ? 'opacity-40 cursor-not-allowed text-slate-600' : 'text-white'
+                    }`}
+                  >
+                    {Array.from({ length: 60 }, (_, i) => i).map((m) => (
+                      <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={formData.arrMeridiem}
+                    disabled={!formData.hasArrival}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, arrMeridiem: e.target.value as 'AM' | 'PM' }))}
+                    className={`w-20 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold focus:outline-none focus:border-blue-500 ${
+                      !formData.hasArrival ? 'opacity-40 cursor-not-allowed text-slate-600' : 'text-white'
+                    }`}
                   >
                     <option value="AM">AM</option>
                     <option value="PM">PM</option>
