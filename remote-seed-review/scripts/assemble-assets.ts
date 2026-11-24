@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -22,6 +22,14 @@ const privacyTarget = resolve(root, 'workers/api/public/privacy');
 rmSync(privacyTarget, { recursive: true, force: true });
 mkdirSync(privacyTarget, { recursive: true });
 writeFileSync(resolve(privacyTarget, 'index.html'), renderPrivacyPolicyHtml(), 'utf-8');
+
+const downloadsTarget = resolve(root, 'workers/api/public/downloads');
+mkdirSync(downloadsTarget, { recursive: true });
+const adminApkSource = resolve(root, 'apps/admin/public/downloads/mahiyanganaya-bus-admin.apk');
+if (existsSync(adminApkSource)) {
+  cpSync(adminApkSource, resolve(downloadsTarget, 'mahiyanganaya-bus-admin.apk'), { force: true });
+}
+
 writeFileSync(
   resolve(root, 'workers/api/public/_headers'),
   `/*
@@ -66,8 +74,22 @@ writeFileSync(
   Content-Type: application/vnd.android.package-archive
   Content-Disposition: attachment; filename="mahiyanganaya-bus-mobile.apk"
   Cache-Control: public, max-age=3600
-
-
+/downloads/*
+  Content-Type: application/vnd.android.package-archive
+  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
+  Cache-Control: public, max-age=3600
+/downloads/*.apk
+  Content-Type: application/vnd.android.package-archive
+  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
+  Cache-Control: public, max-age=3600
+/admin/downloads/*
+  Content-Type: application/vnd.android.package-archive
+  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
+  Cache-Control: public, max-age=3600
+/admin/*.apk
+  Content-Type: application/vnd.android.package-archive
+  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
+  Cache-Control: public, max-age=3600
 `,
 );
 console.log('Assembled /tv/, /admin/, and /mobile/ with security headers.');
