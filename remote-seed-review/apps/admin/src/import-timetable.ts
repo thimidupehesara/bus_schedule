@@ -29,6 +29,7 @@ export function placePair(si: unknown, en: unknown) {
 export const columnLabels = {
   destSi: 'ගමනාන්තය (Sinhala)', destEn: 'Destination (English)',
   originSi: 'ගමනාරම්භය (Sinhala)', originEn: 'Origin (English)',
+  via: 'Via / හරහා (Optional)',
   dep: 'Departure time', depPeriod: 'Departure AM/PM', arr: 'Arrival time', arrPeriod: 'Arrival AM/PM',
   operator: 'CTB/PVT', serviceType: 'Service Type (English)', days: 'Days', active: 'Active / Status',
 };
@@ -45,6 +46,7 @@ export function detectColumns(headers: string[]): ColumnMapping {
       if (kind) mapping[kind === 'dep' ? 'depPeriod' : 'arrPeriod'] = index;
     } else if (/destination|^dest|ගමනාන්ත/.test(h)) mapping[sinhala && !english ? 'destSi' : 'destEn'] = index;
     else if (/origin|^from|ගමනාරම්භ|ආරම්භ/.test(h)) mapping[sinhala && !english ? 'originSi' : 'originEn'] = index;
+    else if (/\bvia\b|via\s*route|හරහා|මාර්ගය/.test(h)) mapping.via = index;
     else if (/departure|^dep$|පිටත්/.test(h)) { mapping.dep = index; lastTime = 'dep'; }
     else if (/arrival|^arr$|පැමිණ/.test(h)) { mapping.arr = index; lastTime = 'arr'; }
     else if (/operator|ctb|pvt|sltb/.test(h)) mapping.operator = index;
@@ -142,9 +144,28 @@ export function parseService(value: unknown, row: number): BusService {
     }
   }
 
+  let via: BusService['via'] = null;
+  if (s['via'] != null) {
+    if (typeof s['via'] === 'object' && !Array.isArray(s['via'])) {
+      const vObj = record(s['via']);
+      const si = text(vObj['si']);
+      const en = text(vObj['en']);
+      if (si || en) {
+        const pair = placePair(si, en);
+        via = pair.si || pair.en ? pair : null;
+      }
+    } else {
+      const viaText = text(s['via']);
+      if (viaText) {
+        const pair = placePair('', viaText);
+        via = pair.si && pair.en ? pair : viaText;
+      }
+    }
+  }
+
   return {
     id: crypto.randomUUID(), destination, origin, departure, arrival,
-    via: s['via'] == null ? null : placePair(record(s['via'])['si'], record(s['via'])['en'] ?? text(s['via'])),
+    via,
     tripStart: s['tripStart'] == null ? null : text(s['tripStart']), destinationArrival: s['destinationArrival'] == null ? null : text(s['destinationArrival']),
     operator: /CTB|SLTB|ලංගම/i.test(text(s['operator'])) ? 'CTB' : 'PVT',
     serviceType: /express/i.test(type) ? 'EXPRESS' : /semi/i.test(type) ? 'SEMI_LUXURY' : /lux/i.test(type) ? 'LUXURY' : 'NORMAL',
@@ -165,6 +186,7 @@ export function parseSpreadsheet(rows: string[][], mapping: ColumnMapping): BusS
     return [parseService({
       destination: { si: get('destSi'), en: get('destEn') },
       origin: { si: get('originSi'), en: get('originEn') },
+      via: mapping.via >= 0 ? get('via') : undefined,
       departure: get('dep'),
       departurePeriod: get('depPeriod'),
       arrival: get('arr'),

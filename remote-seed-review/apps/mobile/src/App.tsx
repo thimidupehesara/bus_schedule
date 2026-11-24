@@ -40,6 +40,7 @@ export default function App() {
   const [loading, setLoading] = useState(!doc);
   const [now, setNow] = useState(() => Date.now());
   const [selectedDestination, setSelectedDestination] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [fullDay, setFullDay] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -159,17 +160,33 @@ export default function App() {
     return result.pages.flatMap((p) => p.rows);
   }, [doc, now, fullDay]);
 
-  // Filter rows by selected destination
+  // Filter rows by selected destination or via search
   const filteredRows = useMemo(() => {
     return boardRows.filter((r) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchDest = r.service.destination.en.toLowerCase().includes(q) || r.service.destination.si.includes(q);
+        const matchOrigin = r.service.origin.en.toLowerCase().includes(q) || r.service.origin.si.includes(q);
+        const matchVia = r.service.via && (
+          typeof r.service.via === 'string'
+            ? r.service.via.toLowerCase().includes(q)
+            : (r.service.via.en && r.service.via.en.toLowerCase().includes(q)) || (r.service.via.si && r.service.via.si.includes(q))
+        );
+        if (!matchDest && !matchOrigin && !matchVia) return false;
+      }
       if (selectedDestination) {
-        if (r.service.destination.en !== selectedDestination) {
-          return false;
-        }
+        const matchDest = r.service.destination.en === selectedDestination;
+        const matchVia = r.service.via && (
+          typeof r.service.via === 'string'
+            ? r.service.via.toLowerCase().includes(selectedDestination.toLowerCase())
+            : (r.service.via.en && r.service.via.en.toLowerCase().includes(selectedDestination.toLowerCase())) ||
+              (r.service.via.si && r.service.via.si.includes(selectedDestination))
+        );
+        if (!matchDest && !matchVia) return false;
       }
       return true;
     });
-  }, [boardRows, selectedDestination]);
+  }, [boardRows, selectedDestination, searchQuery]);
 
   // Live Colombo clock formatted
   const colombo = useMemo(() => colomboParts(now), [now]);
@@ -236,8 +253,31 @@ export default function App() {
         </div>
       )}
 
-      {/* Sticky Filter Region with Dropdown & 8h/Full Day Toggle */}
+      {/* Sticky Filter Region with Search, Dropdown & 8h/Full Day Toggle */}
       <section className="filter-section">
+        {/* Route / Destination Search Input */}
+        <div className="search-wrapper">
+          <input
+            type="search"
+            className="route-search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ගමනාන්තය හෝ හරහා මාර්ගය සොයන්න... · Search destination or via route..."
+            aria-label="Search destination or via route"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="clear-search-btn"
+              onClick={() => setSearchQuery('')}
+              aria-label="Clear search"
+              title="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
         <div className="select-wrapper">
           <label htmlFor="destination-select" className="visually-hidden">
             ගමනාන්තය තෝරන්න / Select Destination
@@ -293,11 +333,14 @@ export default function App() {
           <div className="empty-state">
             <p className="empty-title">බස් රථ හමු නොවීය</p>
             <p className="subtext">No matching bus departures found.</p>
-            {selectedDestination && (
+            {(selectedDestination || searchQuery) && (
               <button
                 type="button"
                 className="reset-btn"
-                onClick={() => setSelectedDestination('')}
+                onClick={() => {
+                  setSelectedDestination('');
+                  setSearchQuery('');
+                }}
               >
                 පෙරහන් ඉවත් කරන්න · Clear Filters
               </button>
@@ -403,6 +446,11 @@ function ScheduleCard({ row }: { row: BoardRow }) {
         <div className="card-destination">
           <span className="dest-si">{service.destination.si}</span>
           <span className="dest-en">{service.destination.en}</span>
+          {service.via && (
+            <span className="dest-via-badge">
+              හරහා · Via {typeof service.via === 'string' ? service.via : (service.via.en || service.via.si)}
+            </span>
+          )}
         </div>
         <div className="card-badges">
           {isSoon && <span className="badge soon-badge">ඊළඟ බස් රථය · Next Bus</span>}
@@ -457,7 +505,11 @@ function ScheduleCard({ row }: { row: BoardRow }) {
           <div className="via-row">
             <span className="via-label">හරහා · Via:</span>
             <span className="via-value">
-              {service.via.si} · {service.via.en}
+              {typeof service.via === 'string'
+                ? service.via
+                : service.via.si && service.via.en
+                  ? `${service.via.si} · ${service.via.en}`
+                  : service.via.en || service.via.si}
             </span>
           </div>
         )}

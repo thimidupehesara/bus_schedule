@@ -194,6 +194,41 @@ describe('local SQLite API integration', () => {
       arrival: '04:00', // 270 minutes wait > 180 min limit
     });
     expect(tooLongWait.response.status).toBe(422);
+
+    // Verify via route handling on POST and PUT
+    const withVia = await request('/api/draft/services', 'POST', {
+      ...sample.services[0],
+      id: crypto.randomUUID(),
+      departure: '09:30',
+      arrival: null,
+      via: { si: 'කදුරුවෙල', en: 'Kaduruwela' },
+    });
+    expect(withVia.response.status).toBe(201);
+    expect(withVia.data['service']).toMatchObject({
+      departure: '09:30',
+      via: { si: 'කදුරුවෙල', en: 'Kaduruwela' },
+    });
+
+    const withStringVia = await request('/api/draft/services', 'POST', {
+      ...sample.services[0],
+      id: crypto.randomUUID(),
+      departure: '10:30',
+      arrival: null,
+      via: 'Dambulla',
+    });
+    expect(withStringVia.response.status).toBe(201);
+    expect(withStringVia.data['service']).toMatchObject({
+      departure: '10:30',
+      via: 'Dambulla',
+    });
+
+    const viaServiceId = (withVia.data['service'] as { id: string }).id;
+    const clearVia = await request(`/api/draft/services/${viaServiceId}`, 'PUT', {
+      ...(withVia.data['service'] as object),
+      via: null,
+    });
+    expect(clearVia.response.status).toBe(200);
+    expect(clearVia.data['service']).toMatchObject({ via: null });
   });
   it('enforces editor roles and CSRF for every mutation', async () => {
     const editor = { ...env, DEV_BYPASS_AUTH_EMAIL: 'editor@example.com' };

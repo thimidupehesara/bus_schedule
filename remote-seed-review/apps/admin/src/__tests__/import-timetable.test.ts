@@ -125,6 +125,38 @@ describe('safeJson helper', () => {
   });
 });
 
+describe('Via Route Column Parsing', () => {
+  it('detects Via column from various header aliases', () => {
+    expect(detectColumns(['Destination (English)', 'Departure time', 'Via']).via).toBe(2);
+    expect(detectColumns(['Destination (English)', 'Departure time', 'Via Route']).via).toBe(2);
+    expect(detectColumns(['Destination (English)', 'Departure time', 'හරහා']).via).toBe(2);
+    expect(detectColumns(['Destination (English)', 'Departure time', 'මාර්ගය']).via).toBe(2);
+  });
+
+  it('parses imported spreadsheet rows with Via route', () => {
+    const headers = ['Destination (English)', 'Departure time', 'Via'];
+    const mapping = detectColumns(headers);
+    const rows = [
+      ['Colombo', '06:00', 'Kaduruwela'],
+      ['Kandy', '07:30', ''],
+      ['Trincomalee', '08:00', 'Polonnaruwa'],
+    ];
+    const services = parseSpreadsheet(rows, mapping);
+    expect(services).toHaveLength(3);
+    expect(services[0]!.via).toBe('Kaduruwela');
+    expect(services[1]!.via).toBeNull();
+    expect(services[2]!.via).toEqual({ si: 'පොළොන්නරුව', en: 'Polonnaruwa' });
+  });
+
+  it('defaults via to null when via column is absent', () => {
+    const headers = ['Destination (English)', 'Departure time'];
+    const mapping = detectColumns(headers);
+    const rows = [['Colombo', '06:00']];
+    const services = parseSpreadsheet(rows, mapping);
+    expect(services[0]!.via).toBeNull();
+  });
+});
+
 it.each([undefined, 'Every day'])('defaults spreadsheet Days=%s and absent Active to all active weekdays', (days) => {
   const headers = ['Destination (English)', 'Departure time', ...(days ? ['Days'] : [])];
   const row = ['Colombo', '06:00', ...(days ? [days] : [])];

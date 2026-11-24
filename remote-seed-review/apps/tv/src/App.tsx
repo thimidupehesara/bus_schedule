@@ -235,9 +235,9 @@ function Row({ row, weekday }: { row?: BoardRow | undefined; weekday: Weekday })
                 {SHOW_VIA && bus.via && (
                   <div className="via">
                     <span lang="si">
-                      {LABELS.via.si} {bus.via.si}
+                      {LABELS.via.si} {typeof bus.via === 'string' ? bus.via : (bus.via.si || bus.via.en)}
                     </span>{' '}
-                    / {LABELS.via.en} {bus.via.en}
+                    / {LABELS.via.en} {typeof bus.via === 'string' ? bus.via : (bus.via.en || bus.via.si)}
                   </div>
                 )}
               </>

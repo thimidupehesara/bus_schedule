@@ -22,6 +22,40 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Editable Frequent Services TV Slide (Admin & TV Layout)                         | Done    |
 | Harden Bulk Bus Delete & CSV/Excel Import Against 503                           | Done    |
 | Add Arrival Time 12-Hour Selector to Admin Modal                                | Done    |
+| Dedicated Via Route Field Support across Backend, Admin & Mobile               | Done    |
+
+## Done
+- [DONE] Add Dedicated Via Route Field Support across Backend, Admin, CSV Importer & Mobile:
+  - 1. Shared Schema & Validation (`packages/shared`):
+    - Added `ViaSchema = z.union([LocalizedTextSchema, z.object({ si: z.string().min(1).max(80).optional(), en: z.string().min(1).max(80).optional() }), z.string().min(1).max(80)]).nullable()` and exported `type ViaRoute` in `packages/shared/src/schema.ts`.
+    - Updated `normalizeServiceInput` in `packages/shared/src/service-rules.ts` to sanitize and normalize empty string / object via inputs to `null`, while preserving valid text and bilingual objects.
+    - Updated `validateServiceStrict` in `packages/shared/src/service-rules.ts` to validate both `LocalizedText` and string `via` types, verifying spacing and scripts without throwing on missing sub-properties.
+  - 2. Backend & API Endpoints (`workers/api`):
+    - Verified `POST /api/draft/services`, `PUT /api/draft/services/:id`, and `POST /api/draft/import` properly receive, sanitize, and persist `via` in SQLite / D1 draft services.
+    - Confirmed `scheduleDiff` in `workers/api/src/schedule.ts` tracks `via` mutations across all fields.
+    - Added integration tests in `workers/api/src/__tests__/api.test.ts` verifying service creation with bilingual `via`, string `via`, and clearing `via` to `null`.
+  - 3. Admin Dashboard (`apps/admin`):
+    - Added `viaSi` and `viaEn` fields to `ServiceFormData`.
+    - Pre-filled `viaSi` and `viaEn` in `handleOpenEditModal` and `handleOpenDuplicateModal` for both bilingual object and plain string formats.
+    - Added `හරහා · Via Route (Optional)` section in Add / Edit Bus modal JSX with bilingual Sinhala and English inputs, town autofill from `KNOWN_PLACES`, and inline "✕ Clear / Direct" button.
+    - Added subtle amber `හරහා · Via: <value>` badge under destination in both desktop table and mobile card views.
+    - Included `s.via` in `searchTerm` filter matching in `filteredServices`.
+    - In `apps/admin/src/import-timetable.ts`, added `via: 'Via / හරහා (Optional)'` to `columnLabels`, auto-detected `via` column via `/\bvia\b|via\s*route|හරහා|මාර්ගය/i`, and parsed `via` in `parseSpreadsheet` and `parseService`.
+  - 4. Commuter Mobile Web App (`apps/mobile`):
+    - Added compact `හරහා · Via <value>` pill badge (`.dest-via-badge`) under destination title on bus cards.
+    - Preserved and enhanced bilingual `.via-row` in `.card-bottom`.
+    - Added commuter route/via search input (`.route-search-input`) with clear button in `.filter-section`.
+    - Updated `filteredRows` to match destination, origin, and via town names across both search query and destination dropdown filter.
+  - 5. TV Display Isolation (`apps/tv`):
+    - Kept `apps/tv` table display unchanged (`SHOW_VIA = false`), maintaining large 16:9 wall layout without extra column overhead or line wrapping.
+  - 6. Testing, Assembly & Cloudflare Workers Deployment:
+    - All 20 test suites and 249/249 unit and integration tests passing (`npm test`).
+    - TypeScript compilation green across monorepo (`npm run typecheck`, backend and apps `npx tsc --noEmit`).
+    - Successfully assembled and deployed live to Cloudflare Workers (Version ID `9d989b83-b787-45c8-ab4f-4b3d88589680`).
+    - Verified live HTTP endpoints `/health` (200 OK), `/tv/version.json` (200 OK), `/mobile/` (200 OK), and `/tv/` (200 OK).
+    - Run all unit tests (`npm test`) and typechecks (`npm run typecheck`, `npx tsc --noEmit`).
+    - Run `npm run assemble` and `npm run deploy` to publish live.
+    - Verify live `/tv/`, `/mobile/`, and `/health` endpoints.
 
 ## Done
 - [DONE] Add Arrival Time 12-Hour Selector to Admin Add/Edit Bus Modal:
