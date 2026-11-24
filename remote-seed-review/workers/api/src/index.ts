@@ -732,6 +732,7 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
       bay: null,
       tripStart: null,
       destinationArrival: null,
+      arrival: null,
       ...(method === 'PUT' || duplicate ? original : {}),
       ...body,
       id:

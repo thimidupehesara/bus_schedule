@@ -76,6 +76,16 @@ export const WeekdaySchema = z.custom<WeekdayNum | WeekdayCode>((value) =>
 );
 export type Weekday = z.infer<typeof WeekdaySchema>;
 
+export const ViaSchema = z.union([
+  LocalizedTextSchema,
+  z.object({
+    si: z.string().min(1).max(80).optional(),
+    en: z.string().min(1).max(80).optional(),
+  }),
+  z.string().min(1).max(80),
+]).nullable();
+export type ViaRoute = z.infer<typeof ViaSchema>;
+
 // ---------------------------------------------------------------------------
 // BusService
 // ---------------------------------------------------------------------------
@@ -97,7 +107,7 @@ export const BusServiceSchema = z.object({
    * Intermediate stop between origin and destination.
    * Displayed as "හරහා" (via). Null when the route is direct.
    */
-  via: LocalizedTextSchema.nullable(),
+  via: ViaSchema,
 
   operator: OperatorSchema,
   serviceType: ServiceTypeSchema,

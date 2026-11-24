@@ -51,6 +51,25 @@ export function normalizeServiceInput(raw: unknown): unknown {
       value['active'] = Boolean(value['active']);
     }
   }
+  if (value['via'] !== undefined) {
+    if (value['via'] === null || value['via'] === '' || value['via'] === false) {
+      value['via'] = null;
+    } else if (typeof value['via'] === 'string') {
+      const v = value['via'].trim();
+      value['via'] = v ? v : null;
+    } else if (typeof value['via'] === 'object' && !Array.isArray(value['via'])) {
+      const vObj = value['via'] as Record<string, unknown>;
+      const si = typeof vObj['si'] === 'string' ? vObj['si'].trim() : '';
+      const en = typeof vObj['en'] === 'string' ? vObj['en'].trim() : '';
+      if (!si && !en) {
+        value['via'] = null;
+      } else if (si && en) {
+        value['via'] = { si, en };
+      } else {
+        value['via'] = { ...(si ? { si } : {}), ...(en ? { en } : {}) };
+      }
+    }
+  }
   return value;
 }
 
@@ -105,8 +124,23 @@ export function validateServiceStrict(
   for (const field of ['destination', 'origin', 'via'] as const) {
     const place = s[field];
     if (!place) continue;
+    if (field === 'via' && typeof place === 'string') {
+      if (place.trim() !== place || /\s{2}|[^\S ]/.test(place)) {
+        errors.push(
+          issue(
+            'via',
+            'SPACING',
+            'Remove leading, trailing or repeated spaces.',
+            'මුල, අග සහ නැවත නැවත ඇති හිස්තැන් ඉවත් කරන්න.',
+          ),
+        );
+      }
+      continue;
+    }
+    const placeObj = place as Record<string, string | undefined>;
     for (const language of ['si', 'en'] as const) {
-      const text = place[language];
+      const text = placeObj[language];
+      if (text === undefined) continue;
       if (text.trim() !== text || /\s{2}|[^\S ]/.test(text)) {
         errors.push(
           issue(
@@ -136,9 +170,11 @@ export function validateServiceStrict(
     }
     if (
       field !== 'via' &&
-      !KNOWN_PLACES.some((p) => p.en.toLowerCase() === place.en.toLowerCase() && p.si === place.si)
+      placeObj['en'] &&
+      placeObj['si'] &&
+      !KNOWN_PLACES.some((p) => p.en.toLowerCase() === placeObj['en']!.toLowerCase() && p.si === placeObj['si'])
     ) {
-      const closest = findClosestKnownPlace(place.en);
+      const closest = findClosestKnownPlace(placeObj['en']!);
       warnings.push(
         issue(
           field,

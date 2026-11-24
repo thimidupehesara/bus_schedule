@@ -10,6 +10,7 @@ import {
   to12h,
   to24h,
   formatTime12,
+  minutes,
   colomboDate,
   validateServiceStrict,
   validateAlertStrict,
@@ -162,6 +163,8 @@ export interface ServiceFormData {
   destChoice: string;
   destSi: string;
   destEn: string;
+  viaSi: string;
+  viaEn: string;
   originChoice: string;
   originSi: string;
   originEn: string;
@@ -459,6 +462,8 @@ export function App() {
     destChoice: '',
     destSi: '',
     destEn: '',
+    viaSi: '',
+    viaEn: '',
     originChoice: 'මහියංගනය',
     originSi: 'මහියංගනය',
     originEn: 'Mahiyanganaya',
@@ -847,6 +852,8 @@ export function App() {
       destChoice: '',
       destSi: '',
       destEn: '',
+      viaSi: '',
+      viaEn: '',
       originChoice: 'මහියංගනය',
       originSi: 'මහියංගනය',
       originEn: 'Mahiyanganaya',
@@ -881,11 +888,31 @@ export function App() {
       (p) => p.si === bus.origin.si && p.en.toLowerCase() === bus.origin.en.toLowerCase()
     );
 
+    let viaSi = '';
+    let viaEn = '';
+    if (bus.via) {
+      if (typeof bus.via === 'string') {
+        viaEn = bus.via;
+        const match = KNOWN_PLACES.find(
+          (p) => p.en.toLowerCase() === (bus.via as string).toLowerCase() || p.si === bus.via
+        );
+        if (match) {
+          viaSi = match.si;
+          viaEn = match.en;
+        }
+      } else {
+        viaSi = bus.via.si || '';
+        viaEn = bus.via.en || '';
+      }
+    }
+
     setFormData({
       id: bus.id,
       destChoice: destMatch ? destMatch.si : '__NEW__',
       destSi: bus.destination.si,
       destEn: bus.destination.en,
+      viaSi,
+      viaEn,
       originChoice: originMatch ? originMatch.si : '__NEW__',
       originSi: bus.origin.si,
       originEn: bus.origin.en,
@@ -920,6 +947,24 @@ export function App() {
       (p) => p.si === bus.origin.si && p.en.toLowerCase() === bus.origin.en.toLowerCase()
     );
 
+    let viaSi = '';
+    let viaEn = '';
+    if (bus.via) {
+      if (typeof bus.via === 'string') {
+        viaEn = bus.via;
+        const match = KNOWN_PLACES.find(
+          (p) => p.en.toLowerCase() === (bus.via as string).toLowerCase() || p.si === bus.via
+        );
+        if (match) {
+          viaSi = match.si;
+          viaEn = match.en;
+        }
+      } else {
+        viaSi = bus.via.si || '';
+        viaEn = bus.via.en || '';
+      }
+    }
+
     // Auto-advance by 1 hour for convenient distinct timing
     const nextHour = (dep.hour % 12) + 1;
 
@@ -928,6 +973,8 @@ export function App() {
       destChoice: destMatch ? destMatch.si : '__NEW__',
       destSi: bus.destination.si,
       destEn: bus.destination.en,
+      viaSi,
+      viaEn,
       originChoice: originMatch ? originMatch.si : '__NEW__',
       originSi: bus.origin.si,
       originEn: bus.origin.en,
@@ -985,6 +1032,24 @@ export function App() {
       setFormSaving(false);
       return;
     }
+    if (formData.viaSi.trim()) {
+      const viaSiErr = validateSinhalaScript(formData.viaSi.trim());
+      if (viaSiErr) {
+        setFormError(`Via Sinhala: ${viaSiErr}`);
+        setFormInvalidFields(new Set(['via.si']));
+        setFormSaving(false);
+        return;
+      }
+    }
+    if (formData.viaEn.trim()) {
+      const viaEnErr = validateLatinScript(formData.viaEn.trim());
+      if (viaEnErr) {
+        setFormError(`Via English: ${viaEnErr}`);
+        setFormInvalidFields(new Set(['via.en']));
+        setFormSaving(false);
+        return;
+      }
+    }
 
     if (formData.days.length === 0) {
       setFormError('Please select at least one day of the week. / සතියේ අවම වශයෙන් එක් දිනයක් තෝරන්න.');
@@ -999,12 +1064,39 @@ export function App() {
         ? to24h(formData.arrHour, formData.arrMinute, formData.arrMeridiem)
         : null;
 
+      if (formData.hasArrival && arrival) {
+        const gap = (minutes(departure) - minutes(arrival) + 1440) % 1440;
+        if (gap > 180) {
+          setFormError('Arrival to departure wait time exceeds 180 minutes (3 hours). / පැමිණීම සහ පිටත්වීම අතර කාලය විනාඩි 180 ඉක්මවයි.');
+          setFormInvalidFields(new Set(['arrival']));
+          setFormSaving(false);
+          return;
+        }
+      }
+
+      const viaSi = formData.viaSi.trim();
+      const viaEn = formData.viaEn.trim();
+      let via: BusService['via'] = null;
+      if (viaSi && viaEn) {
+        via = { si: viaSi, en: viaEn };
+      } else if (viaSi || viaEn) {
+        const text = viaEn || viaSi;
+        const known = KNOWN_PLACES.find(
+          (p) => p.en.toLowerCase() === text.toLowerCase() || p.si === text
+        );
+        if (known) {
+          via = { si: viaSi || known.si, en: viaEn || known.en };
+        } else {
+          via = viaEn || viaSi;
+        }
+      }
+
       // Construct strict payload with all required nullable fields
       const payload = {
         id: formData.id || crypto.randomUUID(),
         destination: { si: formData.destSi.trim(), en: formData.destEn.trim() },
         origin: { si: formData.originSi.trim(), en: formData.originEn.trim() },
-        via: null,
+        via,
         departure,
         arrival,
         tripStart: null,
@@ -1967,9 +2059,14 @@ export function App() {
           const q = searchTerm.toLowerCase();
           const matchDest = s.destination.en.toLowerCase().includes(q) || s.destination.si.includes(q);
           const matchOrigin = s.origin.en.toLowerCase().includes(q) || s.origin.si.includes(q);
+          const matchVia = s.via && (
+            typeof s.via === 'string'
+              ? s.via.toLowerCase().includes(q)
+              : (s.via.en && s.via.en.toLowerCase().includes(q)) || (s.via.si && s.via.si.includes(q))
+          );
           const matchTime = s.departure.includes(q) || (s.arrival && s.arrival.includes(q));
           const matchOp = s.operator.toLowerCase().includes(q);
-          if (!matchDest && !matchOrigin && !matchTime && !matchOp) return false;
+          if (!matchDest && !matchOrigin && !matchVia && !matchTime && !matchOp) return false;
         }
         // Day Filter
         if (dayFilter !== 'ALL') {
@@ -2611,6 +2708,12 @@ export function App() {
                           <td className="py-3.5 px-4">
                             <div className="font-bold text-sm text-white">{bus.destination.si}</div>
                             <div className="text-[11px] text-slate-400">{bus.destination.en}</div>
+                            {bus.via && (
+                              <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-medium text-amber-300 border border-amber-500/20">
+                                <span>හරහා · Via:</span>
+                                <span>{typeof bus.via === 'string' ? bus.via : (bus.via.en || bus.via.si)}</span>
+                              </div>
+                            )}
                           </td>
 
                           {/* Departure Time */}
@@ -2719,6 +2822,12 @@ export function App() {
                         <div className="text-xs text-slate-400">
                           {bus.destination.en} · From: {bus.origin.si}
                         </div>
+                        {bus.via && (
+                          <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-medium text-amber-300 border border-amber-500/20">
+                            <span>හරහා · Via:</span>
+                            <span>{typeof bus.via === 'string' ? bus.via : (bus.via.en || bus.via.si)}</span>
+                          </div>
+                        )}
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-black text-white">{formatTime12(bus.departure, 'EN')}</div>
@@ -4551,6 +4660,71 @@ export function App() {
                 </div>
               </div>
 
+              {/* Via Route Section (Optional) */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-300">
+                    හරහා · Via Route <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                  </label>
+                  {(formData.viaSi || formData.viaEn) ? (
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, viaSi: '', viaEn: '' }))}
+                      className="text-[11px] font-semibold text-rose-400 hover:text-rose-300 transition-colors flex items-center gap-1"
+                      title="Clear via route (Direct bus)"
+                    >
+                      ✕ Clear / Direct
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-slate-500 italic">Direct route</span>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Sinhala (සිංහල)</label>
+                    <input
+                      type="text"
+                      value={formData.viaSi}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData((prev) => {
+                          const known = KNOWN_PLACES.find((p) => p.si === val.trim());
+                          return {
+                            ...prev,
+                            viaSi: val,
+                            viaEn: !prev.viaEn && known ? known.en : prev.viaEn,
+                          };
+                        });
+                      }}
+                      placeholder="e.g. කදුරුවෙල, දඹුල්ල, මහඔය"
+                      className={`w-full px-3.5 py-2 rounded-xl bg-slate-950 border text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-blue-500 ${formInvalidFields.has('via.si') ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-800'
+                        }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">English</label>
+                    <input
+                      type="text"
+                      value={formData.viaEn}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData((prev) => {
+                          const known = KNOWN_PLACES.find((p) => p.en.toLowerCase() === val.trim().toLowerCase());
+                          return {
+                            ...prev,
+                            viaEn: val,
+                            viaSi: !prev.viaSi && known ? known.si : prev.viaSi,
+                          };
+                        });
+                      }}
+                      placeholder="e.g. Kaduruwela, Dambulla, Mahaoya"
+                      className={`w-full px-3.5 py-2 rounded-xl bg-slate-950 border text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-blue-500 ${formInvalidFields.has('via.en') ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-800'
+                        }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Origin Section */}
               <div className="space-y-3">
                 <label className="block text-xs font-bold text-slate-300">
@@ -4613,6 +4787,77 @@ export function App() {
                     value={formData.depMeridiem}
                     onChange={(e) => setFormData((prev) => ({ ...prev, depMeridiem: e.target.value as 'AM' | 'PM' }))}
                     className="w-20 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs font-bold focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Arrival Time */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-300">
+                    පැමිණීම · Arrival Time (12-Hour){' '}
+                    <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                  </label>
+                  {formData.hasArrival ? (
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, hasArrival: false }))}
+                      className="text-[11px] font-semibold text-rose-400 hover:text-rose-300 transition-colors flex items-center gap-1"
+                      title="Clear arrival time (for originating buses)"
+                    >
+                      ✕ Clear / No Arrival
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-slate-500 italic">None (Originating bus)</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={formData.hasArrival ? formData.arrHour : ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) {
+                        setFormData((prev) => ({ ...prev, hasArrival: false }));
+                      } else {
+                        setFormData((prev) => ({ ...prev, hasArrival: true, arrHour: parseInt(val, 10) }));
+                      }
+                    }}
+                    className={`flex-1 px-3 py-2 rounded-xl bg-slate-950 border text-xs font-bold focus:outline-none focus:border-blue-500 ${
+                      formInvalidFields.has('arrival')
+                        ? 'border-red-500 ring-1 ring-red-500 text-white'
+                        : formData.hasArrival
+                          ? 'border-slate-800 text-white'
+                          : 'border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <option value="">-- (No Arrival Time)</option>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((h) => (
+                      <option key={h} value={h}>{h}</option>
+                    ))}
+                  </select>
+                  <span className={`font-bold ${formData.hasArrival ? 'text-slate-500' : 'text-slate-700'}`}>:</span>
+                  <select
+                    value={formData.arrMinute}
+                    disabled={!formData.hasArrival}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, arrMinute: parseInt(e.target.value, 10) }))}
+                    className={`flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold focus:outline-none focus:border-blue-500 ${
+                      !formData.hasArrival ? 'opacity-40 cursor-not-allowed text-slate-600' : 'text-white'
+                    }`}
+                  >
+                    {Array.from({ length: 60 }, (_, i) => i).map((m) => (
+                      <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={formData.arrMeridiem}
+                    disabled={!formData.hasArrival}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, arrMeridiem: e.target.value as 'AM' | 'PM' }))}
+                    className={`w-20 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold focus:outline-none focus:border-blue-500 ${
+                      !formData.hasArrival ? 'opacity-40 cursor-not-allowed text-slate-600' : 'text-white'
+                    }`}
                   >
                     <option value="AM">AM</option>
                     <option value="PM">PM</option>
