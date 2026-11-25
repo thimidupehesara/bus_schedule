@@ -1294,7 +1294,7 @@ async function route(request: Request, env: Env): Promise<Response> {
       headers,
     });
   }
-  if (path === '/tv/sw.js') {
+  if (path === '/tv/sw.js' || path === '/admin/sw.js' || path === '/mobile/sw.js') {
     const assetResponse = await env.ASSETS.fetch(request);
     const headers = new Headers(assetResponse.headers);
     headers.set('Content-Type', 'application/javascript; charset=utf-8');
@@ -1305,14 +1305,38 @@ async function route(request: Request, env: Env): Promise<Response> {
     });
   }
   if (
-    path === '/downloads/mahiyanganaya-bus-admin.apk' ||
-    path === '/admin/downloads/mahiyanganaya-bus-admin.apk' ||
-    path === '/admin/mahiyanganaya-bus-admin.apk'
+    path === '/admin/manifest.webmanifest' ||
+    path === '/tv/manifest.webmanifest' ||
+    path === '/mobile/manifest.webmanifest'
+  ) {
+    const assetResponse = await env.ASSETS.fetch(request);
+    const headers = new Headers(assetResponse.headers);
+    headers.set('Content-Type', 'application/manifest+json');
+    headers.set('Cache-Control', 'no-cache');
+    return new Response(assetResponse.body, {
+      status: assetResponse.status,
+      headers,
+    });
+  }
+  if (path.startsWith('/admin/icons/')) {
+    const assetResponse = await env.ASSETS.fetch(request);
+    const headers = new Headers(assetResponse.headers);
+    headers.set('Content-Type', 'image/png');
+    headers.set('Cache-Control', 'public, max-age=86400');
+    return new Response(assetResponse.body, {
+      status: assetResponse.status,
+      headers,
+    });
+  }
+  if (
+    path === '/downloads/mtba-admin.apk' ||
+    path === '/admin/downloads/mtba-admin.apk' ||
+    path === '/admin/mtba-admin.apk'
   ) {
     const assetResponse = await env.ASSETS.fetch(request);
     const headers = new Headers(assetResponse.headers);
     headers.set('Content-Type', 'application/vnd.android.package-archive');
-    headers.set('Content-Disposition', 'attachment; filename="mahiyanganaya-bus-admin.apk"');
+    headers.set('Content-Disposition', 'attachment; filename="mtba-admin.apk"');
     headers.set('Cache-Control', 'public, max-age=3600');
     return new Response(assetResponse.body, {
       status: assetResponse.status,

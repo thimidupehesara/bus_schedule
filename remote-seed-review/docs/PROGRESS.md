@@ -25,6 +25,30 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Dedicated Via Route Field Support across Backend, Admin & Mobile               | Done    |
 | Admin Role Management, Global Sync & Android Admin APK                         | Done    |
 | Replace Cramped Mobile Footer Install Buttons with Single "Get the App" Button & Dedicated View | Done    |
+| Audit Mobile App Isolation & Standalone MTBA Admin PWA for PWABuilder           | Done    |
+
+## Done
+- [DONE] Audit Mobile App Isolation & Standalone MTBA Admin PWA for PWABuilder:
+  - 1. Security Audit & Isolation Verification:
+    - Executed exhaustive string search across all commuter app files (`apps/mobile/src/App.tsx`, `index.html`, `manifest.webmanifest`, `sw.js`, `package.json`, etc.) and confirmed **zero** references, hidden buttons, routes, or links to `/admin` or staff endpoints exist.
+    - Identified root cause of Android prompt *"Do you want to update MTB app?"*: `apps/admin/public/downloads/mahiyanganaya-bus-admin.apk` was an exact duplicate binary copy of commuter APK `mahiyanganaya-bus-mobile.apk` (both 3,276,196 bytes, package `lk.mahiyanganaya.busmobile`).
+    - Removed the duplicate commuter APK from `apps/admin/public/downloads/mahiyanganaya-bus-admin.apk` and `workers/api/public/downloads/mahiyanganaya-bus-admin.apk`.
+  - 2. Independent Standalone PWA ("MTBA") Configuration for PWABuilder:
+    - Created `apps/admin/public/manifest.webmanifest` strictly scoped to `/admin/`: `id: "/admin/"`, `name: "MTBA - Mahiyanganaya Bus Admin"`, `short_name: "MTBA"`, `scope: "/admin/"`, `start_url: "/admin/"`, `display: "standalone"`, `theme_color: "#0B1120"`, `background_color: "#0B1120"`.
+    - Generated high-contrast admin-branded 192x192 and 512x512 icons in `apps/admin/public/icons/` (`icon-192.png`, `icon-512.png`) featuring an emerald/amber admin shield badge distinct from the commuter blue bus icon.
+    - Updated `apps/admin/index.html` with `<link rel="manifest" href="/admin/manifest.webmanifest">`, `<meta name="theme-color" content="#0B1120">`, `<link rel="apple-touch-icon" href="/admin/icons/icon-192.png">`, and `<title>MTBA — Mahiyanganaya Bus Admin</title>`.
+    - Implemented a scoped network-first service worker `apps/admin/public/sw.js` registered with `{ scope: '/admin/' }` in `apps/admin/src/main.tsx`, strictly bypassing all `/api/*` and `/cdn-cgi/*` requests so administrative actions and data are never stale.
+    - Updated `scripts/assemble-assets.ts`, `workers/api/src/index.ts`, and `workers/api/wrangler.toml` to route `/admin/manifest.webmanifest`, `/admin/sw.js`, and `/admin/icons/*` with correct MIME types and `Cache-Control: no-cache`.
+  - 3. Dedicated `MTBA` Admin APK Slot & Dynamic PWA Installation Prompt:
+    - Configured `/downloads/mtba-admin.apk` as the dedicated upload slot for the PWABuilder-generated Admin APK (completely separate from `/mobile/mahiyanganaya-bus-mobile.apk`).
+    - Updated `apps/admin/src/App.tsx`: replaced the hardcoded fake download button with a dynamic check (`HEAD /downloads/mtba-admin.apk`). When the custom APK is present, the download button appears; otherwise, a clean "Install MTBA App (PWA)" prompt displays with direct `beforeinstallprompt` trigger and manual home screen instructions.
+  - 4. Verification & Cloudflare Workers Deployment:
+    - Added unit test suite in `apps/admin/src/__tests__/adminPwa.test.ts` (6 tests).
+    - Updated `workers/api/src/__tests__/privacy.test.ts` to test `/downloads/mtba-admin.apk`.
+    - Passed all 22 test suites and 266/266 unit and integration tests (`npm test`).
+    - Passed TypeScript verification with 0 errors (`npm run typecheck` and `npx tsc --noEmit`).
+    - Assembled all assets (`npm run assemble`) and deployed live to Cloudflare Workers via `npm run deploy` (Version ID `1d8d4cd5-2e94-4419-9368-9c3dc9d43751`).
+    - Verified live HTTP endpoints `/health` (200 OK), `/tv/version.json` (200 OK), `/mobile/` (200 OK), and `/admin/` (protected with 302 to Access login).
 
 ## Done
 - [DONE] Replace Cramped Mobile Footer Install Buttons with Single "Get the App" Button & Dedicated App Download View:

@@ -25,9 +25,9 @@ writeFileSync(resolve(privacyTarget, 'index.html'), renderPrivacyPolicyHtml(), '
 
 const downloadsTarget = resolve(root, 'workers/api/public/downloads');
 mkdirSync(downloadsTarget, { recursive: true });
-const adminApkSource = resolve(root, 'apps/admin/public/downloads/mahiyanganaya-bus-admin.apk');
-if (existsSync(adminApkSource)) {
-  cpSync(adminApkSource, resolve(downloadsTarget, 'mahiyanganaya-bus-admin.apk'), { force: true });
+const mtbaApkSource = resolve(root, 'apps/admin/public/downloads/mtba-admin.apk');
+if (existsSync(mtbaApkSource)) {
+  cpSync(mtbaApkSource, resolve(downloadsTarget, 'mtba-admin.apk'), { force: true });
 }
 
 writeFileSync(
@@ -47,6 +47,15 @@ writeFileSync(
   Cache-Control: public, max-age=3600
 /admin/*
   Cache-Control: no-store
+/admin/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: no-cache
+/admin/sw.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache
+/admin/icons/*
+  Content-Type: image/png
+  Cache-Control: public, max-age=86400
 /tv/*
   Cache-Control: no-cache
 /tv/version.json
@@ -75,20 +84,14 @@ writeFileSync(
   Content-Disposition: attachment; filename="mahiyanganaya-bus-mobile.apk"
   Cache-Control: public, max-age=3600
 /downloads/*
+  Cache-Control: public, max-age=3600
+/downloads/mtba-admin.apk
   Content-Type: application/vnd.android.package-archive
-  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
+  Content-Disposition: attachment; filename="mtba-admin.apk"
   Cache-Control: public, max-age=3600
 /downloads/*.apk
   Content-Type: application/vnd.android.package-archive
-  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
-  Cache-Control: public, max-age=3600
-/admin/downloads/*
-  Content-Type: application/vnd.android.package-archive
-  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
-  Cache-Control: public, max-age=3600
-/admin/*.apk
-  Content-Type: application/vnd.android.package-archive
-  Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"
+  Content-Disposition: attachment; filename="mtba-admin.apk"
   Cache-Control: public, max-age=3600
 `,
 );
