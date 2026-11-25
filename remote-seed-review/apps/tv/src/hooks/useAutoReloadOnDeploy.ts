@@ -5,7 +5,7 @@ import {
   DEFAULT_FREQUENT_SERVICES_CONFIG,
 } from '@bus-schedule/shared';
 
-export type TvHoldMode = 'auto' | 'credits' | 'frequent' | 'page';
+export type TvHoldMode = 'auto' | 'credits' | 'frequent' | 'page' | 'ceremony_logos' | 'ceremony_qr';
 
 export interface TvHoldState {
   mode: TvHoldMode;
@@ -32,7 +32,9 @@ function readPersistedTvHold(): TvHoldState {
             mode === 'auto' ||
             mode === 'credits' ||
             mode === 'frequent' ||
-            mode === 'page'
+            mode === 'page' ||
+            mode === 'ceremony_logos' ||
+            mode === 'ceremony_qr'
           ) {
             return {
               mode,

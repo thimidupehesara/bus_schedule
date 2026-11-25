@@ -94,7 +94,7 @@ export default function App() {
         setIsOffline(false);
         try {
           localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        } catch {}
+        } catch { }
       } catch {
         if (!active) return;
         if (doc) {
@@ -164,7 +164,7 @@ export default function App() {
           typeof r.service.via === 'string'
             ? r.service.via.toLowerCase().includes(selectedDestination.toLowerCase())
             : (r.service.via.en && r.service.via.en.toLowerCase().includes(selectedDestination.toLowerCase())) ||
-              (r.service.via.si && r.service.via.si.includes(selectedDestination))
+            (r.service.via.si && r.service.via.si.includes(selectedDestination))
         );
         if (!matchDest && !matchVia) return false;
       }
@@ -185,7 +185,7 @@ export default function App() {
     setBannerDismissed(true);
     try {
       sessionStorage.setItem('mahiyanganaya_install_dismissed', '1');
-    } catch {}
+    } catch { }
   };
 
   return (
@@ -732,7 +732,7 @@ function GetAppModal({ installPrompt, onClose, onInstalled }: GetAppModalProps) 
                 <div className="card-title-en">Add to Home Screen (Recommended for all devices)</div>
               </div>
               <p className="card-desc">
-                බ්‍රවුසරය හරහා දුරකථනයේ මුල් තිරයට කෙටිමඟක් එක් කරගන්න. ක්ෂණිකව විවෘත වේ, මතකය වැය නොවේ.
+                බ්‍රවුසරය හරහා දුරකථනයේ මුල් තිරයට කෙටිමඟක් එක් කරගන්න.
                 <span className="card-desc-en">
                   Add a quick shortcut to your phone's home screen. Opens instantly like an app with zero storage used.
                 </span>

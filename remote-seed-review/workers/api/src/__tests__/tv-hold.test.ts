@@ -105,6 +105,34 @@ describe('TV Hold & Presentation API', () => {
     });
   });
 
+  it('sets mode to ceremony_logos and ceremony_qr', async () => {
+    // 1. ceremony_logos
+    const logosRes = await request('/api/admin/tv-hold', 'POST', { mode: 'ceremony_logos' });
+    expect(logosRes.res.status).toBe(200);
+    expect(logosRes.data?.ok).toBe(true);
+    expect(logosRes.data?.tvHold).toMatchObject({
+      mode: 'ceremony_logos',
+      page: 1,
+    });
+    const getLogos = await request('/api/admin/tv-hold', 'GET');
+    expect(getLogos.data?.tvHold).toMatchObject({
+      mode: 'ceremony_logos',
+    });
+
+    // 2. ceremony_qr
+    const qrRes = await request('/api/admin/tv-hold', 'POST', { mode: 'ceremony_qr' });
+    expect(qrRes.res.status).toBe(200);
+    expect(qrRes.data?.ok).toBe(true);
+    expect(qrRes.data?.tvHold).toMatchObject({
+      mode: 'ceremony_qr',
+      page: 1,
+    });
+    const getQr = await request('/api/admin/tv-hold', 'GET');
+    expect(getQr.data?.tvHold).toMatchObject({
+      mode: 'ceremony_qr',
+    });
+  });
+
   it('sets mode to page with custom page number', async () => {
     const { res, data } = await request('/api/admin/tv-hold', 'POST', { mode: 'page', page: 4 });
     expect(res.status).toBe(200);

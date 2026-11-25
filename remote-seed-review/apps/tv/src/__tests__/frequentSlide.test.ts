@@ -40,16 +40,14 @@ describe('Frequent Departures Slide', () => {
     expect(FREQUENT_SERVICES[2]!.badgeSi).toBe('විනාඩි 15');
   });
 
-  it('rotates correctly: [Pages 1..N] -> Frequent Departures -> Credits -> Page 1', () => {
+  it('rotates correctly in auto mode: [Pages 1..N] -> Frequent Departures -> Page 1', () => {
     const totalSchedulePages = 4;
     const scheduleCount = Math.max(1, totalSchedulePages);
     const frequentSlideIndex = scheduleCount; // 4
-    const creditsSlideIndex = scheduleCount + 1; // 5
-    const totalSlides = scheduleCount + 2; // 6
+    const totalSlides = scheduleCount + 1; // 5 (Pages 1..4 + Frequent Departures only)
 
-    expect(totalSlides).toBe(6);
+    expect(totalSlides).toBe(5);
     expect(frequentSlideIndex).toBe(4);
-    expect(creditsSlideIndex).toBe(5);
 
     // Sequence of indices through a full rotation
     const sequence: number[] = [];
@@ -59,42 +57,33 @@ describe('Frequent Departures Slide', () => {
       current = (clampPage(current, totalSlides) + 1) % totalSlides;
     }
 
-    expect(sequence).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(sequence).toEqual([0, 1, 2, 3, 4]);
     // The next advance wraps smoothly back to 0 (Page 1)
     expect(current).toBe(0);
 
     // Classification of each slide index
     for (let i = 0; i < totalSlides; i++) {
       const isFrequent = i === frequentSlideIndex;
-      const isCredits = i === creditsSlideIndex;
-      const isSchedule = !isFrequent && !isCredits;
+      const isSchedule = !isFrequent;
 
       if (i < 4) {
         expect(isSchedule).toBe(true);
         expect(isFrequent).toBe(false);
-        expect(isCredits).toBe(false);
       } else if (i === 4) {
         expect(isSchedule).toBe(false);
         expect(isFrequent).toBe(true);
-        expect(isCredits).toBe(false);
-      } else if (i === 5) {
-        expect(isSchedule).toBe(false);
-        expect(isFrequent).toBe(false);
-        expect(isCredits).toBe(true);
       }
     }
   });
 
-  it('handles single-page schedules properly', () => {
+  it('handles single-page schedules properly in auto rotation', () => {
     const totalSchedulePages = 1;
     const scheduleCount = Math.max(1, totalSchedulePages);
     const frequentSlideIndex = scheduleCount; // 1
-    const creditsSlideIndex = scheduleCount + 1; // 2
-    const totalSlides = scheduleCount + 2; // 3
+    const totalSlides = scheduleCount + 1; // 2
 
-    expect(totalSlides).toBe(3);
+    expect(totalSlides).toBe(2);
     expect(frequentSlideIndex).toBe(1);
-    expect(creditsSlideIndex).toBe(2);
 
     let current = 0;
     // Page 1
@@ -102,33 +91,39 @@ describe('Frequent Departures Slide', () => {
     // Advance -> Frequent Departures
     current = (clampPage(current, totalSlides) + 1) % totalSlides;
     expect(current).toBe(1);
-    // Advance -> Credits
-    current = (clampPage(current, totalSlides) + 1) % totalSlides;
-    expect(current).toBe(2);
     // Advance -> Loop back to Page 1
     current = (clampPage(current, totalSlides) + 1) % totalSlides;
     expect(current).toBe(0);
   });
 
-  it('correctly targets frequent slide index for tvHold.mode === "frequent"', () => {
+  it('correctly targets hold modes and excludes ceremony slides from auto rotation', () => {
     for (const totalSchedulePages of [1, 2, 4, 10]) {
       const scheduleCount = Math.max(1, totalSchedulePages);
       const frequentSlideIndex = scheduleCount;
-      const creditsSlideIndex = scheduleCount + 1;
-      const totalSlides = scheduleCount + 2;
+      const totalSlides = scheduleCount + 1;
 
-      // Simulate mode targeting
-      const getTargetIndex = (mode: 'auto' | 'credits' | 'frequent' | 'page', page = 1) => {
-        if (mode === 'credits') return creditsSlideIndex;
+      // Auto rotation total slides only includes schedule pages and frequent departures
+      expect(totalSlides).toBe(scheduleCount + 1);
+
+      // Ceremony modes are full-screen holds excluded from rotation
+      const isCeremonyMode = (mode: string) => mode === 'ceremony_logos' || mode === 'ceremony_qr';
+      expect(isCeremonyMode('ceremony_logos')).toBe(true);
+      expect(isCeremonyMode('ceremony_qr')).toBe(true);
+      expect(isCeremonyMode('auto')).toBe(false);
+      expect(isCeremonyMode('frequent')).toBe(false);
+
+      // Target index when switching back to auto must reset to 0 (Page 1)
+      const getTargetIndex = (mode: 'auto' | 'credits' | 'frequent' | 'page' | 'ceremony_logos' | 'ceremony_qr', page = 1) => {
         if (mode === 'frequent') return frequentSlideIndex;
         if (mode === 'page') return Math.min(Math.max(1, page), scheduleCount) - 1;
-        return 0;
+        return 0; // auto, ceremony_logos, ceremony_qr all point to/reset to Page 1
       };
 
       expect(getTargetIndex('frequent')).toBe(frequentSlideIndex);
-      expect(getTargetIndex('credits')).toBe(creditsSlideIndex);
       expect(getTargetIndex('page', 1)).toBe(0);
-      expect(totalSlides).toBe(scheduleCount + 2);
+      expect(getTargetIndex('auto')).toBe(0);
+      expect(getTargetIndex('ceremony_logos')).toBe(0);
+      expect(getTargetIndex('ceremony_qr')).toBe(0);
     }
   });
 });

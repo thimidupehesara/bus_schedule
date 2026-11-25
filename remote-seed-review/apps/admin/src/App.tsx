@@ -509,7 +509,7 @@ export function App() {
   const [deduplicating, setDeduplicating] = useState(false);
 
   // TV Presentation Control State
-  const [tvHoldState, setTvHoldState] = useState<{ mode: 'auto' | 'credits' | 'frequent' | 'page'; page?: number; updatedAt?: number }>({
+  const [tvHoldState, setTvHoldState] = useState<{ mode: 'auto' | 'credits' | 'frequent' | 'page' | 'ceremony_logos' | 'ceremony_qr'; page?: number; updatedAt?: number }>({
     mode: 'auto',
     page: 1,
   });
@@ -737,7 +737,7 @@ export function App() {
     try {
       const res = await apiFetch('/api/admin/tv-hold');
       if (res.ok) {
-        const data = (await res.json()) as { tvHold: { mode: 'auto' | 'credits' | 'frequent' | 'page'; page?: number; updatedAt?: number } };
+        const data = (await res.json()) as { tvHold: { mode: 'auto' | 'credits' | 'frequent' | 'page' | 'ceremony_logos' | 'ceremony_qr'; page?: number; updatedAt?: number } };
         if (data.tvHold) setTvHoldState(data.tvHold);
       }
     } catch (err) {
@@ -1422,7 +1422,7 @@ export function App() {
   }
 
   // TV Hold Action
-  async function handleSetTvHold(mode: 'auto' | 'credits' | 'frequent' | 'page', page?: number) {
+  async function handleSetTvHold(mode: 'auto' | 'credits' | 'frequent' | 'page' | 'ceremony_logos' | 'ceremony_qr', page?: number) {
     if (tvHoldSaving) return;
     setTvHoldSaving(true);
     try {
@@ -1435,11 +1435,15 @@ export function App() {
         const label =
           mode === 'auto'
             ? '10s Auto-Scroll resumed'
-            : mode === 'credits'
-              ? 'TV Display held on Credits / QR slide'
-              : mode === 'frequent'
-                ? 'TV Display held on Frequent Services slide'
-                : `TV Display held on Page ${page}`;
+            : mode === 'ceremony_logos'
+              ? 'TV Display held on Logos Only slide'
+              : mode === 'ceremony_qr'
+                ? 'TV Display held on QR Only slide'
+                : mode === 'credits'
+                  ? 'TV Display held on Credits / QR slide'
+                  : mode === 'frequent'
+                    ? 'TV Display held on Frequent Services slide'
+                    : `TV Display held on Page ${page}`;
         showToast(`📺 ${label}`);
       } else {
         alert('Failed to update TV hold state.');
@@ -2533,8 +2537,18 @@ export function App() {
                     <span>📺</span>
                     <span>TV Presentation Control</span>
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                    {tvHoldState.mode}
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+                    tvHoldState.mode === 'ceremony_logos' || tvHoldState.mode === 'ceremony_qr'
+                      ? 'bg-purple-900/80 text-purple-200 border border-purple-500/50'
+                      : tvHoldState.mode === 'auto'
+                        ? 'bg-emerald-950/80 text-emerald-300'
+                        : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {tvHoldState.mode === 'ceremony_logos'
+                      ? 'logos only'
+                      : tvHoldState.mode === 'ceremony_qr'
+                        ? 'qr only'
+                        : tvHoldState.mode}
                   </span>
                 </button>
 
@@ -3982,9 +3996,13 @@ export function App() {
                   ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
                   : tvHoldState.mode === 'frequent'
                     ? 'bg-amber-950/40 border-amber-700/60 text-amber-200'
-                    : tvHoldState.mode === 'credits'
-                      ? 'bg-indigo-950/40 border-indigo-700/60 text-indigo-200'
-                      : 'bg-blue-950/40 border-blue-700/60 text-blue-200'
+                    : tvHoldState.mode === 'ceremony_logos'
+                      ? 'bg-purple-950/40 border-purple-700/60 text-purple-200'
+                      : tvHoldState.mode === 'ceremony_qr'
+                        ? 'bg-indigo-950/40 border-indigo-700/60 text-indigo-200'
+                        : tvHoldState.mode === 'credits'
+                          ? 'bg-blue-950/40 border-blue-700/60 text-blue-200'
+                          : 'bg-blue-950/40 border-blue-700/60 text-blue-200'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -3996,9 +4014,13 @@ export function App() {
                       ? 'Auto-Scrolling (10 Seconds Per Page)'
                       : tvHoldState.mode === 'frequent'
                         ? 'Frozen on Frequent Services Slide (Every 15 Mins)'
-                        : tvHoldState.mode === 'credits'
-                          ? 'Holding: Credits / QR Code Slide'
-                          : `Holding: Page ${tvHoldState.page || 1}`}
+                        : tvHoldState.mode === 'ceremony_logos'
+                          ? 'Frozen on Logos Only Slide (Ceremony Mode)'
+                          : tvHoldState.mode === 'ceremony_qr'
+                            ? 'Frozen on QR Only Slide (Ceremony Mode)'
+                            : tvHoldState.mode === 'credits'
+                              ? 'Holding: Credits / QR Code Slide'
+                              : `Holding: Page ${tvHoldState.page || 1}`}
                   </div>
                 </div>
               </div>
@@ -4026,23 +4048,49 @@ export function App() {
                 </button>
               </div>
 
-              {/* Hold Credits */}
+              {/* Card 1 — Hold Logos Only Slide */}
               <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-3">
-                <div className="font-bold text-white text-sm">Hold on Credits / QR Slide</div>
+                <div className="font-bold text-white text-sm flex items-center gap-2">
+                  <span>🏛️</span>
+                  <span>Hold Logos Only Slide</span>
+                </div>
                 <p className="text-xs text-slate-400">
-                  Freezes the live TV display on the final slide showing the QR code, Android app link, and developer credits.
+                  Freezes the live TV display on the ceremony logos-only slide (logos-only.png) edge-to-edge without timetable chrome.
                 </p>
                 <button
                   type="button"
-                  disabled={tvHoldSaving || tvHoldState.mode === 'credits'}
-                  onClick={() => handleSetTvHold('credits')}
+                  disabled={tvHoldSaving || tvHoldState.mode === 'ceremony_logos'}
+                  onClick={() => handleSetTvHold('ceremony_logos')}
                   className={`w-full py-2.5 rounded-xl font-bold text-xs shadow transition active:scale-95 disabled:opacity-50 ${
-                    tvHoldState.mode === 'credits'
+                    tvHoldState.mode === 'ceremony_logos'
+                      ? 'bg-purple-950/60 border border-purple-500/60 text-purple-300 cursor-not-allowed opacity-90'
+                      : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-600/20'
+                  }`}
+                >
+                  {tvHoldState.mode === 'ceremony_logos' ? 'Active: Frozen on Logos Only Slide' : 'Hold Logos Only Slide'}
+                </button>
+              </div>
+
+              {/* Card 2 — Hold QR Only Slide */}
+              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-3">
+                <div className="font-bold text-white text-sm flex items-center gap-2">
+                  <span>📱</span>
+                  <span>Hold QR Only Slide</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Freezes the live TV display on the ceremony QR-only slide (qr-only.png) edge-to-edge without timetable chrome.
+                </p>
+                <button
+                  type="button"
+                  disabled={tvHoldSaving || tvHoldState.mode === 'ceremony_qr'}
+                  onClick={() => handleSetTvHold('ceremony_qr')}
+                  className={`w-full py-2.5 rounded-xl font-bold text-xs shadow transition active:scale-95 disabled:opacity-50 ${
+                    tvHoldState.mode === 'ceremony_qr'
                       ? 'bg-indigo-950/60 border border-indigo-500/60 text-indigo-300 cursor-not-allowed opacity-90'
                       : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20'
                   }`}
                 >
-                  {tvHoldState.mode === 'credits' ? 'Active: Frozen on Credits' : 'Hold Credits / QR Slide'}
+                  {tvHoldState.mode === 'ceremony_qr' ? 'Active: Frozen on QR Only Slide' : 'Hold QR Only Slide'}
                 </button>
               </div>
 
