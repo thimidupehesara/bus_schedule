@@ -42,7 +42,7 @@ export interface Env extends AuthConfig {
   ASSETS: Fetcher;
 }
 
-export type TvHoldMode = 'auto' | 'credits' | 'frequent' | 'page';
+export type TvHoldMode = 'auto' | 'credits' | 'frequent' | 'page' | 'ceremony_logos' | 'ceremony_qr';
 
 export interface TvHoldState {
   mode: TvHoldMode;
@@ -66,7 +66,14 @@ export async function getTvHoldSetting(db: D1Database): Promise<TvHoldState> {
       if (parsed && typeof parsed.mode === 'string') {
         const rawMode = parsed.mode.trim().toLowerCase();
         const mode = rawMode === 'frequent_services' ? 'frequent' : rawMode;
-        if (mode === 'auto' || mode === 'credits' || mode === 'frequent' || mode === 'page') {
+        if (
+          mode === 'auto' ||
+          mode === 'credits' ||
+          mode === 'frequent' ||
+          mode === 'page' ||
+          mode === 'ceremony_logos' ||
+          mode === 'ceremony_qr'
+        ) {
           return {
             mode,
             page: typeof parsed.page === 'number' && parsed.page >= 1 ? Math.floor(parsed.page) : 1,
@@ -412,8 +419,8 @@ async function staff(request: Request, env: Env, path: string): Promise<Response
     const body = object(await readJson(request));
     const rawMode = String(body['mode'] ?? '').trim().toLowerCase();
     const mode = rawMode === 'frequent_services' ? 'frequent' : rawMode;
-    if (!['auto', 'credits', 'frequent', 'page'].includes(mode)) {
-      throw new ApiError(422, 'INVALID_MODE', 'Mode must be "auto", "credits", "frequent", or "page".');
+    if (!['auto', 'credits', 'frequent', 'page', 'ceremony_logos', 'ceremony_qr'].includes(mode)) {
+      throw new ApiError(422, 'INVALID_MODE', 'Mode must be "auto", "credits", "frequent", "page", "ceremony_logos", or "ceremony_qr".');
     }
     let page = 1;
     if (body['page'] !== undefined && body['page'] !== null) {

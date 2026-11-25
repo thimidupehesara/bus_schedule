@@ -291,7 +291,8 @@ function PagedBoard({
   const scheduleCount = Math.max(1, totalSchedulePages);
   const frequentSlideIndex = scheduleCount;
   const creditsSlideIndex = scheduleCount + 1;
-  const totalSlides = scheduleCount + 2;
+  // Strict auto rotation: cycle ONLY through [Timetable Page 1..N, Frequent Services Slide]
+  const totalSlides = scheduleCount + 1;
   const [index, setIndex] = useState(0);
   const [hidden, setHidden] = useState(false);
   const [deadline, setDeadline] = useState<number | null>(null);
@@ -299,8 +300,8 @@ function PagedBoard({
     () => matchMedia('(prefers-reduced-motion: reduce)').matches,
   );
   const slideIndex = clampPage(index, totalSlides);
-  const isFrequentSlide = slideIndex === frequentSlideIndex;
-  const isCreditsSlide = slideIndex === creditsSlideIndex;
+  const isFrequentSlide = tvHold.mode === 'frequent' || slideIndex === frequentSlideIndex;
+  const isCreditsSlide = tvHold.mode === 'credits';
   const page = (isFrequentSlide || isCreditsSlide) ? 0 : clampPage(slideIndex, scheduleCount);
   const currentRows = pages[page] ?? [];
   const targetSlots = TV_ROWS_PER_PAGE;
@@ -315,10 +316,11 @@ function PagedBoard({
     setIndex((previous) => clampPage(previous, totalSlides));
   }, [totalSlides]);
 
-  // When tvHold changes to credits, frequent, or page, switch to that slide immediately
+  // When tvHold changes to credits, frequent, or page, switch to that slide immediately.
+  // When switching back to auto, reset immediately to Page 1 of the timetable.
   useEffect(() => {
     if (tvHold.mode === 'credits') {
-      setIndex(creditsSlideIndex);
+      setIndex(0);
       setHidden(false);
     } else if (tvHold.mode === 'frequent') {
       setIndex(frequentSlideIndex);
@@ -327,8 +329,11 @@ function PagedBoard({
       const targetPage = Math.min(Math.max(1, tvHold.page ?? 1), scheduleCount);
       setIndex(targetPage - 1);
       setHidden(false);
+    } else if (tvHold.mode === 'auto') {
+      setIndex(0);
+      setHidden(false);
     }
-  }, [tvHold.mode, tvHold.page, tvHold.updatedAt, scheduleCount, creditsSlideIndex, frequentSlideIndex]);
+  }, [tvHold.mode, tvHold.page, tvHold.updatedAt, scheduleCount, frequentSlideIndex]);
 
   // Handle slide rotation timer (only when tvHold.mode is 'auto')
   useLayoutEffect(() => {
@@ -573,6 +578,12 @@ export default function App() {
   const { now, isClockSynced } = useNow();
 
   useEffect(() => {
+    const imgLogos = new Image();
+    imgLogos.src = './logos-only.png';
+    imgLogos.decode?.().catch(() => {});
+    const imgQr = new Image();
+    imgQr.src = './qr-only.png';
+    imgQr.decode?.().catch(() => {});
     const img = new Image();
     img.src = './credits-slide.webp';
     img.decode?.().catch(() => {});
@@ -581,17 +592,65 @@ export default function App() {
     imgPng.decode?.().catch(() => {});
   }, []);
 
-  return doc ? (
-    <Board
-      doc={doc}
-      now={now}
-      isClockSynced={isClockSynced}
-      tvHold={tvHold}
-      frequentServices={frequentServices}
-    />
-  ) : (
-    <main className="empty fullscreen" role="status">
-      <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />
-    </main>
+  const isCeremonyLogos = tvHold.mode === 'ceremony_logos';
+  const isCeremonyQr = tvHold.mode === 'ceremony_qr';
+  const isCeremonyActive = isCeremonyLogos || isCeremonyQr;
+
+  return (
+    <>
+      {isCeremonyActive && (
+        <div
+          className="ceremony-fullscreen-slide"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: '#0B1120',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            zIndex: 100000,
+          }}
+          role="region"
+          aria-label={isCeremonyLogos ? 'Logos Only Slide' : 'QR Only Slide'}
+        >
+          <img
+            src={isCeremonyLogos ? './logos-only.png' : './qr-only.png'}
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (isCeremonyLogos && !target.src.endsWith('.jpg')) {
+                target.src = './logos-only.jpg';
+              } else if (isCeremonyQr && !target.src.endsWith('.jpg')) {
+                target.src = './qr-only.jpg';
+              }
+            }}
+            alt={isCeremonyLogos ? 'Logos Only Slide' : 'QR Only Slide'}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              display: 'block',
+            }}
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      )}
+      {doc ? (
+        <Board
+          doc={doc}
+          now={now}
+          isClockSynced={isClockSynced}
+          tvHold={tvHold}
+          frequentServices={frequentServices}
+        />
+      ) : (
+        <main className="empty fullscreen" role="status">
+          <Pair text={status === 'UNAVAILABLE' ? LABELS.timetableUnavailable : COPY.loading} />
+        </main>
+      )}
+    </>
   );
 }

@@ -1,9 +1,11 @@
-const CACHE_NAME = 'mahiyanganaya-tv-v4';
+const CACHE_NAME = 'mahiyanganaya-tv-v5';
 const PRECACHE_URLS = [
   './',
   './index.html',
   './credits-slide.webp',
   './credits-slide.png',
+  './logos-only.png',
+  './qr-only.png',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',

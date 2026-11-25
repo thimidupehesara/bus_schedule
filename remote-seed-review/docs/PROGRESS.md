@@ -26,6 +26,38 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Admin Role Management, Global Sync & Android Admin APK                         | Done    |
 | Replace Cramped Mobile Footer Install Buttons with Single "Get the App" Button & Dedicated View | Done    |
 | Audit Mobile App Isolation & Standalone MTBA Admin PWA for PWABuilder           | Done    |
+| Custom Ceremony Slides (Logos Only & QR Only) with TV & Admin Controls          | Done    |
+
+## Done
+- [DONE] Custom Ceremony Slides (Logos Only & QR Only) with TV & Admin Controls:
+  - 1. Verified Custom Ceremony Images (`apps/tv/public/`):
+    - Confirmed `logos-only.png` (351,328 bytes) and `qr-only.png` (270,978 bytes) are 1920x1080 master ceremony assets in `apps/tv/public/`.
+    - Added image preloading on TV mount with automatic JPG/PNG fallback handling on error.
+    - Updated `apps/tv/public/sw.js` precache to version `mahiyanganaya-tv-v5`, adding `./logos-only.png` and `./qr-only.png` for offline ceremony resilience.
+  - 2. Full-Screen Ceremony Display in TV App (`apps/tv/src/App.tsx` & `apps/tv/src/index.css`):
+    - When `tvHold.mode === 'ceremony_logos'` or `'ceremony_qr'`, renders a full-screen edge-to-edge container (`.ceremony-fullscreen-slide`, `position: fixed`, `inset: 0`, `width: 100vw`, `height: 100vh`, `background-color: #0B1120`, `object-fit: contain`, `z-index: 100000`, `overflow: hidden`).
+    - Hides all timetable masthead clock, table rows, alert, and footer chrome so the artwork displays cleanly without distortion or scrollbars.
+    - Updated auto rotation loop (`auto` mode) to cycle **strictly** through `[Timetable Page 1..N, Frequent Services Slide]`, excluding ceremony slides from auto rotation.
+    - When switching from ceremony mode back to `auto` (or clicking `Resume 10s Auto-Scroll`), resets immediately to **Page 1** of the live timetable and starts a fresh 10-second timer.
+  - 3. Backend TV Control State (`workers/api/src/index.ts`):
+    - Expanded `TvHoldMode` to include `'ceremony_logos'` and `'ceremony_qr'`.
+    - Updated `getTvHoldSetting` and `POST /api/admin/tv-hold` to validate, persist, and audit both ceremony modes with `Cache-Control: no-store`.
+    - Synced ceremony modes into `GET /tv/version.json` for live TV detection within ~2.5 seconds.
+  - 4. Admin Dashboard Presentation Controls (`apps/admin/src/App.tsx`):
+    - Added **Card 1 — `Hold Logos Only Slide`** (purple badge `🏛️`) setting mode `ceremony_logos`.
+    - Added **Card 2 — `Hold QR Only Slide`** (indigo badge `📱`) setting mode `ceremony_qr`.
+    - Updated `CURRENT LIVE TV MODE` banner to display "Frozen on Logos Only Slide (Ceremony Mode)" and "Frozen on QR Only Slide (Ceremony Mode)" with dedicated purple/indigo styling.
+    - Updated navigation drawer status badge to display `LOGOS ONLY` / `QR ONLY`.
+    - Retained `Resume 10s Auto-Scroll` button to return the TV to timetable Page 1 immediately.
+  - 5. Verification & Cloudflare Deployment:
+    - Added unit tests in `workers/api/src/__tests__/tv-hold.test.ts` and updated `apps/tv/src/__tests__/frequentSlide.test.ts`.
+    - All 22 test suites and 267/267 unit and integration tests passing (`npm test`).
+    - TypeScript compilation green with 0 errors (`npm run typecheck` and `npx tsc --noEmit`).
+    - Successfully assembled and deployed live to Cloudflare Workers (Version ID `5074ebf1-40f2-4bb5-985c-0c7090ac149f`).
+    - Verified live HTTP 200 OK responses on `https://mahiyanganaya-bus.mahiyanganaya-bus.workers.dev/tv/logos-only.png`, `.../tv/qr-only.png`, and `.../tv/version.json`.
+    - Add/update unit tests in `workers/api/src/__tests__/tv-hold.test.ts` and `apps/tv/src/__tests__/frequentSlide.test.ts`.
+    - Run `npm test` and `npm run typecheck` (`npx tsc --noEmit`).
+    - Run `npm run assemble` and `npm run deploy` to publish live.
 
 ## Done
 - [DONE] Audit Mobile App Isolation & Standalone MTBA Admin PWA for PWABuilder:
