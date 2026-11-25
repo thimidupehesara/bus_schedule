@@ -24,6 +24,30 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Add Arrival Time 12-Hour Selector to Admin Modal                                | Done    |
 | Dedicated Via Route Field Support across Backend, Admin & Mobile               | Done    |
 | Admin Role Management, Global Sync & Android Admin APK                         | Done    |
+| Replace Cramped Mobile Footer Install Buttons with Single "Get the App" Button & Dedicated View | Done    |
+
+## Done
+- [DONE] Replace Cramped Mobile Footer Install Buttons with Single "Get the App" Button & Dedicated App Download View:
+  - 1. Mobile Sticky Footer Bar (`apps/mobile/src/App.tsx` & `apps/mobile/src/index.css`):
+    - Replaced the cramped side-by-side buttons with a single full-width button: `📱 ඇප් එක ලබාගන්න · Get the App` (`width: 100%`, `max-width: 480px`, `border-radius: 12px`, `height: 50px`, `min-height: 48px`).
+    - Retained the clean dismiss (`✕`) button (`width: 40px`, `height: 40px`, `border-radius: 10px`) saving dismissal to `sessionStorage` (`mahiyanganaya_install_dismissed`).
+    - Added persistent "📱 ඇප් එක ලබාගන්න · Get the App" button in the mobile page footer so commuters can reopen the installation view at any time even if the sticky banner is closed.
+  - 2. Dedicated "Get the App" Full-Screen View / Modal (`apps/mobile/src/App.tsx` & `apps/mobile/src/index.css`):
+    - Top Navigation Bar: sticky header with `← ආපසු · Back` button returning directly to the timetable and a `✕` close button.
+    - Header Block: phone icon badge, title `ඇප් එක ලබාගන්න · Get the App`, and subtitle `ඔබගේ දුරකථනයට ගැළපෙන පහසුම ක්‍රමය තෝරන්න · Choose the best way to install on your phone`.
+    - Option 1 Card: "මුල් තිරයට එක් කරගන්න · Add to Home Screen (Recommended for all devices)" with blue accent border, `ක්‍රමය 1 · Option 1 (iPhone & Android)` badge, description, and primary action button `මුල් තිරයට කෙටිමඟක් එක් කරන්න · Add Shortcut to Home Screen` triggering native `beforeinstallprompt` or toggling manual instructions.
+    - Manual Instructions Box: collapsible bilingual step-by-step guides for Android Chrome (`⋮` → `Add to Home screen`) and iPhone / iOS Safari (`⍗ Share` → `Add to Home Screen`).
+    - Option 2 Card: "Android ඇප් එක (APK) බාගන්න · Direct Android App Download" with amber accent border, `ක්‍රමය 2 · Option 2 (Android Devices Only)` badge, description, direct download button pointing to `./mahiyanganaya-bus-mobile.apk` (`download="mahiyanganaya-bus-mobile.apk"`), and warning callout for `Install unknown apps` / `Download anyway`.
+  - 3. Mobile Responsiveness & Polish:
+    - Verified layout on narrow screens (360px viewport) with zero horizontal overflow.
+    - Big touch targets (>= 48px height) and keyboard accessibility (`Escape` key to close).
+    - Preserved high-contrast dark theme (`#0B1120`, `#1E293B`, crisp white and golden-yellow text).
+  - 4. Testing, Assembly & Cloudflare Deployment:
+    - Added unit test suite in `apps/mobile/src/__tests__/mobileApp.test.ts`.
+    - Passed all 21 test suites and 259/259 tests green (`npm test`).
+    - Passed TypeScript typecheck with 0 errors (`npm run typecheck`, `npx tsc --noEmit`).
+    - Assembled assets and deployed live to Cloudflare Workers (Version ID `aba037a1-c44b-44bf-a002-9163c2a0b325`).
+    - Verified live HTTP endpoints `/health` (200 OK), `/mobile/` (200 OK), `/mobile/mahiyanganaya-bus-mobile.apk` (200 OK with correct APK headers), and `/tv/version.json` (200 OK).
 
 ## Done
 - [DONE] Admin Role Management, Global Sync for Analytics & TV Controls, and Android Admin APK:

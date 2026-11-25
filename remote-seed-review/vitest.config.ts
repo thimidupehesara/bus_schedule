@@ -7,6 +7,7 @@ export default defineConfig({
       'packages/*/src/**/__tests__/**/*.test.ts',
       'apps/tv/src/**/__tests__/**/*.test.ts',
       'apps/admin/src/**/__tests__/**/*.test.ts',
+      'apps/mobile/src/**/__tests__/**/*.test.ts',
       'workers/api/src/**/__tests__/**/*.test.ts',
     ],
     coverage: {
