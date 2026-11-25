@@ -138,5 +138,62 @@ describe('Admin Users API', () => {
     const reenableRes = await request('/api/admin/users/2', 'PATCH', { disabled: 0 });
     expect(reenableRes.res.status).toBe(200);
   });
+
+  it('supports PATCH /api/staff/:id/role for role management with self-demotion protection', async () => {
+    // Current admin trying to self-demote via /api/staff/:id/role
+    const selfDemote = await request('/api/staff/1/role', 'PATCH', { role: 'EDITOR' });
+    expect(selfDemote.res.status).toBe(400);
+
+    // Promote editor to ADMIN via /api/staff/:id/role
+    const promoteRes = await request('/api/staff/2/role', 'PATCH', { role: 'ADMIN' });
+    expect(promoteRes.res.status).toBe(200);
+    expect((promoteRes.data?.['user'] as { role: string })?.role).toBe('ADMIN');
+
+    // Demote user back to EDITOR
+    const demoteRes = await request('/api/staff/2/role', 'PATCH', { role: 'EDITOR' });
+    expect(demoteRes.res.status).toBe(200);
+    expect((demoteRes.data?.['user'] as { role: string })?.role).toBe('EDITOR');
+
+    // Invalid role rejected
+    const invalidRole = await request('/api/staff/2/role', 'PATCH', { role: 'SUPERUSER' });
+    expect(invalidRole.res.status).toBe(422);
+  });
+
+  it('allows EDITOR to access shared reports, qr-stats, suggestions, and tv-hold with no-store', async () => {
+    // Shared QR stats via /api/admin/qr-stats
+    const qrStatsRes = await request('/api/admin/qr-stats', 'GET', undefined, editorEnv);
+    expect(qrStatsRes.res.status).toBe(200);
+    expect(qrStatsRes.res.headers.get('Cache-Control')).toContain('no-store');
+
+    // Shared reports via /api/reports alias
+    const reportsRes = await request('/api/reports', 'GET', undefined, editorEnv);
+    expect(reportsRes.res.status).toBe(200);
+    expect(reportsRes.res.headers.get('Cache-Control')).toContain('no-store');
+
+    // Shared suggestions via /api/admin/suggestions
+    const suggRes = await request('/api/admin/suggestions', 'GET', undefined, editorEnv);
+    expect(suggRes.res.status).toBe(200);
+    expect(suggRes.res.headers.get('Cache-Control')).toContain('no-store');
+
+    // Shared TV hold status via /api/admin/tv-hold
+    const tvHoldRes = await request('/api/admin/tv-hold', 'GET', undefined, editorEnv);
+    expect(tvHoldRes.res.status).toBe(200);
+    expect(tvHoldRes.res.headers.get('Cache-Control')).toContain('no-store');
+  });
+
+  it('ensures pcmsarath@gmail.com is promoted to ADMIN role', async () => {
+    // Insert Sarath with EDITOR role
+    fixture.sqlite
+      .prepare('INSERT INTO users(id, login_id, display_name, role, disabled, created_at) VALUES(?, ?, ?, ?, ?, ?)')
+      .run(99, 'pcmsarath@gmail.com', 'Sarath', 'EDITOR', 0, new Date().toISOString());
+
+    // GET /api/admin/users auto-promotes Sarath to ADMIN
+    const { res, data } = await request('/api/admin/users', 'GET');
+    expect(res.status).toBe(200);
+    const users = data?.['users'] as Array<{ login_id: string; role: string }>;
+    const sarath = users.find((u) => u.login_id.toLowerCase() === 'pcmsarath@gmail.com');
+    expect(sarath).toBeDefined();
+    expect(sarath?.role).toBe('ADMIN');
+  });
 });
 

@@ -23,6 +23,54 @@ See [AGENTS.md](../AGENTS.md) for the handover, owner items, branch status and d
 | Harden Bulk Bus Delete & CSV/Excel Import Against 503                           | Done    |
 | Add Arrival Time 12-Hour Selector to Admin Modal                                | Done    |
 | Dedicated Via Route Field Support across Backend, Admin & Mobile               | Done    |
+| Admin Role Management, Global Sync & Android Admin APK                         | Done    |
+| Replace Cramped Mobile Footer Install Buttons with Single "Get the App" Button & Dedicated View | Done    |
+
+## Done
+- [DONE] Replace Cramped Mobile Footer Install Buttons with Single "Get the App" Button & Dedicated App Download View:
+  - 1. Mobile Sticky Footer Bar (`apps/mobile/src/App.tsx` & `apps/mobile/src/index.css`):
+    - Replaced the cramped side-by-side buttons with a single full-width button: `📱 ඇප් එක ලබාගන්න · Get the App` (`width: 100%`, `max-width: 480px`, `border-radius: 12px`, `height: 50px`, `min-height: 48px`).
+    - Retained the clean dismiss (`✕`) button (`width: 40px`, `height: 40px`, `border-radius: 10px`) saving dismissal to `sessionStorage` (`mahiyanganaya_install_dismissed`).
+    - Added persistent "📱 ඇප් එක ලබාගන්න · Get the App" button in the mobile page footer so commuters can reopen the installation view at any time even if the sticky banner is closed.
+  - 2. Dedicated "Get the App" Full-Screen View / Modal (`apps/mobile/src/App.tsx` & `apps/mobile/src/index.css`):
+    - Top Navigation Bar: sticky header with `← ආපසු · Back` button returning directly to the timetable and a `✕` close button.
+    - Header Block: phone icon badge, title `ඇප් එක ලබාගන්න · Get the App`, and subtitle `ඔබගේ දුරකථනයට ගැළපෙන පහසුම ක්‍රමය තෝරන්න · Choose the best way to install on your phone`.
+    - Option 1 Card: "මුල් තිරයට එක් කරගන්න · Add to Home Screen (Recommended for all devices)" with blue accent border, `ක්‍රමය 1 · Option 1 (iPhone & Android)` badge, description, and primary action button `මුල් තිරයට කෙටිමඟක් එක් කරන්න · Add Shortcut to Home Screen` triggering native `beforeinstallprompt` or toggling manual instructions.
+    - Manual Instructions Box: collapsible bilingual step-by-step guides for Android Chrome (`⋮` → `Add to Home screen`) and iPhone / iOS Safari (`⍗ Share` → `Add to Home Screen`).
+    - Option 2 Card: "Android ඇප් එක (APK) බාගන්න · Direct Android App Download" with amber accent border, `ක්‍රමය 2 · Option 2 (Android Devices Only)` badge, description, direct download button pointing to `./mahiyanganaya-bus-mobile.apk` (`download="mahiyanganaya-bus-mobile.apk"`), and warning callout for `Install unknown apps` / `Download anyway`.
+  - 3. Mobile Responsiveness & Polish:
+    - Verified layout on narrow screens (360px viewport) with zero horizontal overflow.
+    - Big touch targets (>= 48px height) and keyboard accessibility (`Escape` key to close).
+    - Preserved high-contrast dark theme (`#0B1120`, `#1E293B`, crisp white and golden-yellow text).
+  - 4. Testing, Assembly & Cloudflare Deployment:
+    - Added unit test suite in `apps/mobile/src/__tests__/mobileApp.test.ts`.
+    - Passed all 21 test suites and 259/259 tests green (`npm test`).
+    - Passed TypeScript typecheck with 0 errors (`npm run typecheck`, `npx tsc --noEmit`).
+    - Assembled assets and deployed live to Cloudflare Workers (Version ID `aba037a1-c44b-44bf-a002-9163c2a0b325`).
+    - Verified live HTTP endpoints `/health` (200 OK), `/mobile/` (200 OK), `/mobile/mahiyanganaya-bus-mobile.apk` (200 OK with correct APK headers), and `/tv/version.json` (200 OK).
+
+## Done
+- [DONE] Admin Role Management, Global Sync for Analytics & TV Controls, and Android Admin APK:
+  - 1. Staff Role Management:
+    - Added support for `PATCH /api/staff/:id/role` (and `PATCH /api/admin/users/:id`) accepting `{ role: 'ADMIN' | 'EDITOR' }`, protected by `ADMIN` role with self-demotion, self-disabling, and last-active-admin guards.
+    - Automated promotion and provisioning of `Sarath` / `pcmsarath@gmail.com` to `ADMIN` in `workers/api/src/auth.ts` and on `GET /api/admin/users` query so both `thimidupehesara@gmail.com` and `pcmsarath@gmail.com` have full administrator access.
+    - Upgraded Staff & Users table in `apps/admin/src/App.tsx` with an interactive `<select>` dropdown (`ADMIN` / `EDITOR`) for other staff members with instant API persistence, `userRoleUpdating` loading state, and toast confirmation (`showToast("Updated " + displayName + "'s role to " + newRole)`). Self-role remains safely locked.
+  - 2. Shared QR Analytics & Reports:
+    - Relaxed access controls on `GET /api/admin/qr-stats`, `GET /api/reports`, `GET /api/analytics`, and `GET /api/admin/suggestions` in `workers/api/src/index.ts` so all authenticated staff members (`ADMIN` and `EDITOR`) view the exact same live analytics and passenger feedback.
+    - Enforced strict `Cache-Control: no-store` on all analytics and suggestion responses, preventing browsers or mobile WebViews from caching stale 0 counts.
+    - Added `reportsError` state and high-visibility error alert banner with a "Retry Loading" button in `apps/admin/src/App.tsx` if network fetches fail, replacing silent fallback to 0.
+  - 3. Global Live Sync for TV Presentation Control:
+    - Allowed all authenticated staff (`ADMIN` and `EDITOR`) to read live TV hold status from `GET /api/admin/tv-hold` with `Cache-Control: no-store`.
+    - Added a 5-second polling interval and `window.addEventListener('focus', ...)` in `apps/admin/src/App.tsx`, syncing the TV hold state (`auto`, `credits`, `frequent`, `page`) in real time across every open admin screen without manual page refreshes.
+  - 4. Android Admin Mobile Optimization & Hosted APK:
+    - Enhanced mobile responsiveness on narrow Android viewports (360px–430px) by wrapping the Staff & Users table in `overflow-x-auto` with `min-w-[560px]`, converting headers to responsive flex layouts, and optimizing modal padding.
+    - Packaged and hosted the standalone Android Admin APK (`mahiyanganaya-bus-admin.apk`, 3,276,196 bytes) at `/downloads/mahiyanganaya-bus-admin.apk` with `Content-Type: application/vnd.android.package-archive` and `Content-Disposition: attachment; filename="mahiyanganaya-bus-admin.apk"`.
+    - Added "📱 Android Admin App" download cards in both the Admin Navigation Drawer and below the Staff & Users table with a one-tap direct download button.
+  - 5. Verification & Cloudflare Deployment:
+    - Passed all 20 test files and 253/253 unit and integration tests (`npm test`).
+    - Verified TypeScript with 0 errors across workspace (`npx tsc --noEmit` and `npm run typecheck`).
+    - Assembled and deployed live to Cloudflare Workers (`npm run deploy`, Version ID `3e4784ee-4937-405f-ab41-d7b688f8ce45`).
+    - Verified live HTTP endpoints `/health` (200 OK), `/tv/version.json` (200 OK), `/downloads/mahiyanganaya-bus-admin.apk` (200 OK with correct APK headers), and `/admin/` (protected with 302 to Access login).
 
 ## Done
 - [DONE] Add Dedicated Via Route Field Support across Backend, Admin, CSV Importer & Mobile:

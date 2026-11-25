@@ -29,3 +29,22 @@ it('serves public Privacy Policy page at /privacy/ as well', async () => {
   expect(response.status).toBe(200);
   expect(response.headers.get('Content-Type')).toBe('text/html; charset=utf-8');
 });
+
+it('serves admin APK download at /downloads/mahiyanganaya-bus-admin.apk with proper headers', async () => {
+  const env = {
+    ASSETS: {
+      fetch: async () =>
+        new Response(new Uint8Array([0x50, 0x4b, 0x03, 0x04]), {
+          status: 200,
+          headers: { 'Content-Type': 'application/vnd.android.package-archive' },
+        }),
+    } as unknown as Fetcher,
+  } as Env;
+  const response = await worker.fetch(
+    new Request('https://example.test/downloads/mahiyanganaya-bus-admin.apk'),
+    env,
+  );
+  expect(response.status).toBe(200);
+  expect(response.headers.get('Content-Type')).toBe('application/vnd.android.package-archive');
+  expect(response.headers.get('Content-Disposition')).toContain('mahiyanganaya-bus-admin.apk');
+});

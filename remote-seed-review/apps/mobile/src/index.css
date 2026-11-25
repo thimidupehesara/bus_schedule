@@ -823,7 +823,7 @@ body {
   color: var(--text-secondary);
 }
 
-/* Install App / Direct APK Banner */
+/* Single Sticky "Get the App" Footer Button */
 .install-banner {
   position: fixed;
   bottom: 0;
@@ -832,13 +832,13 @@ body {
   max-width: 640px;
   margin: 0 auto;
   z-index: 50;
-  background: rgba(21, 29, 39, 0.98);
+  background: rgba(11, 17, 32, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-top: 1.5px solid var(--border-color);
+  border-top: 1.5px solid rgba(59, 130, 246, 0.3);
   padding: 10px 14px;
   padding-bottom: max(10px, env(safe-area-inset-bottom));
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -854,155 +854,542 @@ body {
   }
 }
 
-.install-banner-main {
+.install-banner-inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
-.install-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
+.get-app-sticky-btn {
   flex: 1;
-}
-
-.install-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.install-labels {
-  display: flex;
-  flex-direction: column;
   min-width: 0;
-}
-
-.install-title {
-  font-size: 0.88rem;
-  font-weight: 700;
+  min-height: 48px;
+  height: 50px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
   color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.install-subtitle {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.install-actions {
+  border: 1px solid rgba(147, 197, 253, 0.35);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: clamp(0.85rem, 3.8vw, 0.98rem);
+  font-weight: 700;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  touch-action: manipulation;
+  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.get-app-sticky-btn:hover {
+  background: linear-gradient(135deg, #1e40af, #1d4ed8);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+}
+
+.get-app-sticky-btn:active {
+  transform: scale(0.98);
+}
+
+.get-app-sticky-icon {
+  font-size: 1.25rem;
+  line-height: 1;
   flex-shrink: 0;
 }
 
-.install-btn {
-  background: #2563eb;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  touch-action: manipulation;
-  transition: background 0.15s ease;
-}
-
-.install-btn:hover {
-  background: #1d4ed8;
-}
-
-.apk-download-btn {
-  background: #1e293b;
-  color: #38bdf8;
-  border: 1px solid #0284c7;
-  border-radius: 8px;
-  padding: 7px 10px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
+.get-app-sticky-text {
   display: flex;
-  align-items: center;
-  gap: 4px;
-  touch-action: manipulation;
-  transition: all 0.15s ease;
+  align-items: baseline;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.apk-download-btn:hover {
-  background: #0369a1;
-  color: #ffffff;
+.get-app-text-si {
+  font-weight: 700;
+}
+
+.get-app-text-separator {
+  opacity: 0.6;
+}
+
+.get-app-text-en {
+  font-weight: 600;
+  opacity: 0.95;
 }
 
 .banner-close {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-muted);
   font-size: 1.1rem;
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 10px;
   touch-action: manipulation;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .banner-close:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.18);
 }
 
-.install-instructions {
-  background: #1e293b;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.76rem;
-  color: #fef08a;
+/* Dedicated "Get the App" Modal / View */
+.get-app-view-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #0b1120;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  line-height: 1.35;
+  animation: fadeIn 0.2s ease-out;
 }
 
-.install-instructions strong {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.get-app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(11, 17, 32, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.get-app-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  touch-action: manipulation;
+  transition: all 0.15s ease;
+}
+
+.get-app-back-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
   color: #ffffff;
 }
 
-.inst-en {
-  color: #cbd5e1;
-  font-size: 0.7rem;
+.get-app-close-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.get-app-close-icon-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.get-app-content {
+  flex: 1;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 24px 16px 64px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.get-app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.get-app-icon-badge {
+  width: 54px;
+  height: 54px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1.5px solid rgba(59, 130, 246, 0.3);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+.get-app-title {
+  font-size: clamp(1.2rem, 4.5vw, 1.45rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.get-app-subtitle {
+  font-size: clamp(0.8rem, 3.2vw, 0.88rem);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+  max-width: 440px;
+}
+
+.get-app-card {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+.get-app-card.pwa-card {
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-left: 5px solid #3b82f6;
+}
+
+.get-app-card.apk-card {
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-left: 5px solid #f59e0b;
+}
+
+.card-tag {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.card-tag.blue-tag {
+  background: rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.card-tag.amber-tag {
+  background: rgba(217, 119, 6, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.card-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.card-title-si {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.card-title-en {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.card-desc {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-desc-en {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.get-app-btn {
+  min-height: 48px;
+  padding: 13px 18px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+  text-align: center;
+}
+
+.get-app-btn:active {
+  transform: scale(0.98);
+}
+
+.get-app-btn .btn-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pwa-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid rgba(147, 197, 253, 0.3);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.pwa-btn:hover {
+  background: #1d4ed8;
+}
+
+.apk-btn {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #ffffff;
+  border: 1px solid rgba(252, 211, 77, 0.35);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+.apk-btn:hover {
+  background: linear-gradient(135deg, #b45309, #92400e);
+}
+
+.manual-steps-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.manual-steps-toggle {
+  background: transparent;
+  border: none;
+  color: #93c5fd;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.manual-steps-toggle:hover {
+  color: #bfdbfe;
+  text-decoration: underline;
+}
+
+.manual-instructions-box {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instruction-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.instruction-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.os-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+.os-badge.android-os {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.os-badge.ios-os {
+  background: rgba(148, 163, 184, 0.18);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.instruction-text-si {
+  font-size: 0.82rem;
+  color: #f8fafc;
+  line-height: 1.4;
+}
+
+.instruction-text-si strong {
+  color: #facc15;
+}
+
+.instruction-text-en {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.instruction-text-en strong {
+  color: #e2e8f0;
+}
+
+.get-app-warning-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.warning-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.warning-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.warning-si {
+  font-size: 0.8rem;
+  color: #fef08a;
+  line-height: 1.35;
+}
+
+.warning-si strong {
+  color: #ffffff;
+}
+
+.warning-en {
+  font-size: 0.74rem;
+  color: #fde68a;
+  opacity: 0.9;
+  line-height: 1.35;
+}
+
+.warning-en strong {
+  color: #ffffff;
+}
+
+.get-app-success-card {
+  background: #14532d;
+  border: 1px solid #22c55e;
+  border-radius: 14px;
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
 }
 
 /* Mobile Footer & Privacy Link */
 .mobile-footer {
   margin-top: 32px;
-  padding: 24px 16px 80px 16px;
+  padding: 24px 16px 84px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
   border-top: 1px solid var(--border-color);
   text-align: center;
 }
 
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+}
+
+.footer-get-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 0.2s ease;
+}
+
+.footer-get-app-btn:hover {
+  background: rgba(37, 99, 235, 0.22);
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #ffffff;
 }
 
 .footer-privacy-link {

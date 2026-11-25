@@ -46,7 +46,7 @@ export default function App() {
 
   // Install PWA & APK state
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showInstructions, setShowInstructions] = useState(false);
+  const [showGetAppView, setShowGetAppView] = useState(false);
   const [isStandaloneApp, setIsStandaloneApp] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(() => {
     try {
@@ -55,7 +55,6 @@ export default function App() {
       return false;
     }
   });
-  const [hasApkDownload, setHasApkDownload] = useState(false);
 
   // Standalone detection and PWA install prompt capture
   useEffect(() => {
@@ -74,21 +73,6 @@ export default function App() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handlePrompt);
     };
-  }, []);
-
-  // Check if direct APK download exists in public folder
-  useEffect(() => {
-    async function checkApk() {
-      try {
-        const res = await fetch('./mahiyanganaya-bus-mobile.apk', { method: 'HEAD' });
-        if (res.ok) {
-          setHasApkDownload(true);
-        }
-      } catch {
-        // APK not available yet
-      }
-    }
-    void checkApk();
   }, []);
 
   // Clock ticker every second
@@ -196,19 +180,6 @@ export default function App() {
     return `${h}:${m}`;
   }, [colombo.minutes]);
   const liveMeridiem = useMemo(() => meridiemBilingual(hhmm), [hhmm]);
-
-  const handleInstallClick = async () => {
-    if (installPrompt) {
-      await installPrompt.prompt();
-      const choice = await installPrompt.userChoice;
-      if (choice.outcome === 'accepted') {
-        setInstallPrompt(null);
-        setBannerDismissed(true);
-      }
-    } else {
-      setShowInstructions((prev) => !prev);
-    }
-  };
 
   const handleDismissBanner = () => {
     setBannerDismissed(true);
@@ -358,6 +329,13 @@ export default function App() {
       {/* App Footer & Privacy Policy */}
       <footer className="mobile-footer">
         <div className="footer-links">
+          <button
+            type="button"
+            className="footer-get-app-btn"
+            onClick={() => setShowGetAppView(true)}
+          >
+            📱 ඇප් එක ලබාගන්න · Get the App
+          </button>
           <a
             href="/privacy"
             className="footer-privacy-link"
@@ -380,51 +358,45 @@ export default function App() {
         />
       )}
 
-      {/* Install App / Direct APK Banner */}
+      {/* Dedicated "Get the App" Modal / View */}
+      {showGetAppView && (
+        <GetAppModal
+          installPrompt={installPrompt}
+          onClose={() => setShowGetAppView(false)}
+          onInstalled={() => {
+            setInstallPrompt(null);
+            setBannerDismissed(true);
+            setShowGetAppView(false);
+          }}
+        />
+      )}
+
+      {/* Single "Get the App" Sticky Footer Button */}
       {!isStandaloneApp && !bannerDismissed && (
-        <aside className="install-banner" aria-label="Install mobile app">
-          <div className="install-banner-main">
-            <div className="install-info">
-              <span className="install-icon" aria-hidden="true">📱</span>
-              <div className="install-labels">
-                <span className="install-title">මහියංගනය බස් ඇප් එක</span>
-                <span className="install-subtitle">Mahiyanganaya Bus Schedule</span>
-              </div>
-            </div>
-            <div className="install-actions">
-              <button
-                type="button"
-                className="install-btn"
-                onClick={handleInstallClick}
-              >
-                ඇප් එක දාගන්න · Install App
-              </button>
-              {hasApkDownload && (
-                <a
-                  href="./mahiyanganaya-bus-mobile.apk"
-                  download="mahiyanganaya-bus-mobile.apk"
-                  className="apk-download-btn"
-                >
-                  Direct APK Download ⬇️
-                </a>
-              )}
-              <button
-                type="button"
-                className="banner-close"
-                onClick={handleDismissBanner}
-                aria-label="Close install banner"
-                title="වසන්න / Close"
-              >
-                ✕
-              </button>
-            </div>
+        <aside className="install-banner" aria-label="Get the mobile app">
+          <div className="install-banner-inner">
+            <button
+              type="button"
+              className="get-app-sticky-btn"
+              onClick={() => setShowGetAppView(true)}
+            >
+              <span className="get-app-sticky-icon" aria-hidden="true">📱</span>
+              <span className="get-app-sticky-text">
+                <span className="get-app-text-si">ඇප් එක ලබාගන්න</span>
+                <span className="get-app-text-separator">·</span>
+                <span className="get-app-text-en">Get the App</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              className="banner-close"
+              onClick={handleDismissBanner}
+              aria-label="Close install prompt"
+              title="වසන්න / Close"
+            >
+              ✕
+            </button>
           </div>
-          {showInstructions && (
-            <div className="install-instructions">
-              <span>💡 බ්‍රව්සරයේ මෙනුව (<strong>⋮</strong> හෝ <strong>Share</strong>) ඔබා <strong>Add to Home screen</strong> හෝ <strong>Install App</strong> තෝරන්න.</span>
-              <span className="inst-en">Tap browser menu (<strong>⋮</strong> or <strong>Share</strong>) and select <strong>Add to Home screen</strong>.</span>
-            </div>
-          )}
         </aside>
       )}
     </div>
@@ -652,6 +624,205 @@ function SuggestionModal({
               </button>
             </div>
           </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface GetAppModalProps {
+  installPrompt: BeforeInstallPromptEvent | null;
+  onClose: () => void;
+  onInstalled: () => void;
+}
+
+function GetAppModal({ installPrompt, onClose, onInstalled }: GetAppModalProps) {
+  const [showInstructions, setShowInstructions] = useState(!installPrompt);
+  const [installedSuccess, setInstalledSuccess] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const origOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = origOverflow;
+    };
+  }, [onClose]);
+
+  const handlePwaInstall = async () => {
+    if (installPrompt) {
+      try {
+        await installPrompt.prompt();
+        const choice = await installPrompt.userChoice;
+        if (choice.outcome === 'accepted') {
+          setInstalledSuccess(true);
+          setTimeout(() => {
+            onInstalled();
+          }, 1500);
+        } else {
+          setShowInstructions(true);
+        }
+      } catch {
+        setShowInstructions(true);
+      }
+    } else {
+      setShowInstructions((prev) => !prev);
+    }
+  };
+
+  return (
+    <div className="get-app-view-overlay" role="dialog" aria-modal="true" aria-label="Get the App">
+      {/* Top Navigation Bar */}
+      <div className="get-app-topbar">
+        <button
+          type="button"
+          className="get-app-back-btn"
+          onClick={onClose}
+          aria-label="Back to timetable"
+        >
+          ← ආපසු · Back
+        </button>
+        <button
+          type="button"
+          className="get-app-close-icon-btn"
+          onClick={onClose}
+          aria-label="Close"
+          title="වසන්න / Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="get-app-content">
+        {/* Header Block */}
+        <div className="get-app-header">
+          <div className="get-app-icon-badge" aria-hidden="true">📱</div>
+          <h2 className="get-app-title">ඇප් එක ලබාගන්න · Get the App</h2>
+          <p className="get-app-subtitle">
+            ඔබගේ දුරකථනයට ගැළපෙන පහසුම ක්‍රමය තෝරන්න · Choose the best way to install on your phone
+          </p>
+        </div>
+
+        {installedSuccess ? (
+          <div className="get-app-success-card">
+            <span className="success-icon" aria-hidden="true">✓</span>
+            <div className="success-si">කෙටිමඟ සාර්ථකව එක් කෙරිණි!</div>
+            <div className="success-en">Shortcut successfully added to your home screen!</div>
+            <button
+              type="button"
+              className="get-app-btn pwa-btn"
+              onClick={onClose}
+              style={{ marginTop: '12px' }}
+            >
+              හරි · Done
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Option 1: Add to Home Screen (PWA) */}
+            <div className="get-app-card pwa-card">
+              <div className="card-tag blue-tag">ක්‍රමය 1 · Option 1 (iPhone & Android)</div>
+              <div className="card-header-group">
+                <h3 className="card-title-si">මුල් තිරයට එක් කරගන්න</h3>
+                <div className="card-title-en">Add to Home Screen (Recommended for all devices)</div>
+              </div>
+              <p className="card-desc">
+                බ්‍රවුසරය හරහා දුරකථනයේ මුල් තිරයට කෙටිමඟක් එක් කරගන්න. ක්ෂණිකව විවෘත වේ, මතකය වැය නොවේ.
+                <span className="card-desc-en">
+                  Add a quick shortcut to your phone's home screen. Opens instantly like an app with zero storage used.
+                </span>
+              </p>
+
+              <button
+                type="button"
+                className="get-app-btn pwa-btn"
+                onClick={handlePwaInstall}
+              >
+                <span className="btn-icon">⚡</span>
+                <span>මුල් තිරයට කෙටිමඟක් එක් කරන්න · Add Shortcut to Home Screen</span>
+              </button>
+
+              {/* Step-by-Step Manual Instructions */}
+              <div className="manual-steps-wrapper">
+                <button
+                  type="button"
+                  className="manual-steps-toggle"
+                  onClick={() => setShowInstructions((prev) => !prev)}
+                >
+                  {showInstructions ? '▴ උපදෙස් සඟවන්න · Hide Instructions' : '▾ අතින් එක් කරන ආකාරය බලන්න · How to Add Manually'}
+                </button>
+
+                {showInstructions && (
+                  <div className="manual-instructions-box">
+                    <div className="instruction-item">
+                      <div className="instruction-header">
+                        <span className="os-badge android-os">🤖 Android (Chrome)</span>
+                      </div>
+                      <div className="instruction-text-si">
+                        බ්‍රවුසරයේ ඉහළ දකුණු කෙළවරේ තිත් තුන (<strong>⋮</strong>) ඔබා <strong>Add to Home screen</strong> (මුල් තිරයට එක් කරන්න) හෝ <strong>Install App</strong> තෝරන්න.
+                      </div>
+                      <div className="instruction-text-en">
+                        Tap the 3 dots (<strong>⋮</strong>) in the top-right corner of Chrome, then select <strong>Add to Home screen</strong>.
+                      </div>
+                    </div>
+
+                    <div className="instruction-item">
+                      <div className="instruction-header">
+                        <span className="os-badge ios-os">🍎 iPhone / iPad (Safari)</span>
+                      </div>
+                      <div className="instruction-text-si">
+                        පහළ ඇති Share (බෙදාගැනීමේ) අයිකනය (<strong>⍗</strong>) ඔබා <strong>Add to Home Screen</strong> (මුල් තිරයට එක් කරන්න) තෝරන්න.
+                      </div>
+                      <div className="instruction-text-en">
+                        Tap the Share icon (<strong>⍗</strong>) at the bottom of Safari, then select <strong>Add to Home Screen</strong>.
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Option 2: Direct Android APK */}
+            <div className="get-app-card apk-card">
+              <div className="card-tag amber-tag">ක්‍රමය 2 · Option 2 (Android Devices Only)</div>
+              <div className="card-header-group">
+                <h3 className="card-title-si">Android ඇප් එක (APK) බාගන්න</h3>
+                <div className="card-title-en">Direct Android App Download</div>
+              </div>
+              <p className="card-desc">
+                සෘජුවම Android දුරකථනයට ස්ථාපනය කිරීමට (.apk ගොනුව). අන්තර්ජාලය නොමැතිව වුවද භාවිතා කළ හැක.
+                <span className="card-desc-en">
+                  Direct installation package (.apk) for Android devices. Works offline anytime.
+                </span>
+              </p>
+
+              <a
+                href="./mahiyanganaya-bus-mobile.apk"
+                download="mahiyanganaya-bus-mobile.apk"
+                className="get-app-btn apk-btn"
+              >
+                <span className="btn-icon">⬇️</span>
+                <span>Android දුරකථන සඳහා APK බාගන්න · Download APK for Android</span>
+              </a>
+
+              <div className="get-app-warning-note">
+                <span className="warning-icon" aria-hidden="true">⚠️</span>
+                <div className="warning-text">
+                  <div className="warning-si">
+                    ස්ථාපනය කිරීමේදී <strong>"Install unknown apps"</strong> හෝ <strong>"Download anyway"</strong> විමසුවහොත් Allow/සක්‍රීය කරන්න.
+                  </div>
+                  <div className="warning-en">
+                    If your browser asks, tap <strong>"Download anyway"</strong> and enable <strong>"Install unknown apps"</strong> to complete setup.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

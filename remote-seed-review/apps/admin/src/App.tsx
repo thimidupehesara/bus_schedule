@@ -523,10 +523,12 @@ export function App() {
   });
   const [userFormSaving, setUserFormSaving] = useState(false);
   const [userFormError, setUserFormError] = useState<string | null>(null);
+  const [userRoleUpdating, setUserRoleUpdating] = useState<number | null>(null);
 
   // Reports & Passenger Feedback State
   const [qrStats, setQrStats] = useState<QrStat[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [reportsError, setReportsError] = useState<string | null>(null);
 
   // CSV / Excel Timetable Import State
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -762,14 +764,21 @@ export function App() {
   }, []);
 
   const loadReportsData = useCallback(async () => {
+    setReportsError(null);
     try {
       const [qrRes, suggRes] = await Promise.all([
         apiFetch('/api/admin/qr-stats'),
         apiFetch('/api/admin/suggestions'),
       ]);
+      if (!qrRes.ok && !suggRes.ok) {
+        setReportsError('Failed to load analytics and passenger reports from server.');
+        return;
+      }
       if (qrRes.ok) {
         const data = (await qrRes.json()) as { stats: QrStat[] };
         setQrStats(data.stats || []);
+      } else {
+        setReportsError('Failed to load QR scan analytics.');
       }
       if (suggRes.ok) {
         const data = (await suggRes.json()) as { suggestions: Suggestion[] };
@@ -777,6 +786,7 @@ export function App() {
       }
     } catch (err) {
       console.warn('Failed to load reports data:', err);
+      setReportsError(err instanceof Error ? err.message : 'Network error loading reports');
     }
   }, []);
 
@@ -815,6 +825,21 @@ export function App() {
       void loadFrequentServices();
     }
   }, [activeView, currentUser, loadSchedule, loadPublishPreview, loadStaffUsers, loadReportsData, loadTvHold, loadFrequentServices]);
+
+  // Global Live Sync: Poll TV presentation hold mode every 5 seconds & on window focus
+  useEffect(() => {
+    const timer = setInterval(() => {
+      void loadTvHold();
+    }, 5000);
+    const handleFocus = () => {
+      void loadTvHold();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [loadTvHold]);
 
   // ---------------------------------------------------------------------------
   // Action Handlers
@@ -1458,6 +1483,28 @@ export function App() {
       setUserFormError(err instanceof Error ? err.message : 'Network error.');
     } finally {
       setUserFormSaving(false);
+    }
+  }
+
+  // Staff Role Update Action
+  async function handleUpdateUserRole(userId: number, displayName: string, newRole: 'ADMIN' | 'EDITOR') {
+    setUserRoleUpdating(userId);
+    try {
+      const res = await apiFetch(`/api/staff/${userId}/role`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role: newRole }),
+      });
+      const data = await safeJson<{ ok?: boolean; error?: { message?: string } }>(res);
+      if (!res.ok) {
+        showToast(`⚠️ ${data?.error?.message || 'Failed to update user role'}`);
+      } else {
+        showToast(`Updated ${displayName}'s role to ${newRole}`);
+        void loadStaffUsers();
+      }
+    } catch (err) {
+      showToast(`⚠️ Error: ${err instanceof Error ? err.message : 'Failed to update role'}`);
+    } finally {
+      setUserRoleUpdating(null);
     }
   }
 
@@ -2499,7 +2546,29 @@ export function App() {
               </nav>
             </div>
 
-            <div className="border-t border-slate-800 pt-4 space-y-2">
+            <div className="border-t border-slate-800 pt-4 space-y-3">
+              {/* Android Admin APK Download Card */}
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-2">
+                <div className="flex items-center gap-2 text-white font-bold text-xs">
+                  <span className="text-sm">📱</span>
+                  <span>Android Admin App</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-snug">
+                  Install the dedicated Android Admin APK for timetable management and live TV controls on phone.
+                </p>
+                <a
+                  href="/downloads/mahiyanganaya-bus-admin.apk"
+                  download="mahiyanganaya-bus-admin.apk"
+                  className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-95"
+                >
+                  <span>⬇️</span>
+                  <span>Download Admin APK</span>
+                </a>
+                <div className="text-[10px] text-slate-500 text-center">
+                  Direct APK (Android 8.0+) · No store login
+                </div>
+              </div>
+
               <a
                 href="/tv/"
                 target="_blank"
@@ -4173,7 +4242,7 @@ export function App() {
            =================================================================== */}
         {activeView === 'users' && currentUser?.role === 'ADMIN' && (
           <section className="space-y-6 w-full animate-fade-in">
-            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex items-center justify-between gap-4">
+            <div className="p-4 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <span>👥 Staff & Users Management</span>
@@ -4189,7 +4258,7 @@ export function App() {
                   setUserFormError(null);
                   setIsAddUserModalOpen(true);
                 }}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95 self-start sm:self-auto"
               >
                 <span>+</span>
                 <span>Add Staff Member</span>
@@ -4197,8 +4266,8 @@ export function App() {
             </div>
 
             {/* Users Table */}
-            <div className="rounded-2xl bg-slate-900 border border-slate-800 shadow-xl overflow-hidden">
-              <table className="w-full text-left text-xs border-collapse">
+            <div className="rounded-2xl bg-slate-900 border border-slate-800 shadow-xl overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 text-[11px] uppercase tracking-wider font-semibold">
                     <th className="py-3 px-4">Staff Member</th>
@@ -4232,14 +4301,33 @@ export function App() {
                             <div className="text-[11px] text-slate-400 font-mono">{u.login_id}</div>
                           </td>
                           <td className="py-3.5 px-3">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold border ${u.role === 'ADMIN'
-                                  ? 'bg-purple-950/80 text-purple-300 border-purple-800/60'
-                                  : 'bg-blue-950/80 text-blue-300 border-blue-800/60'
-                                }`}
-                            >
-                              {u.role}
-                            </span>
+                            {isSelf ? (
+                              <span
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold border ${u.role === 'ADMIN'
+                                    ? 'bg-purple-950/80 text-purple-300 border-purple-800/60'
+                                    : 'bg-blue-950/80 text-blue-300 border-blue-800/60'
+                                  }`}
+                              >
+                                {u.role}
+                              </span>
+                            ) : (
+                              <select
+                                value={u.role}
+                                disabled={userRoleUpdating === u.id}
+                                onChange={(e) => {
+                                  const newRole = e.target.value as 'ADMIN' | 'EDITOR';
+                                  void handleUpdateUserRole(u.id, u.display_name, newRole);
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-bold border cursor-pointer transition focus:outline-none ${u.role === 'ADMIN'
+                                    ? 'bg-purple-950 text-purple-200 border-purple-700 hover:border-purple-500'
+                                    : 'bg-blue-950 text-blue-200 border-blue-700 hover:border-blue-500'
+                                  }`}
+                                title={`Change role for ${u.display_name}`}
+                              >
+                                <option value="ADMIN" className="bg-slate-900 text-purple-300 font-bold">ADMIN</option>
+                                <option value="EDITOR" className="bg-slate-900 text-blue-300 font-bold">EDITOR</option>
+                              </select>
+                            )}
                           </td>
                           <td className="py-3.5 px-3">
                             <span
@@ -4279,6 +4367,32 @@ export function App() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Android Admin App Banner Card */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <span className="text-3xl">📱</span>
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>Android Admin App (APK)</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                      Standalone APK
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Install on Android phones for quick mobile access to timetable editing, live TV controls, and analytics.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="/downloads/mahiyanganaya-bus-admin.apk"
+                download="mahiyanganaya-bus-admin.apk"
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition active:scale-95 whitespace-nowrap self-start sm:self-auto"
+              >
+                <span>⬇️</span>
+                <span>Download Admin APK</span>
+              </a>
             </div>
           </section>
         )}
@@ -4477,6 +4591,26 @@ export function App() {
                 🔄 Refresh Reports
               </button>
             </div>
+
+            {/* Error Banner when reports fail to load */}
+            {reportsError && (
+              <div className="p-4 rounded-2xl bg-rose-950/70 border border-rose-800 text-rose-200 flex flex-wrap items-center justify-between gap-3 text-xs shadow-lg">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-lg">⚠️</span>
+                  <div>
+                    <div className="font-bold">Error Loading Analytics & Reports</div>
+                    <div className="text-[11px] text-rose-300">{reportsError}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={loadReportsData}
+                  className="px-3 py-1.5 bg-rose-900 hover:bg-rose-800 text-white rounded-xl font-bold transition shadow"
+                >
+                  Retry Loading
+                </button>
+              </div>
+            )}
 
             {/* QR Scan Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

