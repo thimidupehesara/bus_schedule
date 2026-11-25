@@ -449,6 +449,12 @@ export function App() {
   const [settingsSuccessMsg, setSettingsSuccessMsg] = useState<string | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
 
+  // MTBA Standalone PWA & APK State
+  const [hasMtbaApk, setHasMtbaApk] = useState(false);
+  const [adminInstallPrompt, setAdminInstallPrompt] = useState<any>(null);
+  const [pwaInstalled, setPwaInstalled] = useState(false);
+  const [showPwaInstructions, setShowPwaInstructions] = useState(false);
+
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [dayFilter, setDayFilter] = useState<string>('ALL');
@@ -840,6 +846,56 @@ export function App() {
       window.removeEventListener('focus', handleFocus);
     };
   }, [loadTvHold]);
+
+  // Check for uploaded MTBA standalone APK and capture PWA beforeinstallprompt
+  useEffect(() => {
+    async function checkMtbaApk() {
+      try {
+        const res = await fetch('/downloads/mtba-admin.apk', { method: 'HEAD' });
+        if (res.ok) {
+          setHasMtbaApk(true);
+        }
+      } catch {
+        // Not uploaded yet
+      }
+    }
+    void checkMtbaApk();
+
+    const handlePrompt = (e: Event) => {
+      e.preventDefault();
+      setAdminInstallPrompt(e);
+    };
+    const handleAppInstalled = () => {
+      setPwaInstalled(true);
+      setAdminInstallPrompt(null);
+    };
+    window.addEventListener('beforeinstallprompt', handlePrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handlePrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleAdminPwaInstall = async () => {
+    if (adminInstallPrompt) {
+      try {
+        await adminInstallPrompt.prompt();
+        const choice = await adminInstallPrompt.userChoice;
+        if (choice.outcome === 'accepted') {
+          setPwaInstalled(true);
+          setAdminInstallPrompt(null);
+        } else {
+          setShowPwaInstructions(true);
+        }
+      } catch {
+        setShowPwaInstructions(true);
+      }
+    } else {
+      setShowPwaInstructions((prev) => !prev);
+    }
+  };
 
   // ---------------------------------------------------------------------------
   // Action Handlers
@@ -2547,25 +2603,49 @@ export function App() {
             </div>
 
             <div className="border-t border-slate-800 pt-4 space-y-3">
-              {/* Android Admin APK Download Card */}
-              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-2">
-                <div className="flex items-center gap-2 text-white font-bold text-xs">
-                  <span className="text-sm">📱</span>
-                  <span>Android Admin App</span>
+              {/* MTBA Admin App Card */}
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-amber-600/40 space-y-2">
+                <div className="flex items-center justify-between text-white font-bold text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">🛡️</span>
+                    <span>MTBA Admin App</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700">
+                    Standalone
+                  </span>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-snug">
-                  Install the dedicated Android Admin APK for timetable management and live TV controls on phone.
+                  Independent administrative portal for timetable management, staff roles, and TV controls.
                 </p>
-                <a
-                  href="/downloads/mahiyanganaya-bus-admin.apk"
-                  download="mahiyanganaya-bus-admin.apk"
-                  className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-95"
-                >
-                  <span>⬇️</span>
-                  <span>Download Admin APK</span>
-                </a>
+
+                {hasMtbaApk ? (
+                  <a
+                    href="/downloads/mtba-admin.apk"
+                    download="mtba-admin.apk"
+                    className="w-full py-2 px-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-95"
+                  >
+                    <span>⬇️</span>
+                    <span>Download MTBA Admin APK</span>
+                  </a>
+                ) : (
+                  <div className="space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={handleAdminPwaInstall}
+                      className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-95"
+                    >
+                      <span>⚡</span>
+                      <span>{pwaInstalled ? 'MTBA App Installed ✓' : 'Install MTBA App (PWA)'}</span>
+                    </button>
+                    {showPwaInstructions && (
+                      <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-[10px] text-amber-200/90 leading-tight">
+                        📱 බ්‍රවුසරයේ තිත් තුන (⋮) හෝ Share ඔබා <strong>&quot;Add to Home screen&quot;</strong> හෝ <strong>&quot;Install app&quot;</strong> තෝරන්න. (PWABuilder හරහා APK සාදා <code>/downloads/mtba-admin.apk</code> වෙත එක් කළ හැක.)
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="text-[10px] text-slate-500 text-center">
-                  Direct APK (Android 8.0+) · No store login
+                  PWABuilder Ready · Scoped to /admin/
                 </div>
               </div>
 
@@ -4369,30 +4449,47 @@ export function App() {
               </table>
             </div>
 
-            {/* Android Admin App Banner Card */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5">
-                <span className="text-3xl">📱</span>
+            {/* Standalone MTBA Admin Mobile App Section */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-amber-700/40 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <span className="text-3xl">🛡️</span>
                 <div>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <span>Android Admin App (APK)</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-                      Standalone APK
+                    <span>MTBA — Admin Portal App</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700">
+                      Independent PWA & APK Slot
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Install on Android phones for quick mobile access to timetable editing, live TV controls, and analytics.
+                  <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+                    Dedicated administrative portal for staff members with zero conflict with the commuter MTB timetable app. Scoped strictly to <code>/admin/</code> with its own manifest and service worker.
                   </p>
                 </div>
               </div>
-              <a
-                href="/downloads/mahiyanganaya-bus-admin.apk"
-                download="mahiyanganaya-bus-admin.apk"
-                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition active:scale-95 whitespace-nowrap self-start sm:self-auto"
-              >
-                <span>⬇️</span>
-                <span>Download Admin APK</span>
-              </a>
+
+              {hasMtbaApk ? (
+                <a
+                  href="/downloads/mtba-admin.apk"
+                  download="mtba-admin.apk"
+                  className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition active:scale-95 whitespace-nowrap self-start sm:self-auto"
+                >
+                  <span>⬇️</span>
+                  <span>Download MTBA Admin APK</span>
+                </a>
+              ) : (
+                <div className="flex flex-col sm:items-end gap-1.5 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={handleAdminPwaInstall}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition active:scale-95 whitespace-nowrap"
+                  >
+                    <span>⚡</span>
+                    <span>{pwaInstalled ? 'MTBA Installed ✓' : 'Install MTBA App (PWA)'}</span>
+                  </button>
+                  <span className="text-[10px] text-slate-500">
+                    Direct APK: Drop <code>mtba-admin.apk</code> into <code>/downloads/</code>
+                  </span>
+                </div>
+              )}
             </div>
           </section>
         )}

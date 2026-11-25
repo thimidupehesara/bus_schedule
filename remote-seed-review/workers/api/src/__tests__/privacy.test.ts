@@ -30,7 +30,7 @@ it('serves public Privacy Policy page at /privacy/ as well', async () => {
   expect(response.headers.get('Content-Type')).toBe('text/html; charset=utf-8');
 });
 
-it('serves admin APK download at /downloads/mahiyanganaya-bus-admin.apk with proper headers', async () => {
+it('serves MTBA admin APK download at /downloads/mtba-admin.apk with proper headers', async () => {
   const env = {
     ASSETS: {
       fetch: async () =>
@@ -41,10 +41,49 @@ it('serves admin APK download at /downloads/mahiyanganaya-bus-admin.apk with pro
     } as unknown as Fetcher,
   } as Env;
   const response = await worker.fetch(
-    new Request('https://example.test/downloads/mahiyanganaya-bus-admin.apk'),
+    new Request('https://example.test/downloads/mtba-admin.apk'),
     env,
   );
   expect(response.status).toBe(200);
   expect(response.headers.get('Content-Type')).toBe('application/vnd.android.package-archive');
-  expect(response.headers.get('Content-Disposition')).toContain('mahiyanganaya-bus-admin.apk');
+  expect(response.headers.get('Content-Disposition')).toContain('mtba-admin.apk');
+});
+
+it('serves admin manifest and sw.js with proper content-type and no-cache headers', async () => {
+  const env = {
+    ASSETS: {
+      fetch: async (req: Request) => {
+        const url = new URL(req.url);
+        if (url.pathname === '/admin/manifest.webmanifest') {
+          return new Response(JSON.stringify({ short_name: 'MTBA' }), {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+          });
+        }
+        if (url.pathname === '/admin/sw.js') {
+          return new Response('console.log("sw")', {
+            status: 200,
+            headers: { 'Content-Type': 'text/plain' },
+          });
+        }
+        return new Response('Not found', { status: 404 });
+      },
+    } as unknown as Fetcher,
+  } as Env;
+
+  const manifestRes = await worker.fetch(
+    new Request('https://example.test/admin/manifest.webmanifest'),
+    env,
+  );
+  expect(manifestRes.status).toBe(200);
+  expect(manifestRes.headers.get('Content-Type')).toBe('application/manifest+json');
+  expect(manifestRes.headers.get('Cache-Control')).toBe('no-cache');
+
+  const swRes = await worker.fetch(
+    new Request('https://example.test/admin/sw.js'),
+    env,
+  );
+  expect(swRes.status).toBe(200);
+  expect(swRes.headers.get('Content-Type')).toBe('application/javascript; charset=utf-8');
+  expect(swRes.headers.get('Cache-Control')).toBe('no-cache');
 });
